@@ -607,7 +607,7 @@
             </div>
         </section>
 
-        <!-- КОНТРАКТ -->
+        <!-- КОНТРАКТ (Возвращен первоначальный вид) -->
         <section id="view-contract" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="glass-panel rounded-2xl p-5 sm:p-8 shadow-2xl space-y-6 text-sm text-zinc-300 leading-relaxed">
                 <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
@@ -728,12 +728,12 @@
         </section>
     </main>
 
-    <!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ДЕТАЛЕЙ ЗАЯВКИ -->
+    <!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ПОДРОБНОСТЕЙ ЗАЯВКИ -->
     <div id="app-details-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm">
         <div class="glass-panel border border-zinc-700 rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center pb-2 border-b border-zinc-800">
                 <h3 class="font-display font-bold text-sm sm:text-base text-white flex items-center gap-2">
-                    <i data-lucide="file-text" class="w-4 h-4 text-amber-400"></i> Детали заявки кандидата
+                    <i data-lucide="file-text" class="w-4 h-4 text-amber-400"></i> Полная анкета кандидата
                 </h3>
                 <button onclick="closeAppDetailsModal()" class="text-zinc-400 hover:text-white cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
@@ -1214,7 +1214,7 @@
             }
         };
 
-        // Функции для модального окна просмотра подробностей заявки в админке
+        // Функции модального окна просмотра анкеты
         window.openAppDetailsModal = function(appIdStr) {
             const app = allApplications.find(a => a.id === appIdStr);
             if(!app) { showToast("Заявка не найдена"); return; }
@@ -1231,19 +1231,19 @@
             }
 
             content.innerHTML = `
-                <div class="space-y-2">
-                    <p><strong>Имя кандидата:</strong> ${app.name}</p>
+                <div class="space-y-2 p-3 bg-zinc-900/60 rounded-xl border border-zinc-800">
+                    <p><strong>Имя:</strong> ${app.name}</p>
                     <p><strong>Возраст:</strong> ${app.age}</p>
                     <p><strong>Telegram:</strong> ${app.telegram}</p>
                     <p><strong>Часовой пояс:</strong> ${app.timezone}</p>
                     <p><strong>Мотивация:</strong> ${app.why}</p>
                     <p><strong>Время в день:</strong> ${app.time}</p>
                     <p><strong>Опыт:</strong> ${app.experience}</p>
-                    <p><strong>Email аккаунта:</strong> ${app.email}</p>
-                    <p><strong>Статус заявки:</strong> <span class="text-amber-400 font-bold">${app.status}</span></p>
+                    <p><strong>Email:</strong> ${app.email}</p>
+                    <p><strong>Статус:</strong> <span class="text-amber-400 font-bold">${app.status}</span></p>
                 </div>
-                <div class="pt-2 border-t border-zinc-800 space-y-2">
-                    <h4 class="font-bold text-white">Ответы на тест:</h4>
+                <div class="pt-2 space-y-2">
+                    <h4 class="font-bold text-white text-xs uppercase tracking-wider">Ответы на тест:</h4>
                     ${testHtml || '<p class="text-zinc-500">Нет ответов на тест</p>'}
                 </div>
             `;
@@ -1438,7 +1438,7 @@
                     </div>
                     <p class="text-zinc-300"><strong>Мотивация:</strong> ${a.why}</p>
                     <div class="flex gap-2">
-                        <button onclick="openAppDetailsModal('${a.id}')" class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-semibold rounded-lg cursor-pointer">👁️ Подробнее</button>
+                        <button onclick="openAppDetailsModal('${a.id}')" class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-semibold rounded-lg cursor-pointer">👁️ Подробнее (анкета)</button>
                     </div>
                     <div class="flex gap-2">
                         <input type="text" id="admin-resp-input-${a.id}" value="${a.adminResponse||''}" placeholder="Комментарий..." class="vel-input flex-1 px-2.5 py-1.5 rounded-lg text-xs">
