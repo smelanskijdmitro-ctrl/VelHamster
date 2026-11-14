@@ -186,7 +186,7 @@
                 </div>
             </div>
 
-            <!-- ВКЛАДКИ ПЕРЕКЛЮЧЕНИЯ КАТЕГОРИЙ (БЕЗ ВКЛАДКИ "ВСЕ") -->
+            <!-- ВКЛАДКИ ПЕРЕКЛЮЧЕНИЯ КАТЕГОРИЙ -->
             <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
                 <span class="text-xs text-zinc-400 font-semibold shrink-0">Категории:</span>
                 <button onclick="filterFeed('Вакансии')" id="cat-btn-Вакансии" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-500 text-zinc-950 transition-all cursor-pointer shadow-md">🔥 Вакансии</button>
@@ -325,7 +325,7 @@
             </div>
         </section>
 
-        <!-- ПРОФИЛЬ (МОЙ ПРОФИЛЬ) -->
+        <!-- ПРОФИЛЬ -->
         <section id="view-profile" class="tab-content hidden max-w-xl mx-auto space-y-6">
             <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 border border-amber-500/25">
                 <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
@@ -373,7 +373,7 @@
             </div>
         </section>
 
-        <!-- ПРОСМОТР ЧУЖОГО ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ -->
+        <!-- ПРОСМОТР ЧУЖОГО ПРОФИЛЯ -->
         <section id="view-user-profile" class="tab-content hidden max-w-xl mx-auto space-y-6">
             <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 border border-amber-500/25">
                 <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
@@ -403,7 +403,7 @@
                 </div>
 
                 <div class="space-y-2">
-                    <h4 class="font-bold text-xs text-zinc-400 uppercase tracking-wider">Активность пользователя (посты, тикеты)</h4>
+                    <h4 class="font-bold text-xs text-zinc-400 uppercase tracking-wider">Активность пользователя</h4>
                     <div id="view-profile-activity" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
                 </div>
             </div>
@@ -602,7 +602,7 @@
             </div>
         </section>
 
-        <!-- КОНТРАКТ (ПОЛНЫЙ) -->
+        <!-- КОНТРАКТ (ВАШ ТОЧНЫЙ ТЕКСТ) -->
         <section id="view-contract" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 text-sm text-zinc-300 leading-relaxed">
                 <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
@@ -619,6 +619,10 @@
                 </div>
 
                 <div class="space-y-6 text-xs sm:text-sm">
+                    <p class="text-zinc-400 italic">
+                        Документ определяет правила взаимодействия между командой проекта VelHamster и назначенным администратором (модератором). Начиная работу, администратор подтверждает своё согласие с данными условиями.
+                    </p>
+
                     <div class="space-y-2">
                         <h3 class="font-bold text-amber-400">1. Общие положения</h3>
                         <p>1.1. Администратор является лицом проекта и представляет его интересы перед игровым комьюнити.</p>
@@ -630,20 +634,32 @@
                         <p>2.1. Контролировать соблюдение правил во всех официальных чатах и каналах VelHamster.</p>
                         <p>2.2. Пресекать спам, рекламу, оскорбления, мошенничество и разжигание конфликтов.</p>
                         <p>2.3. Оперативно отвечать на вопросы игроков и помогать им разобраться в механиках игры.</p>
+                        <p>2.4. Передавать важные баги, жалобы или идеи от игроков старшей команде (разработчикам/админам).</p>
                     </div>
 
                     <div class="p-4 rounded-xl bg-red-500/10 border border-red-500/25 space-y-2">
                         <h3 class="font-bold text-red-400">3. Категорически запрещено (Штраф / Снятие с должности)</h3>
-                        <p>3.1. Оскорблять участников комьюнити или проявлять токсичность.</p>
-                        <p>3.2. Распространять непроверенную информацию или фейки.</p>
-                        <p>3.3. Вымогать у игроков деньги, пароли или сид-фразы.</p>
-                        <p>3.4. Использовать админ-права в личных целях (разбан друзей по блату).</p>
+                        <p>3.1. Оскорблять участников комьюнити или проявлять токсичность (админ всегда держит лицо).</p>
+                        <p>3.2. Распространять непроверенную информацию, слухи или фейки о листинге, токенах и обновлениях.</p>
+                        <p>3.3. Вымогать у игроков деньги, пароли, сид-фразы или данные аккаунтов (мгновенный перманентный бан и исключение из команды).</p>
+                        <p>3.4. Использовать админ-права в личных целях (разбан друзей по блату, злоупотребление властью).</p>
                     </div>
 
                     <div class="space-y-2">
                         <h3 class="font-bold text-amber-400">4. Условия работы и вознаграждение</h3>
-                        <p>4.1. Формат работы: на добровольной основе с возможностью получения внутриигровых бонусов.</p>
-                        <p>4.2. График: суммарный актив в сети должен составлять не менее 2–4 часов в день.</p>
+                        <p>4.1. Формат работы: на добровольной основе (волонтёрство) с возможностью получения внутриигровых бонусов и наград по мере развития проекта.</p>
+                        <p>4.2. График: согласовывается индивидуально, но суммарный актив в сети должен составлять не менее 2–4 часов в день.</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="font-bold text-amber-400">5. Конфиденциальность</h3>
+                        <p>5.1. Вся информация из закрытых чатов команды (планы, даты релизов, код, экономика) является конфиденциальной. Слив инфы наружу карается снятием с поста.</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="font-bold text-amber-400">6. Расторжение контракта</h3>
+                        <p>6.1. Администратор может покинуть проект в любой момент, предупредив старших за 2–3 дня и передав дела.</p>
+                        <p>6.2. Проект оставляет за собой право снять администратора с должности в любой момент без объяснения причин в случае грубых нарушений правил.</p>
                     </div>
                 </div>
             </div>
@@ -800,7 +816,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-amber-300 font-semibold mb-1">5. Насколько важна эта функция? *</label>
-                        <select id="idea-q6" class="vel-input w-full px-3 py-2.5 rounded-xl">
+                        <select id="idea-q6" class="vel-input w-full px-3.5 py-2.5 rounded-xl">
                             <option value="Обязательно добавить">🔥 Обязательно добавить</option>
                             <option value="Было бы неплохо">👍 Было бы неплохо</option>
                             <option value="Просто идея">💭 Просто идея</option>
@@ -808,7 +824,7 @@
                     </div>
                     <div>
                         <label class="block text-amber-300 font-semibold mb-1">6. Готовы ли вы помочь с реализацией? *</label>
-                        <select id="idea-q8" class="vel-input w-full px-3 py-2.5 rounded-xl">
+                        <select id="idea-q8" class="vel-input w-full px-3.5 py-2.5 rounded-xl">
                             <option value="Да">✅ Да</option>
                             <option value="Возможно">🤔 Возможно</option>
                             <option value="Нет">❌ Нет</option>
@@ -1023,7 +1039,6 @@
             const badgeC = document.getElementById('view-profile-role-badge');
             badgeC.innerHTML = getRoleBadge(u.role);
 
-            // Показываем активность пользователя
             const actC = document.getElementById('view-profile-activity');
             const userPosts = allAnnouncements.filter(p => p.userId === userId);
             const userApps = allApplications.filter(a => a.userId === userId);
@@ -1277,7 +1292,6 @@
             } catch(e) {}
             updateApplicationUIState();
 
-            // Слушаем всех пользователей для актуальных ролей
             onSnapshot(collection(db, appId + '_users'), (snap) => {
                 allUsersMap = {};
                 snap.forEach(d => { allUsersMap[d.id] = d.data(); });
@@ -1355,7 +1369,6 @@
             const list = document.getElementById('announcements-list');
             if(!list) return;
 
-            // Фильтруем посты строго по выбранной категории
             let filtered = allAnnouncements.filter(p => (p.category || 'Вакансии') === currentFeedCategory);
 
             if(filtered.length === 0) { 
@@ -1363,11 +1376,9 @@
                 return; 
             }
 
-            // Закрепленные посты выводим сверху ТОЛЬКО в этой категории
             filtered.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
 
             list.innerHTML = filtered.map(p => {
-                // Берем актуальную роль автора из базы пользователей (динамически!)
                 const authorData = (p.userId && allUsersMap[p.userId]) ? allUsersMap[p.userId] : { role: 'player', nickname: p.authorName };
                 const roleBadge = getRoleBadge(authorData.role);
                 const authorName = authorData.nickname || p.authorName || 'Администратор';
