@@ -164,7 +164,7 @@
                         Форум проекта <span class="gold-gradient-text">VelHamster</span>!
                     </h1>
                     <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-                        Главные новости игры, патч-ноуты обновлений, свод правил, набор в команду, форум жалоб и предложений идей.
+                        Главные новости игры, патч-ноуты обновлений, свод правил чата и игры, набор в команду, форум жалоб и предложений идей.
                     </p>
                     <div class="pt-2 flex flex-wrap gap-2.5">
                         <button onclick="switchTab('releases')" class="gold-btn px-4 py-2.5 rounded-xl font-bold text-zinc-950 text-xs flex items-center gap-2 cursor-pointer">
@@ -174,7 +174,7 @@
                             <i data-lucide="user-plus" class="w-4 h-4"></i> Набор в Администрацию <span id="feed-apply-status-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
                         </button>
                         <button onclick="switchTab('rules')" class="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-xs flex items-center gap-2 cursor-pointer border border-zinc-700">
-                            <i data-lucide="book-open" class="w-4 h-4"></i> Правила
+                            <i data-lucide="book-open" class="w-4 h-4"></i> Правила чата и игры
                         </button>
                         <button onclick="switchTab('complaints')" class="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-red-300 font-semibold text-xs flex items-center gap-2 cursor-pointer border border-red-500/30">
                             <i data-lucide="shield-alert" class="w-4 h-4"></i> Жалобы
@@ -222,7 +222,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                         <div class="p-3.5 bg-zinc-900/90 rounded-xl border border-zinc-800 space-y-1">
                             <h4 class="font-bold text-amber-400 text-xs flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Основные задачи:</h4>
-                            <p class="text-[11px] text-zinc-400 leading-normal">Контроль порядка в чатах форума, помощь новичкам в освоении механик, пресечение спама и рекламы, оперативная передача багов разработчикам.</p>
+                            <p class="text-[11px] text-zinc-400 leading-normal">Контроль порядка в игровом чате, помощь новичкам в освоении механик, пресечение спама и рекламы, оперативная передача багов разработчикам.</p>
                         </div>
                         <div class="p-3.5 bg-zinc-900/90 rounded-xl border border-zinc-800 space-y-1">
                             <h4 class="font-bold text-amber-400 text-xs flex items-center gap-1.5"><i data-lucide="star" class="w-4 h-4"></i> Что нужно, чтобы попасть:</h4>
@@ -289,7 +289,7 @@
             </div>
         </section>
 
-        <!-- РАЗДЕЛ: ПРАВИЛА ПРОЕКТА -->
+        <!-- РАЗДЕЛ: ПРАВИЛА ЧАТА И ИГРЫ -->
         <section id="view-rules" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 text-sm text-zinc-300 leading-relaxed">
                 <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
@@ -298,28 +298,44 @@
                             <i data-lucide="book-open" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h2 class="font-display font-bold text-lg text-white">📖 Правила игрового сообщества VelHamster</h2>
-                            <p class="text-xs text-zinc-400">Обязательны для соблюдения всеми участниками форума</p>
+                            <h2 class="font-display font-bold text-lg text-white">📖 Правила игрового чата проекта VelHamster</h2>
+                            <p class="text-xs text-zinc-400">Обязательные нормы поведения и система наказаний для всех игроков</p>
                         </div>
                     </div>
                     <button onclick="switchTab('feed')" class="px-3 py-1.5 bg-zinc-800 rounded-xl text-xs text-zinc-300 cursor-pointer">← На главную</button>
                 </div>
 
-                <div class="space-y-5 text-xs sm:text-sm">
-                    <div class="space-y-1.5">
-                        <h3 class="font-bold text-amber-400">1. Общение на форуме</h3>
-                        <p>1.1. Уважайте собеседников. Запрещены любые оскорбления, токсичность, угрозы и разжигание конфликтов.</p>
-                        <p>1.2. Запрещен чрезмерный капс, флуд, спам и отправка однотипных смайликов/стикеров в темах.</p>
+                <div class="space-y-6 text-xs sm:text-sm">
+                    <div class="space-y-3">
+                        <h3 class="font-bold text-amber-400 text-base">1. Правила чата и система наказаний</h3>
+                        
+                        <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1">
+                            <p class="font-semibold text-white">1.1. Нецензурные слова и легкий мат</p>
+                            <p class="text-zinc-400 text-[11px]">Написал какое-то поганое слово или нецензурное выражение (впервые) — <strong class="text-amber-300">Предупреждение</strong>. При постоянном нарушении — <strong class="text-amber-300">Мут (от 1 часа до 3 дней)</strong>.</p>
+                        </div>
+
+                        <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1">
+                            <p class="font-semibold text-white">1.2. Спам и флуд</p>
+                            <p class="text-zinc-400 text-[11px]">Проспамил сообщение (например, отправил одинаковый текст 2 раза и более подряд) — <strong class="text-amber-300">Предупреждение</strong>. При постоянном спаме — <strong class="text-amber-300">Мут (от 1 часа до 1 дня)</strong>.</p>
+                        </div>
+
+                        <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1">
+                            <p class="font-semibold text-white">1.3. Оскорбления игроков</p>
+                            <p class="text-zinc-400 text-[11px]">Обзывает кого-то или сказал в чей-то адрес поганое слово — <strong class="text-amber-300">Предупреждение</strong>. Если игрок делает это постоянно — <strong class="text-amber-300">Мут (на 1–3 дня)</strong>.</p>
+                        </div>
+
+                        <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1">
+                            <p class="font-semibold text-white">1.4. Злостное нарушение порядка</p>
+                            <p class="text-zinc-400 text-[11px]">Постоянно матерится, обзывает участников или токсичит несмотря на предупреждения администраторов — <strong class="text-amber-300">Мут (на 1–3 дня или длительная блокировка)</strong>.</p>
+                        </div>
                     </div>
-                    <div class="space-y-1.5">
-                        <h3 class="font-bold text-amber-400">2. Реклама и мошенничество</h3>
-                        <p>2.1. Строго запрещена любая сторонняя реклама, реферальные ссылки, продажа/покупка аккаунтов и внутриигровых ценностей за реальные деньги.</p>
-                        <p>2.2. Попытка выманивания у игроков паролей, токенов или сид-фраз карается перманентным баном без права на амнистию.</p>
-                    </div>
-                    <div class="space-y-1.5">
-                        <h3 class="font-bold text-amber-400">3. Администрация и жалобы</h3>
-                        <p>3.1. Решения администраторов и модераторов не подлежат публичному обсуждению. Если вы не согласны с наказанием — подайте жалобу в соответствующем разделе форума.</p>
-                        <p>3.2. Распространение фейков и дезинформации о листинге или разработчиках наказывается мутом или блокировкой.</p>
+
+                    <div class="space-y-3">
+                        <h3 class="font-bold text-amber-400 text-base">2. Реклама и безопасность</h3>
+                        <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1">
+                            <p class="font-semibold text-white">2.1. Реклама и мошенничество</p>
+                            <p class="text-zinc-400 text-[11px]">Любая сторонняя реклама, ссылки, попытки выманивания паролей или сид-фраз у игроков — <strong class="text-red-400">Мгновенный перманентный бан</strong> без предупреждений.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -602,7 +618,7 @@
             </div>
         </section>
 
-        <!-- КОНТРАКТ (ВАШ ТОЧНЫЙ ТЕКСТ) -->
+        <!-- КОНТРАКТ -->
         <section id="view-contract" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 text-sm text-zinc-300 leading-relaxed">
                 <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
@@ -816,7 +832,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-amber-300 font-semibold mb-1">5. Насколько важна эта функция? *</label>
-                        <select id="idea-q6" class="vel-input w-full px-3.5 py-2.5 rounded-xl">
+                        <select id="idea-q6" class="vel-input w-full px-3 py-2.5 rounded-xl">
                             <option value="Обязательно добавить">🔥 Обязательно добавить</option>
                             <option value="Было бы неплохо">👍 Было бы неплохо</option>
                             <option value="Просто идея">💭 Просто идея</option>
