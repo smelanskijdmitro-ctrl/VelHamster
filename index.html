@@ -79,7 +79,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Стили для аккуратных статусных тегов */
         .badge-warn { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: rgba(249, 115, 22, 0.15); color: #fb923c; font-weight: 700; border: 1px solid rgba(249, 115, 22, 0.3); white-space: nowrap; font-size: 11px; }
         .badge-mute { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: rgba(239, 68, 68, 0.15); color: #f87171; font-weight: 700; border: 1px solid rgba(239, 68, 68, 0.3); white-space: nowrap; font-size: 11px; }
         .badge-ban { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #dc2626; color: #ffffff; font-weight: 700; border: 1px solid rgba(239, 68, 68, 0.5); white-space: nowrap; font-size: 11px; }
@@ -98,13 +97,10 @@
         <div class="max-w-6xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div class="flex items-center justify-between">
                 <div onclick="switchTab('feed')" class="flex items-center gap-2.5 cursor-pointer group">
-                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-0.5 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform shrink-0">
+                    <!-- ЛОГОТИП С ВАШИМ ФОТО -->
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-0.5 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform shrink-0 overflow-hidden">
                         <div class="w-full h-full bg-zinc-950 rounded-[10px] flex items-center justify-center relative overflow-hidden">
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="9" class="text-amber-500/40" fill="currentColor" fill-opacity="0.15"/>
-                                <path d="M8.5 9.5L12 16l3.5-6.5" />
-                                <path d="M7 7.5c.8-1 2-1.5 3-1.5M17 7.5c-.8-1-2-1.5-3-1.5" />
-                            </svg>
+                            <img src="logo.jpg" alt="Логотип" class="w-full h-full object-cover">
                         </div>
                     </div>
                     <div class="min-w-0">
@@ -820,7 +816,7 @@
                     </div>
                     <div>
                         <label class="block text-amber-300 font-semibold mb-1">6. Готовы помочь? *</label>
-                        <select id="idea-q8" class="vel-input w-full px-3 py-2.5 rounded-xl">
+                        <select id="idea-q8" class="vel-input w-full px-3.5 py-2.5 rounded-xl">
                             <option value="Да">✅ Да</option>
                             <option value="Возможно">🤔 Возможно</option>
                             <option value="Нет">❌ Нет</option>
@@ -1241,7 +1237,6 @@
             }
         };
 
-        // Функции модального окна просмотра анкеты с вопросами
         window.openAppDetailsModal = function(appIdStr) {
             const app = allApplications.find(a => a.id === appIdStr);
             if(!app) { showToast("Заявка не найдена"); return; }
@@ -1588,7 +1583,6 @@
             `).join('');
         }
 
-        // Обновленный вывод анкет и жалоб пользователя с мгновенным показом ответа админа
         function renderMyTickets() {
             const c = document.getElementById('my-account-apps-container');
             if(!c) return;
@@ -1639,4 +1633,4 @@
         window.onload = () => { initApp(); switchTab('feed'); if (typeof lucide !== 'undefined') lucide.createIcons(); };
     </script>
 </body>
-</html>ы
+</html>
