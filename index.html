@@ -311,22 +311,22 @@
                         
                         <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1">
                             <p class="font-semibold text-white">1.1. Нецензурные слова и легкий мат</p>
-                            <p class="text-zinc-400 text-[11px]">Написал какое-то поганое слово или нецензурное выражение (впервые) — <strong class="text-amber-300">Предупреждение</strong>. При постоянном нарушении — <strong class="text-amber-300">Мут (от 1 часа до 3 дней)</strong>.</p>
+                            <p class="text-zinc-400 text-[11px]">Написал какое-то поганое слово или нецензурное выражение (впервые) — <span class="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 font-bold border border-orange-500/30">Предупреждение</span>. При постоянном или злостном нарушении — <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold border border-red-500/30">Мут на 1 день</span>.</p>
                         </div>
 
                         <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1">
-                            <p class="font-semibold text-white">1.2. Спам и флуд</p>
-                            <p class="text-zinc-400 text-[11px]">Проспамил сообщение (например, отправил одинаковый текст 2 раза и более подряд) — <strong class="text-amber-300">Предупреждение</strong>. При постоянном спаме — <strong class="text-amber-300">Мут (от 1 часа до 1 дня)</strong>.</p>
+                            <p class="font-semibold text-white">1.2. Спам и флуд сообщениями</p>
+                            <p class="text-zinc-400 text-[11px]">Проспамил сообщение (например, отправил одинаковый текст 2 раза и более подряд) — <span class="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 font-bold border border-orange-500/30">Предупреждение</span>. При постоянном спаме — <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold border border-red-500/30">Мут на 1 час</span>.</p>
                         </div>
 
                         <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1">
-                            <p class="font-semibold text-white">1.3. Оскорбления игроков</p>
-                            <p class="text-zinc-400 text-[11px]">Обзывает кого-то или сказал в чей-то адрес поганое слово — <strong class="text-amber-300">Предупреждение</strong>. Если игрок делает это постоянно — <strong class="text-amber-300">Мут (на 1–3 дня)</strong>.</p>
+                            <p class="font-semibold text-white">1.3. Оскорбления других участников</p>
+                            <p class="text-zinc-400 text-[11px]">Обзывает кого-то или сказал в чей-то адрес поганое слово — <span class="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 font-bold border border-orange-500/30">Предупреждение</span>. Если игрок делает это постоянно — <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold border border-red-500/30">Мут на 3 дня</span>.</p>
                         </div>
 
                         <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1">
-                            <p class="font-semibold text-white">1.4. Злостное нарушение порядка</p>
-                            <p class="text-zinc-400 text-[11px]">Постоянно матерится, обзывает участников или токсичит несмотря на предупреждения администраторов — <strong class="text-amber-300">Мут (на 1–3 дня или длительная блокировка)</strong>.</p>
+                            <p class="font-semibold text-white">1.4. Систематические грубые нарушения</p>
+                            <p class="text-zinc-400 text-[11px]">Постоянно матерится, обзывает участников или токсичит несмотря на предупреждения администраторов — <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold border border-red-500/30">Мут на 3 дня</span>.</p>
                         </div>
                     </div>
 
@@ -334,7 +334,7 @@
                         <h3 class="font-bold text-amber-400 text-base">2. Реклама и безопасность</h3>
                         <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1">
                             <p class="font-semibold text-white">2.1. Реклама и мошенничество</p>
-                            <p class="text-zinc-400 text-[11px]">Любая сторонняя реклама, ссылки, попытки выманивания паролей или сид-фраз у игроков — <strong class="text-red-400">Мгновенный перманентный бан</strong> без предупреждений.</p>
+                            <p class="text-zinc-400 text-[11px]">Любая сторонняя реклама, ссылки, попытки выманивания паролей или сид-фраз у игроков — <span class="px-2 py-0.5 rounded bg-red-600 text-white font-bold border border-red-500">Перманентный бан</span> без предупреждений.</p>
                         </div>
                     </div>
                 </div>
@@ -832,7 +832,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-amber-300 font-semibold mb-1">5. Насколько важна эта функция? *</label>
-                        <select id="idea-q6" class="vel-input w-full px-3 py-2.5 rounded-xl">
+                        <select id="idea-q6" class="vel-input w-full px-3.5 py-2.5 rounded-xl">
                             <option value="Обязательно добавить">🔥 Обязательно добавить</option>
                             <option value="Было бы неплохо">👍 Было бы неплохо</option>
                             <option value="Просто идея">💭 Просто идея</option>
