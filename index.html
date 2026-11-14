@@ -598,16 +598,16 @@
         <section id="view-status" class="tab-content hidden max-w-2xl mx-auto space-y-6">
             <div class="glass-panel rounded-2xl p-5 sm:p-6 shadow-2xl space-y-4">
                 <div class="flex justify-between items-center pb-2 border-b border-zinc-800">
-                    <h2 class="font-display font-bold text-base sm:text-lg text-white">Мои анкеты</h2>
+                    <h2 class="font-display font-bold text-base sm:text-lg text-white">Мои анкеты и обращения</h2>
                     <button onclick="switchTab('feed')" class="px-3 py-1.5 bg-zinc-800 rounded-xl text-xs text-zinc-300 cursor-pointer">← На главную</button>
                 </div>
                 <div id="my-account-apps-container" class="space-y-3">
-                    <div class="text-zinc-500 text-xs">Войдите в аккаунт, чтобы видеть свои анкеты.</div>
+                    <div class="text-zinc-500 text-xs">Войдите в аккаунт, чтобы видеть статус своих анкет и ответов администрации.</div>
                 </div>
             </div>
         </section>
 
-        <!-- КОНТРАКТ (Правильный текст из запроса) -->
+        <!-- КОНТРАКТ -->
         <section id="view-contract" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="glass-panel rounded-2xl p-5 sm:p-8 shadow-2xl space-y-6 text-sm text-zinc-300 leading-relaxed">
                 <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
@@ -755,7 +755,7 @@
         </section>
     </main>
 
-    <!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ПОДРОБНОСТЕЙ ЗАЯВКИ (ВКЛЮЧАЯ ВОПРОСЫ) -->
+    <!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ПОДРОБНОСТЕЙ ЗАЯВКИ -->
     <div id="app-details-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm">
         <div class="glass-panel border border-zinc-700 rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center pb-2 border-b border-zinc-800">
@@ -1228,9 +1228,9 @@
         };
 
         window.updateAppStatus = async (id, status) => { const staffName = userProfileData.nickname || currentUser.email.split('@')[0]; await updateDoc(doc(db, appId + '_applications', id), { status, handledBy: staffName }); showToast("Статус обновлен"); };
-        window.sendAdminResponse = async (id) => { const text = document.getElementById('admin-resp-input-'+id).value; await updateDoc(doc(db, appId + '_applications', id), { adminResponse: text }); showToast("Ответ отправлен"); };
+        window.sendAdminResponse = async (id) => { const text = document.getElementById('admin-resp-input-'+id).value; await updateDoc(doc(db, appId + '_applications', id), { adminResponse: text }); showToast("Ответ отправлен пользователю!"); };
         window.updateComplaintStatus = async (id, status) => { const staffName = userProfileData.nickname || currentUser.email.split('@')[0]; await updateDoc(doc(db, appId + '_complaints', id), { status, handledBy: staffName }); showToast("Статус обновлен"); };
-        window.sendComplaintResponse = async (id) => { const text = document.getElementById('comp-resp-input-'+id).value; await updateDoc(doc(db, appId + '_complaints', id), { adminResponse: text }); showToast("Ответ отправлен"); };
+        window.sendComplaintResponse = async (id) => { const text = document.getElementById('comp-resp-input-'+id).value; await updateDoc(doc(db, appId + '_complaints', id), { adminResponse: text }); showToast("Вердикт отправлен пользователю!"); };
 
         window.changeUserRoleDirect = async function(userId, newRole) {
             try {
@@ -1588,18 +1588,55 @@
             `).join('');
         }
 
+        // Обновленный вывод анкет и жалоб пользователя с мгновенным показом ответа админа
         function renderMyTickets() {
             const c = document.getElementById('my-account-apps-container');
-            if(!c || !currentUser) return;
+            if(!c) return;
+            if(!currentUser) {
+                c.innerHTML = `<div class="text-zinc-500 text-xs">Войдите в аккаунт, чтобы видеть статус своих анкет и ответов администрации.</div>`;
+                return;
+            }
             const apps = allApplications.filter(a => a.userId === currentUser.uid);
             const comps = allComplaints.filter(x => x.userId === currentUser.uid);
             let html = '';
-            if(apps.length > 0) html += apps.map(a => `<div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs">Анкета в администраторы (${a.name}) — Статус: <span class="text-amber-400">${a.status}</span></div>`).join('');
-            if(comps.length > 0) html += comps.map(x => `<div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs mt-2">Жалоба (${x.title}) — Статус: <span class="text-amber-400">${x.status}</span></div>`).join('');
-            c.innerHTML = html || `<div class="text-zinc-500 text-xs">У вас нет поданных анкет.</div>`;
+
+            if(apps.length > 0) {
+                html += apps.map(a => `
+                    <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 text-xs space-y-2">
+                        <div class="flex justify-between items-center font-bold text-white">
+                            <span>Анкета в администраторы (${a.name})</span>
+                            <span class="text-amber-400 px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">${a.status}</span>
+                        </div>
+                        ${a.adminResponse ? `
+                            <div class="p-2.5 bg-zinc-950/70 rounded-lg border border-amber-500/30 text-amber-300">
+                                <strong>Ответ администратора:</strong> ${a.adminResponse}
+                            </div>
+                        ` : `<p class="text-zinc-500 italic">Ожидает рассмотрения...</p>`}
+                    </div>
+                `).join('');
+            }
+
+            if(comps.length > 0) {
+                html += comps.map(x => `
+                    <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 text-xs space-y-2 mt-2">
+                        <div class="flex justify-between items-center font-bold text-white">
+                            <span>Жалоба: ${x.title}</span>
+                            <span class="text-amber-400 px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">${x.status}</span>
+                        </div>
+                        <p class="text-zinc-400">Нарушитель: <span class="text-red-400">${x.violator}</span></p>
+                        ${x.adminResponse ? `
+                            <div class="p-2.5 bg-zinc-950/70 rounded-lg border border-sky-500/30 text-sky-300">
+                                <strong>Вердикт администрации:</strong> ${x.adminResponse}
+                            </div>
+                        ` : `<p class="text-zinc-500 italic">На рассмотрении...</p>`}
+                    </div>
+                `).join('');
+            }
+
+            c.innerHTML = html || `<div class="text-zinc-500 text-xs">У вас пока нет поданных анкет или жалоб.</div>`;
         }
 
         window.onload = () => { initApp(); switchTab('feed'); if (typeof lucide !== 'undefined') lucide.createIcons(); };
     </script>
 </body>
-</html>
+</html>ы
