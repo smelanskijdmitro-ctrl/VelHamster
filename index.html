@@ -79,10 +79,20 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Стили для аккуратных статусных тегов */
-        .badge-warn { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: rgba(249, 115, 22, 0.15); color: #fb923c; font-weight: 700; border: 1px solid rgba(249, 115, 22, 0.3); white-space: nowrap; font-size: 11px; }
-        .badge-mute { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: rgba(239, 68, 68, 0.15); color: #f87171; font-weight: 700; border: 1px solid rgba(239, 68, 68, 0.3); white-space: nowrap; font-size: 11px; }
-        .badge-ban { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #dc2626; color: #ffffff; font-weight: 700; border: 1px solid rgba(239, 68, 68, 0.5); white-space: nowrap; font-size: 11px; }
+        /* Исправление разрывов текстов и плашек на мобильных */
+        .badge-warn, .badge-mute, .badge-ban {
+            display: inline-block;
+            white-space: nowrap !important;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 11px;
+            vertical-align: middle;
+            margin: 1px 0;
+        }
+        .badge-warn { background: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.3); }
+        .badge-mute { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-ban { background: #dc2626; color: #ffffff; border: 1px solid rgba(239, 68, 68, 0.5); }
     </style>
 </head>
 <body class="min-h-screen relative selection:bg-amber-500/30 selection:text-amber-200 flex flex-col">
@@ -192,7 +202,7 @@
                 <button onclick="filterFeed('Вакансии')" id="cat-btn-Вакансии" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-500 text-zinc-950 transition-all cursor-pointer shadow-md shrink-0">🔥 Вакансии</button>
                 <button onclick="filterFeed('Новости игры')" id="cat-btn-Новости игры" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer shrink-0">🎮 Новости игры</button>
                 <button onclick="filterFeed('Гайд')" id="cat-btn-Гайд" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer shrink-0">📚 Гайд</button>
-                <button onclick="filterFeed('Важное')" id="cat-btn-Важное" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer shrink-0">📌 Важное</button>
+                <button onclick="filterFeed('Важное')" id="cat-btn-Важное" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer shrink-0">📌 Важное</button>
             </div>
 
             <!-- ЗАКРЕПЛЕННОЕ ОБЪЯВЛЕНИЕ О НАБОРЕ -->
@@ -285,7 +295,7 @@
             </div>
         </section>
 
-        <!-- РАЗДЕЛ: ПРАВИЛА ЧАТА И ИГРЫ (Исправлены кривые плашки) -->
+        <!-- РАЗДЕЛ: ПРАВИЛА ЧАТА И ИГРЫ (Полностью исправлены плашки) -->
         <section id="view-rules" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="glass-panel rounded-2xl p-5 sm:p-8 shadow-2xl space-y-6 text-sm text-zinc-300 leading-relaxed">
                 <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
