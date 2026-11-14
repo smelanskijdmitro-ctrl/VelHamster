@@ -186,6 +186,16 @@
                 </div>
             </div>
 
+            <!-- ВКЛАДКИ ПЕРЕКЛЮЧЕНИЯ КАТЕГОРИЙ ЛЕНТЫ (ФИЛЬТРЫ КАК НА СКРИНШОТЕ) -->
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                <span class="text-xs text-zinc-400 font-semibold shrink-0">Категории:</span>
+                <button onclick="filterFeed('all')" id="cat-btn-all" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-500 text-zinc-950 transition-all cursor-pointer shadow-md">Все</button>
+                <button onclick="filterFeed('Вакансии')" id="cat-btn-Вакансии" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer">🔥 Вакансии</button>
+                <button onclick="filterFeed('Новости игры')" id="cat-btn-Новости игры" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer">🎮 Новости игры</button>
+                <button onclick="filterFeed('Гайд')" id="cat-btn-Гайд" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer">📚 Гайд</button>
+                <button onclick="filterFeed('Важное')" id="cat-btn-Важное" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer">📌 Важное</button>
+            </div>
+
             <!-- ЗАКРЕПЛЕННОЕ ОБЪЯВЛЕНИЕ О НАБОРЕ НА ГЛАВНОЙ ФОРУМА -->
             <div id="feed-apply-info-banner" class="glass-panel rounded-2xl p-6 sm:p-7 border border-amber-500/60 bg-gradient-to-br from-amber-500/10 via-zinc-900/90 to-zinc-900 space-y-4 shadow-xl">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -604,7 +614,7 @@
             </div>
         </section>
 
-        <!-- ПАНЕЛЬ УПРАВЛЕНИЯ ФОРУМОМ (АДМИНКА) -->
+        <!-- ПАНЕЛЬ УПРАВЛЕНИЯ ФОРУМОМ (АДМИНКА С ВЫБОРОМ КАТЕГОРИИ ДЛЯ ПОСТА) -->
         <section id="view-staff-panel" class="tab-content hidden space-y-6">
             <div class="glass-panel rounded-2xl p-6 space-y-6 border border-amber-500/25">
                 <div class="flex justify-between items-center pb-4 border-b border-zinc-800">
@@ -641,7 +651,9 @@
                             <form onsubmit="publishAnnouncement(event)" class="space-y-3">
                                 <input type="text" id="post-title" required placeholder="Заголовок объявления" class="vel-input w-full px-3 py-2 rounded-lg text-xs">
                                 
-                                <div class="grid grid-cols-2 gap-2">
+                                <!-- Выпадающий список выбора категории -->
+                                <div class="grid grid-cols-1 gap-2">
+                                    <label class="block text-[11px] text-zinc-400 font-semibold">Категория поста:</label>
                                     <select id="post-category" onchange="checkCustomCategory(this)" class="vel-input w-full px-3 py-2 rounded-lg text-xs">
                                         <option value="Вакансии">🔥 Вакансии</option>
                                         <option value="Новости игры">🎮 Новости игры</option>
@@ -649,7 +661,7 @@
                                         <option value="Важное">📌 Важное</option>
                                         <option value="custom">✏️ Своя категория...</option>
                                     </select>
-                                    <input type="text" id="post-custom-category" placeholder="Название категории" class="vel-input w-full px-3 py-2 rounded-lg text-xs hidden">
+                                    <input type="text" id="post-custom-category" placeholder="Введите название своей категории" class="vel-input w-full px-3 py-2 rounded-lg text-xs hidden">
                                 </div>
 
                                 <textarea id="post-content" rows="3" required placeholder="Текст объявления..." class="vel-input w-full px-3 py-2 rounded-lg text-xs"></textarea>
@@ -822,6 +834,7 @@
         let userProfileData = { nickname: '', avatar: '', role: 'player' };
         let allAnnouncements = [], allApplications = [], allComplaints = [], allIdeas = [], allReleases = [];
         let isApplicationOpen = true;
+        let currentFeedCategory = 'all';
 
         const TEST_QUESTIONS = [
             "1. Почему ты хочешь стать администратором проекта VelHamster и как ты понимаешь главную цель этой роли?",
@@ -849,6 +862,21 @@
                 activeBtn.classList.add('bg-amber-500', 'text-zinc-950', 'shadow-sm');
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.filterFeed = function(category) {
+            currentFeedCategory = category;
+            ['all', 'Вакансии', 'Новости игры', 'Гайд', 'Важное'].forEach(cat => {
+                const btn = document.getElementById('cat-btn-' + cat);
+                if (btn) {
+                    if (cat === category) {
+                        btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-500 text-zinc-950 transition-all cursor-pointer shadow-md";
+                    } else {
+                        btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer";
+                    }
+                }
+            });
+            renderAnnouncements();
         };
 
         window.openAuthModal = () => { document.getElementById('auth-modal').classList.remove('hidden'); document.getElementById('auth-modal').classList.add('flex'); };
@@ -1251,16 +1279,26 @@
         function renderAnnouncements() {
             const list = document.getElementById('announcements-list');
             if(!list) return;
-            if(allAnnouncements.length === 0) { list.innerHTML = `<div class="glass-panel rounded-2xl p-8 text-center text-zinc-400 text-sm">Пока нет других новостей и объявлений.</div>`; return; }
-            allAnnouncements.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
-            list.innerHTML = allAnnouncements.map(p => {
+
+            let filtered = allAnnouncements;
+            if (currentFeedCategory !== 'all') {
+                filtered = allAnnouncements.filter(p => p.category === currentFeedCategory);
+            }
+
+            if(filtered.length === 0) { 
+                list.innerHTML = `<div class="glass-panel rounded-2xl p-8 text-center text-zinc-400 text-sm">В этой категории пока нет записей.</div>`; 
+                return; 
+            }
+
+            filtered.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+            list.innerHTML = filtered.map(p => {
                 const roleBadge = getRoleBadge(p.authorRole);
                 return `
                     <div class="glass-panel rounded-2xl p-5 space-y-2 border ${p.pinned ? 'border-amber-500/50 bg-amber-500/5' : 'border-zinc-800'}">
                         <div class="flex justify-between items-center text-xs text-zinc-400">
                             <div>
                                 ${p.pinned ? `<span class="px-2 py-0.5 rounded bg-amber-500 text-zinc-950 font-bold text-[10px] mr-1">📌 Закреплено</span>` : ''}
-                                <span class="bg-zinc-800 px-2.5 py-0.5 rounded text-zinc-300 font-semibold">${p.category}</span>
+                                <span class="bg-zinc-800 px-2.5 py-0.5 rounded text-zinc-300 font-semibold">${p.category || 'Общее'}</span>
                             </div>
                             <span>Автор: <strong class="text-white">${p.authorName || 'Администрация'}</strong>${roleBadge}</span>
                         </div>
