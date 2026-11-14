@@ -134,7 +134,7 @@
                         <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Набор
                     </button>
                     <button onclick="switchTab('status')" id="nav-status" class="nav-tab px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
-                        <i data-lucide="search-check" class="w-3.5 h-3.5"></i> Анкета
+                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Мои анкеты
                     </button>
                     <button onclick="switchTab('contract')" id="nav-contract" class="nav-tab px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
                         <i data-lucide="scroll-text" class="w-3.5 h-3.5"></i> Контракт
@@ -594,15 +594,15 @@
             </div>
         </section>
 
-        <!-- СТАТУС / МОИ ТИКЕТЫ -->
+        <!-- СТАТУС / МОИ АНКЕТЫ -->
         <section id="view-status" class="tab-content hidden max-w-2xl mx-auto space-y-6">
             <div class="glass-panel rounded-2xl p-5 sm:p-6 shadow-2xl space-y-4">
                 <div class="flex justify-between items-center pb-2 border-b border-zinc-800">
-                    <h2 class="font-display font-bold text-base sm:text-lg text-white">Мои тикеты</h2>
+                    <h2 class="font-display font-bold text-base sm:text-lg text-white">Мои анкеты</h2>
                     <button onclick="switchTab('feed')" class="px-3 py-1.5 bg-zinc-800 rounded-xl text-xs text-zinc-300 cursor-pointer">← На главную</button>
                 </div>
                 <div id="my-account-apps-container" class="space-y-3">
-                    <div class="text-zinc-500 text-xs">Войдите в аккаунт, чтобы видеть свои тикеты.</div>
+                    <div class="text-zinc-500 text-xs">Войдите в аккаунт, чтобы видеть свои анкеты.</div>
                 </div>
             </div>
         </section>
@@ -1594,9 +1594,9 @@
             const apps = allApplications.filter(a => a.userId === currentUser.uid);
             const comps = allComplaints.filter(x => x.userId === currentUser.uid);
             let html = '';
-            if(apps.length > 0) html += apps.map(a => `<div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs">Заявка в админы (${a.name}) — Статус: <span class="text-amber-400">${a.status}</span></div>`).join('');
+            if(apps.length > 0) html += apps.map(a => `<div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs">Анкета в администраторы (${a.name}) — Статус: <span class="text-amber-400">${a.status}</span></div>`).join('');
             if(comps.length > 0) html += comps.map(x => `<div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs mt-2">Жалоба (${x.title}) — Статус: <span class="text-amber-400">${x.status}</span></div>`).join('');
-            c.innerHTML = html || `<div class="text-zinc-500 text-xs">У вас нет активных тикетов.</div>`;
+            c.innerHTML = html || `<div class="text-zinc-500 text-xs">У вас нет поданных анкет.</div>`;
         }
 
         window.onload = () => { initApp(); switchTab('feed'); if (typeof lucide !== 'undefined') lucide.createIcons(); };
