@@ -2,7 +2,7 @@
 <html lang="ru" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Форум VelHamster — Официальный портал сообщества</title>
     <!-- Подключение Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -35,9 +35,9 @@
         }
     </script>
     <style>
-        body { background-color: #08080b; color: #f4f4f5; overflow-x: hidden; }
+        body { background-color: #08080b; color: #f4f4f5; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         .glass-panel {
-            background: rgba(17, 17, 22, 0.85);
+            background: rgba(17, 17, 22, 0.9);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -78,136 +78,136 @@
         .tab-content { animation: fadeInScale 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Стили для аккуратных статусных тегов */
+        .badge-warn { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: rgba(249, 115, 22, 0.15); color: #fb923c; font-weight: 700; border: 1px solid rgba(249, 115, 22, 0.3); white-space: nowrap; font-size: 11px; }
+        .badge-mute { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: rgba(239, 68, 68, 0.15); color: #f87171; font-weight: 700; border: 1px solid rgba(239, 68, 68, 0.3); white-space: nowrap; font-size: 11px; }
+        .badge-ban { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #dc2626; color: #ffffff; font-weight: 700; border: 1px solid rgba(239, 68, 68, 0.5); white-space: nowrap; font-size: 11px; }
     </style>
 </head>
 <body class="min-h-screen relative selection:bg-amber-500/30 selection:text-amber-200 flex flex-col">
 
     <!-- Фоновые свечения -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div class="absolute -top-40 -left-32 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[140px] animate-glow"></div>
-        <div class="absolute top-1/3 -right-40 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[150px] animate-glow" style="animation-delay: 2s;"></div>
+        <div class="absolute -top-40 -left-32 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-amber-500/10 rounded-full blur-[140px] animate-glow"></div>
+        <div class="absolute top-1/3 -right-40 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-purple-600/10 rounded-full blur-[150px] animate-glow" style="animation-delay: 2s;"></div>
     </div>
 
     <!-- НАВИГАЦИЯ ФОРУМА -->
     <header class="sticky top-0 z-40 glass-panel border-b border-zinc-800/80">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div class="max-w-6xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div class="flex items-center justify-between">
-                <div onclick="switchTab('feed')" class="flex items-center gap-3 cursor-pointer group">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-0.5 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform animate-float">
+                <div onclick="switchTab('feed')" class="flex items-center gap-2.5 cursor-pointer group">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-0.5 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform shrink-0">
                         <div class="w-full h-full bg-zinc-950 rounded-[10px] flex items-center justify-center relative overflow-hidden">
-                            <svg class="w-6 h-6 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="9" class="text-amber-500/40" fill="currentColor" fill-opacity="0.15"/>
                                 <path d="M8.5 9.5L12 16l3.5-6.5" />
                                 <path d="M7 7.5c.8-1 2-1.5 3-1.5M17 7.5c-.8-1-2-1.5-3-1.5" />
                             </svg>
                         </div>
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <div class="flex items-center gap-2">
-                            <span class="font-display font-bold text-lg tracking-tight text-white group-hover:text-amber-400 transition-colors">Vel<span class="text-amber-400">Hamster</span></span>
-                            <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[10px] font-semibold">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Официальный форум
-                            </span>
+                            <span class="font-display font-bold text-base sm:text-lg tracking-tight text-white group-hover:text-amber-400 transition-colors truncate">Vel<span class="text-amber-400">Hamster</span></span>
                         </div>
-                        <span class="block text-[11px] text-zinc-400 font-medium">Главное сообщество игры и проекта</span>
+                        <span class="block text-[10px] sm:text-[11px] text-zinc-400 font-medium truncate">Официальное сообщество игры</span>
                     </div>
                 </div>
 
-                <button type="button" onclick="handleHeaderAccountClick()" id="header-auth-btn-mobile" class="md:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs font-semibold text-amber-300">
+                <button type="button" onclick="handleHeaderAccountClick()" id="header-auth-btn-mobile" class="sm:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-700 text-xs font-semibold text-amber-300 shrink-0">
                     <i data-lucide="user" class="w-3.5 h-3.5"></i>
-                    <span id="header-auth-text-mobile">Войти</span>
+                    <span id="header-auth-text-mobile" class="max-w-[90px] truncate">Войти</span>
                 </button>
             </div>
 
             <!-- Вкладки верхнего меню форума -->
-            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar">
-                <nav class="flex items-center gap-1 bg-zinc-900/95 p-1 rounded-xl border border-zinc-800 overflow-x-auto no-scrollbar">
-                    <button onclick="switchTab('feed')" id="nav-feed" class="nav-tab px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
-                        <i data-lucide="newspaper" class="w-3.5 h-3.5"></i> Лента форума
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
+                <nav class="flex items-center gap-1 bg-zinc-900/95 p-1 rounded-xl border border-zinc-800 overflow-x-auto no-scrollbar shrink-0">
+                    <button onclick="switchTab('feed')" id="nav-feed" class="nav-tab px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="newspaper" class="w-3.5 h-3.5"></i> Форум
                     </button>
-                    <button onclick="switchTab('releases')" id="nav-releases" class="nav-tab px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
+                    <button onclick="switchTab('releases')" id="nav-releases" class="nav-tab px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
                         <i data-lucide="rocket" class="w-3.5 h-3.5"></i> Обновления
                     </button>
-                    <button onclick="switchTab('apply')" id="nav-apply" class="nav-tab px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
-                        <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Набор в админы
+                    <button onclick="switchTab('apply')" id="nav-apply" class="nav-tab px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Набор
                     </button>
-                    <button onclick="switchTab('status')" id="nav-status" class="nav-tab px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
-                        <i data-lucide="search-check" class="w-3.5 h-3.5"></i> Мои тикеты
+                    <button onclick="switchTab('status')" id="nav-status" class="nav-tab px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="search-check" class="w-3.5 h-3.5"></i> Тикеты
                     </button>
-                    <button onclick="switchTab('contract')" id="nav-contract" class="nav-tab px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
+                    <button onclick="switchTab('contract')" id="nav-contract" class="nav-tab px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
                         <i data-lucide="scroll-text" class="w-3.5 h-3.5"></i> Контракт
                     </button>
-                    <button onclick="switchTab('staff-panel')" id="nav-staff-panel" class="nav-tab hidden px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all text-amber-300 hover:text-white flex items-center gap-1.5 cursor-pointer bg-amber-500/15 border border-amber-500/30">
-                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-400"></i> Панель форума
+                    <button onclick="switchTab('staff-panel')" id="nav-staff-panel" class="nav-tab hidden px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all text-amber-300 hover:text-white flex items-center gap-1.5 cursor-pointer bg-amber-500/15 border border-amber-500/30">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-400"></i> Админка
                     </button>
                 </nav>
 
-                <button type="button" onclick="handleHeaderAccountClick()" id="header-auth-btn" class="hidden md:inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/90 text-xs font-semibold text-amber-300 cursor-pointer shrink-0 transition-all hover:scale-105">
+                <button type="button" onclick="handleHeaderAccountClick()" id="header-auth-btn" class="hidden sm:inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/90 text-xs font-semibold text-amber-300 cursor-pointer shrink-0 transition-all">
                     <div id="header-avatar-mini" class="w-5 h-5 rounded-full bg-amber-500/20 overflow-hidden flex items-center justify-center text-[10px]">🐹</div>
-                    <span id="header-auth-text">Войти / Аккаунт</span>
+                    <span id="header-auth-text" class="max-w-[120px] truncate">Войти</span>
                 </button>
             </div>
         </div>
     </header>
 
     <!-- ОСНОВНОЙ КОНТЕНТ ФОРУМА -->
-    <main class="relative z-10 flex-1 max-w-5xl w-full mx-auto px-4 pt-6 pb-20">
+    <main class="relative z-10 flex-1 max-w-5xl w-full mx-auto px-3 sm:px-4 pt-4 sm:pt-6 pb-20">
 
         <!-- ГЛАВНАЯ СТРАНИЦА ФОРУМА (ЛЕНТА) -->
-        <section id="view-feed" class="tab-content space-y-6">
-            <div class="glass-panel rounded-2xl p-6 sm:p-8 relative overflow-hidden border border-amber-500/25">
-                <div class="relative z-10 max-w-2xl space-y-3">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-semibold">
-                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Официальный форум сообщества
-                    </div>
-                    <h1 class="font-display font-extrabold text-2xl sm:text-3xl text-white">
-                        Форум проекта <span class="gold-gradient-text">VelHamster</span>!
-                    </h1>
-                    <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-                        Главные новости игры, патч-ноуты обновлений, свод правил чата и игры, набор в команду, форум жалоб и предложений идей.
-                    </p>
-                    <div class="pt-2 flex flex-wrap gap-2.5">
-                        <button onclick="switchTab('releases')" class="gold-btn px-4 py-2.5 rounded-xl font-bold text-zinc-950 text-xs flex items-center gap-2 cursor-pointer">
-                            <i data-lucide="rocket" class="w-4 h-4"></i> Обновления (Release)
-                        </button>
-                        <button onclick="switchTab('apply')" class="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-xs flex items-center gap-2 cursor-pointer border border-zinc-700">
-                            <i data-lucide="user-plus" class="w-4 h-4"></i> Набор в Администрацию <span id="feed-apply-status-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                        </button>
-                        <button onclick="switchTab('rules')" class="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-xs flex items-center gap-2 cursor-pointer border border-zinc-700">
-                            <i data-lucide="book-open" class="w-4 h-4"></i> Правила чата и игры
-                        </button>
-                        <button onclick="switchTab('complaints')" class="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-red-300 font-semibold text-xs flex items-center gap-2 cursor-pointer border border-red-500/30">
-                            <i data-lucide="shield-alert" class="w-4 h-4"></i> Жалобы
-                        </button>
-                        <button onclick="switchTab('ideas')" class="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-semibold text-xs flex items-center gap-2 cursor-pointer border border-amber-500/30">
-                            <i data-lucide="lightbulb" class="w-4 h-4"></i> Идеи
-                        </button>
-                    </div>
+        <section id="view-feed" class="tab-content space-y-5">
+            <div class="glass-panel rounded-2xl p-5 sm:p-8 relative overflow-hidden border border-amber-500/25 space-y-3">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] font-semibold">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Официальный портал сообщества
+                </div>
+                <h1 class="font-display font-extrabold text-xl sm:text-3xl text-white">
+                    Форум проекта <span class="gold-gradient-text">VelHamster</span>!
+                </h1>
+                <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                    Главные новости игры, патч-ноуты обновлений, свод правил чата и игры, набор в команду, форум жалоб и предложений идей.
+                </p>
+                <div class="pt-1 flex flex-wrap gap-2">
+                    <button onclick="switchTab('releases')" class="gold-btn px-3.5 py-2.5 rounded-xl font-bold text-zinc-950 text-xs flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="rocket" class="w-3.5 h-3.5"></i> Обновления
+                    </button>
+                    <button onclick="switchTab('apply')" class="px-3.5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-xs flex items-center gap-1.5 cursor-pointer border border-zinc-700">
+                        <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Набор <span id="feed-apply-status-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    </button>
+                    <button onclick="switchTab('rules')" class="px-3.5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-xs flex items-center gap-1.5 cursor-pointer border border-zinc-700">
+                        <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Правила
+                    </button>
+                    <button onclick="switchTab('complaints')" class="px-3.5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-red-300 font-semibold text-xs flex items-center gap-1.5 cursor-pointer border border-red-500/30">
+                        <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Жалобы
+                    </button>
+                    <button onclick="switchTab('ideas')" class="px-3.5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-semibold text-xs flex items-center gap-1.5 cursor-pointer border border-amber-500/30">
+                        <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> Идеи
+                    </button>
                 </div>
             </div>
 
             <!-- ВКЛАДКИ ПЕРЕКЛЮЧЕНИЯ КАТЕГОРИЙ -->
             <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
                 <span class="text-xs text-zinc-400 font-semibold shrink-0">Категории:</span>
-                <button onclick="filterFeed('Вакансии')" id="cat-btn-Вакансии" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-500 text-zinc-950 transition-all cursor-pointer shadow-md">🔥 Вакансии</button>
-                <button onclick="filterFeed('Новости игры')" id="cat-btn-Новости игры" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer">🎮 Новости игры</button>
-                <button onclick="filterFeed('Гайд')" id="cat-btn-Гайд" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer">📚 Гайд</button>
-                <button onclick="filterFeed('Важное')" id="cat-btn-Важное" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer">📌 Важное</button>
+                <button onclick="filterFeed('Вакансии')" id="cat-btn-Вакансии" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-500 text-zinc-950 transition-all cursor-pointer shadow-md shrink-0">🔥 Вакансии</button>
+                <button onclick="filterFeed('Новости игры')" id="cat-btn-Новости игры" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer shrink-0">🎮 Новости игры</button>
+                <button onclick="filterFeed('Гайд')" id="cat-btn-Гайд" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer shrink-0">📚 Гайд</button>
+                <button onclick="filterFeed('Важное')" id="cat-btn-Важное" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer shrink-0">📌 Важное</button>
             </div>
 
-            <!-- ЗАКРЕПЛЕННОЕ ОБЪЯВЛЕНИЕ О НАБОРЕ НА ГЛАВНОЙ ФОРУМА -->
-            <div id="feed-apply-info-banner" class="glass-panel rounded-2xl p-6 sm:p-7 border border-amber-500/60 bg-gradient-to-br from-amber-500/10 via-zinc-900/90 to-zinc-900 space-y-4 shadow-xl">
+            <!-- ЗАКРЕПЛЕННОЕ ОБЪЯВЛЕНИЕ О НАБОРЕ -->
+            <div id="feed-apply-info-banner" class="glass-panel rounded-2xl p-5 sm:p-7 border border-amber-500/60 bg-gradient-to-br from-amber-500/10 via-zinc-900/90 to-zinc-900 space-y-4 shadow-xl">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+                        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
                             <i data-lucide="pin" class="w-5 h-5"></i>
                         </div>
                         <div>
                             <div class="flex items-center gap-2">
-                                <h2 class="font-display font-bold text-base sm:text-lg text-white">🚀 Закреплено на форуме: Открыт набор в Администраторов!</h2>
-                                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px] hidden sm:inline">Важно</span>
+                                <h2 class="font-display font-bold text-sm sm:text-lg text-white">🚀 Открыт набор в Администраторов!</h2>
+                                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">Важно</span>
                             </div>
-                            <p class="text-xs text-amber-300 font-medium">Стань частью команды проекта VelHamster</p>
+                            <p class="text-[11px] sm:text-xs text-amber-300 font-medium">Стань частью команды проекта VelHamster</p>
                         </div>
                     </div>
                     <button onclick="switchTab('apply')" class="gold-btn px-4 py-2.5 rounded-xl font-bold text-zinc-950 text-xs flex items-center justify-center gap-1.5 cursor-pointer shrink-0">
@@ -215,24 +215,22 @@
                     </button>
                 </div>
 
-                <div class="text-xs sm:text-sm text-zinc-300 leading-relaxed space-y-3 pt-3 border-t border-zinc-800/80">
-                    <p>
-                        Мы ищем активных, ответственных и адекватных игроков, готовых помогать нашему сообществу, следить за порядком и развивать проект вместе с нами!
-                    </p>
+                <div class="text-xs text-zinc-300 leading-relaxed space-y-3 pt-3 border-t border-zinc-800/80">
+                    <p>Мы ищем активных, ответственных и адекватных игроков, готовых помогать нашему сообществу и следить за порядком!</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                        <div class="p-3.5 bg-zinc-900/90 rounded-xl border border-zinc-800 space-y-1">
-                            <h4 class="font-bold text-amber-400 text-xs flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Основные задачи:</h4>
-                            <p class="text-[11px] text-zinc-400 leading-normal">Контроль порядка в игровом чате, помощь новичкам в освоении механик, пресечение спама и рекламы, оперативная передача багов разработчикам.</p>
+                        <div class="p-3 bg-zinc-900/90 rounded-xl border border-zinc-800 space-y-1">
+                            <h4 class="font-bold text-amber-400 text-xs flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Задачи:</h4>
+                            <p class="text-[11px] text-zinc-400 leading-normal">Контроль порядка в чате, помощь новичкам, пресечение спама и рекламы.</p>
                         </div>
-                        <div class="p-3.5 bg-zinc-900/90 rounded-xl border border-zinc-800 space-y-1">
-                            <h4 class="font-bold text-amber-400 text-xs flex items-center gap-1.5"><i data-lucide="star" class="w-4 h-4"></i> Что нужно, чтобы попасть:</h4>
-                            <p class="text-[11px] text-zinc-400 leading-normal">Возраст от 14 лет (возможные исключения), знание правил и контракта проекта, наличие свободного времени от 2–3 часов в день и успешное прохождение теста.</p>
+                        <div class="p-3 bg-zinc-900/90 rounded-xl border border-zinc-800 space-y-1">
+                            <h4 class="font-bold text-amber-400 text-xs flex items-center gap-1.5"><i data-lucide="star" class="w-4 h-4"></i> Требования:</h4>
+                            <p class="text-[11px] text-zinc-400 leading-normal">Возраст от 14 лет, знание правил, свободное время от 2-3 часов в день.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Лента новостей и обсуждений форума -->
+            <!-- Лента новостей -->
             <div id="announcements-list" class="space-y-4">
                 <div class="glass-panel rounded-2xl p-8 text-center text-zinc-400 text-sm animate-pulse">Загрузка ленты форума...</div>
             </div>
@@ -245,42 +243,40 @@
                     <div class="flex items-center gap-2 text-xs text-zinc-400">
                         <span onclick="switchTab('feed')" class="hover:text-amber-400 cursor-pointer">Форум</span>
                         <span>›</span>
-                        <span class="text-amber-400 font-semibold">Обновления (Release Notes)</span>
+                        <span class="text-amber-400 font-semibold">Обновления</span>
                     </div>
-                    <h2 class="font-display font-bold text-xl sm:text-2xl text-white flex items-center gap-2">
-                        <i data-lucide="rocket" class="w-6 h-6 text-amber-400"></i> История обновлений проекта
+                    <h2 class="font-display font-bold text-lg sm:text-2xl text-white flex items-center gap-2">
+                        <i data-lucide="rocket" class="w-5 h-5 text-amber-400"></i> История обновлений
                     </h2>
-                    <p class="text-xs text-zinc-400">Здесь публикуются все новые версии, патчи, новые функции и исправления ошибок.</p>
+                    <p class="text-xs text-zinc-400">Здесь публикуются все новые версии, патчи и фиксы.</p>
                 </div>
-                <div class="flex gap-2 shrink-0">
-                    <button onclick="switchTab('feed')" class="px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-xs font-semibold cursor-pointer">← На главную</button>
-                </div>
+                <button onclick="switchTab('feed')" class="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-xs font-semibold cursor-pointer shrink-0">← На главную</button>
             </div>
 
-            <div id="admin-release-create-box" class="glass-panel rounded-2xl p-6 space-y-4 border border-amber-500/30 hidden">
-                <h3 class="font-display font-bold text-sm text-white flex items-center gap-2">
-                    <i data-lucide="plus-circle" class="w-4 h-4 text-amber-400"></i> Опубликовать новый релиз (Release)
+            <div id="admin-release-create-box" class="glass-panel rounded-2xl p-5 space-y-4 border border-amber-500/30 hidden">
+                <h3 class="font-display font-bold text-xs text-white flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-4 h-4 text-amber-400"></i> Опубликовать релиз
                 </h3>
                 <form onsubmit="publishRelease(event)" class="space-y-3 text-xs">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-zinc-300 mb-1 font-medium">Версия обновления (например, v1.2.0) *</label>
-                            <input type="text" id="release-version" required placeholder="v1.0.0" class="vel-input w-full px-3.5 py-2.5 rounded-xl">
+                            <label class="block text-zinc-300 mb-1 font-medium">Версия (например, v1.2.0) *</label>
+                            <input type="text" id="release-version" required placeholder="v1.0.0" class="vel-input w-full px-3 py-2.5 rounded-xl">
                         </div>
                         <div>
-                            <label class="block text-zinc-300 mb-1 font-medium">Название релиза *</label>
-                            <input type="text" id="release-title" required placeholder="«Зимнее обновление»" class="vel-input w-full px-3.5 py-2.5 rounded-xl">
+                            <label class="block text-zinc-300 mb-1 font-medium">Название *</label>
+                            <input type="text" id="release-title" required placeholder="«Зимнее обновление»" class="vel-input w-full px-3 py-2.5 rounded-xl">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-zinc-300 mb-1 font-medium">Описание и список изменений (что нового, фиксы) *</label>
-                        <textarea id="release-desc" rows="4" required placeholder="- Добавлена новая механика...&#10;- Исправлены баги в чате..." class="vel-input w-full px-3.5 py-2.5 rounded-xl"></textarea>
+                        <label class="block text-zinc-300 mb-1 font-medium">Описание изменений *</label>
+                        <textarea id="release-desc" rows="4" required placeholder="- Добавлена механика..." class="vel-input w-full px-3 py-2.5 rounded-xl"></textarea>
                     </div>
                     <label class="flex items-center gap-2 cursor-pointer select-none">
                         <input type="checkbox" id="release-pinned" class="w-4 h-4 rounded accent-amber-500 cursor-pointer">
-                        <span class="text-xs text-amber-300 font-semibold">📌 Закрепить в самом верху (Актуальный релиз)</span>
+                        <span class="text-xs text-amber-300 font-semibold">📌 Закрепить вверху</span>
                     </label>
-                    <button type="submit" class="gold-btn w-full py-3 rounded-xl font-bold text-zinc-950 cursor-pointer">Опубликовать релиз</button>
+                    <button type="submit" class="gold-btn w-full py-3 rounded-xl font-bold text-zinc-950 cursor-pointer">Опубликовать</button>
                 </form>
             </div>
 
@@ -289,52 +285,52 @@
             </div>
         </section>
 
-        <!-- РАЗДЕЛ: ПРАВИЛА ЧАТА И ИГРЫ -->
+        <!-- РАЗДЕЛ: ПРАВИЛА ЧАТА И ИГРЫ (Исправлены кривые плашки) -->
         <section id="view-rules" class="tab-content hidden max-w-3xl mx-auto space-y-6">
-            <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 text-sm text-zinc-300 leading-relaxed">
+            <div class="glass-panel rounded-2xl p-5 sm:p-8 shadow-2xl space-y-6 text-sm text-zinc-300 leading-relaxed">
                 <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
                     <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
                             <i data-lucide="book-open" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h2 class="font-display font-bold text-lg text-white">📖 Правила игрового чата проекта VelHamster</h2>
-                            <p class="text-xs text-zinc-400">Обязательные нормы поведения и система наказаний для всех игроков</p>
+                            <h2 class="font-display font-bold text-base sm:text-lg text-white">📖 Правила чата VelHamster</h2>
+                            <p class="text-xs text-zinc-400">Нормы поведения и наказания</p>
                         </div>
                     </div>
-                    <button onclick="switchTab('feed')" class="px-3 py-1.5 bg-zinc-800 rounded-xl text-xs text-zinc-300 cursor-pointer">← На главную</button>
+                    <button onclick="switchTab('feed')" class="px-3 py-1.5 bg-zinc-800 rounded-xl text-xs text-zinc-300 cursor-pointer shrink-0">← На главную</button>
                 </div>
 
                 <div class="space-y-6 text-xs sm:text-sm">
                     <div class="space-y-3">
                         <h3 class="font-bold text-amber-400 text-base">1. Правила чата и система наказаний</h3>
                         
-                        <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1">
+                        <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1.5">
                             <p class="font-semibold text-white">1.1. Нецензурные слова и легкий мат</p>
-                            <p class="text-zinc-400 text-[11px]">Написал легкое матерное слово или выражение (впервые) — <span class="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 font-bold border border-orange-500/30">Предупреждение</span>. При постоянном или злостном нарушении — <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold border border-red-500/30">Мут на 1 день</span>.</p>
+                            <p class="text-zinc-400 text-[11px] sm:text-xs leading-relaxed">Написал легкое матерное слово (впервые) — <span class="badge-warn">Предупреждение</span>. При злостном нарушении — <span class="badge-mute">Мут на 1 день</span>.</p>
                         </div>
 
-                        <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1">
+                        <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1.5">
                             <p class="font-semibold text-white">1.2. Спам и флуд сообщениями</p>
-                            <p class="text-zinc-400 text-[11px]">Проспамил сообщение (например, отправил одинаковый текст 2 раза и более подряд) — <span class="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 font-bold border border-orange-500/30">Предупреждение</span>. При постоянном флуде — <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold border border-red-500/30">Мут на 1 час</span>.</p>
+                            <p class="text-zinc-400 text-[11px] sm:text-xs leading-relaxed">Проспамил одинаковый текст 2 раза подряд — <span class="badge-warn">Предупреждение</span>. При частом флуде — <span class="badge-mute">Мут на 1 час</span>.</p>
                         </div>
 
-                        <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1">
+                        <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1.5">
                             <p class="font-semibold text-white">1.3. Оскорбления других участников</p>
-                            <p class="text-zinc-400 text-[11px]">Оскорбил участника или перешел на личности — <span class="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 font-bold border border-orange-500/30">Предупреждение</span>. Если игрок продолжает нарушать — <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold border border-red-500/30">Мут на 1 день</span>.</p>
+                            <p class="text-zinc-400 text-[11px] sm:text-xs leading-relaxed">Оскорбил участника или перешел на личности — <span class="badge-warn">Предупреждение</span>. Если продолжает — <span class="badge-mute">Мут на 1 день</span>.</p>
                         </div>
 
-                        <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1">
+                        <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1.5">
                             <p class="font-semibold text-white">1.4. Злостное нарушение порядка</p>
-                            <p class="text-zinc-400 text-[11px]">Постоянно токсичит, провоцирует конфликты и игнорирует предупреждения администраторов — <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold border border-red-500/30">Мут на 1 день</span>.</p>
+                            <p class="text-zinc-400 text-[11px] sm:text-xs leading-relaxed">Токсичность, провокация конфликтов и игнорирование предупреждений — <span class="badge-mute">Мут на 1 день</span>.</p>
                         </div>
                     </div>
 
                     <div class="space-y-3">
                         <h3 class="font-bold text-amber-400 text-base">2. Реклама и безопасность</h3>
-                        <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1">
+                        <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1.5">
                             <p class="font-semibold text-white">2.1. Реклама и мошенничество</p>
-                            <p class="text-zinc-400 text-[11px]">Любая сторонняя реклама, подозрительные ссылки, попытки выманивания паролей или сид-фраз — <span class="px-2 py-0.5 rounded bg-red-600 text-white font-bold border border-red-500">Перманентный бан</span> без предупреждений.</p>
+                            <p class="text-zinc-400 text-[11px] sm:text-xs leading-relaxed">Любая реклама, фишинг, попытки выманивания паролей или сид-фраз — <span class="badge-ban">Перманентный бан</span> без предупреждений.</p>
                         </div>
                     </div>
                 </div>
@@ -343,37 +339,37 @@
 
         <!-- ПРОФИЛЬ -->
         <section id="view-profile" class="tab-content hidden max-w-xl mx-auto space-y-6">
-            <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 border border-amber-500/25">
+            <div class="glass-panel rounded-2xl p-5 sm:p-8 shadow-2xl space-y-6 border border-amber-500/25">
                 <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
                     <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
                             <i data-lucide="user-cog" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h2 class="font-display font-bold text-lg text-white">Профиль участника форума</h2>
+                            <h2 class="font-display font-bold text-base sm:text-lg text-white">Профиль участника</h2>
                             <p class="text-xs text-zinc-400">Настройки никнейма и аватара</p>
                         </div>
                     </div>
                     <button type="button" onclick="switchTab('feed')" class="p-2 rounded-xl bg-zinc-800 text-zinc-400 hover:text-white cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
 
-                <form onsubmit="saveProfileSettings(event)" class="space-y-5">
+                <form onsubmit="saveProfileSettings(event)" class="space-y-4">
                     <div class="flex flex-col items-center justify-center space-y-3">
-                        <div class="w-24 h-24 rounded-2xl bg-zinc-900 border-2 border-amber-500/40 overflow-hidden flex items-center justify-center shadow-xl">
-                            <span id="profile-avatar-emoji" class="text-4xl">🐹</span>
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-zinc-900 border-2 border-amber-500/40 overflow-hidden flex items-center justify-center shadow-xl">
+                            <span id="profile-avatar-emoji" class="text-3xl sm:text-4xl">🐹</span>
                         </div>
                         <span id="user-role-badge" class="px-3 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-amber-400 text-xs font-semibold">Игрок</span>
                     </div>
 
                     <div>
                         <label class="block text-xs font-medium text-zinc-300 mb-1.5">Аватар (Эмодзи или ссылка)</label>
-                        <input type="text" id="profile-avatar-input" placeholder="🐹 или https://..." class="vel-input w-full px-4 py-3 rounded-xl text-sm">
+                        <input type="text" id="profile-avatar-input" placeholder="🐹 или https://..." class="vel-input w-full px-4 py-3 rounded-xl text-xs sm:text-sm">
                     </div>
 
                     <div>
                         <label class="block text-xs font-medium text-zinc-300 mb-1.5">Никнейм на форуме <span class="text-amber-400">*</span></label>
-                        <input type="text" id="profile-nickname-input" required minlength="3" maxlength="20" placeholder="Ваш ник" class="vel-input w-full px-4 py-3 rounded-xl text-sm font-semibold text-amber-300">
-                        <p id="nickname-status-msg" class="text-[11px] text-zinc-500 mt-1">Никнейм автоматически создается из почты, но вы можете изменить его. Занятые ники сохранять нельзя.</p>
+                        <input type="text" id="profile-nickname-input" required minlength="3" maxlength="20" placeholder="Ваш ник" class="vel-input w-full px-4 py-3 rounded-xl text-xs sm:text-sm font-semibold text-amber-300">
+                        <p id="nickname-status-msg" class="text-[11px] text-zinc-500 mt-1">Никнейм уникален. Занятые ники сохранять нельзя.</p>
                     </div>
 
                     <div class="p-3.5 rounded-xl bg-zinc-900/90 border border-zinc-800 text-xs text-zinc-400 space-y-1">
@@ -382,7 +378,7 @@
                     </div>
 
                     <div class="pt-2 flex gap-3">
-                        <button type="submit" class="gold-btn flex-1 py-3.5 rounded-xl font-bold text-zinc-950 text-sm cursor-pointer">Сохранить</button>
+                        <button type="submit" class="gold-btn flex-1 py-3.5 rounded-xl font-bold text-zinc-950 text-xs sm:text-sm cursor-pointer">Сохранить</button>
                         <button type="button" onclick="logoutAccount()" class="px-4 py-3.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 font-semibold text-xs cursor-pointer">Выйти</button>
                     </div>
                 </form>
@@ -391,25 +387,25 @@
 
         <!-- ПРОСМОТР ЧУЖОГО ПРОФИЛЯ -->
         <section id="view-user-profile" class="tab-content hidden max-w-xl mx-auto space-y-6">
-            <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 border border-amber-500/25">
+            <div class="glass-panel rounded-2xl p-5 sm:p-8 shadow-2xl space-y-6 border border-amber-500/25">
                 <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
                     <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
                             <i data-lucide="user" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h2 class="font-display font-bold text-lg text-white">Профиль пользователя</h2>
-                            <p class="text-xs text-zinc-400">Информация об участнике форума</p>
+                            <h2 class="font-display font-bold text-base sm:text-lg text-white">Профиль пользователя</h2>
+                            <p class="text-xs text-zinc-400">Информация об участнике</p>
                         </div>
                     </div>
-                    <button onclick="switchTab('feed')" class="px-3 py-1.5 bg-zinc-800 rounded-xl text-xs text-zinc-300 cursor-pointer">← На главную</button>
+                    <button onclick="switchTab('feed')" class="px-3 py-1.5 bg-zinc-800 rounded-xl text-xs text-zinc-300 cursor-pointer shrink-0">← На главную</button>
                 </div>
 
                 <div class="flex flex-col items-center justify-center space-y-3">
-                    <div class="w-24 h-24 rounded-2xl bg-zinc-900 border-2 border-amber-500/40 overflow-hidden flex items-center justify-center shadow-xl">
-                        <span id="view-profile-avatar" class="text-4xl">🐹</span>
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-zinc-900 border-2 border-amber-500/40 overflow-hidden flex items-center justify-center shadow-xl">
+                        <span id="view-profile-avatar" class="text-3xl sm:text-4xl">🐹</span>
                     </div>
-                    <h3 id="view-profile-nick" class="font-display font-bold text-lg text-amber-300">Ник</h3>
+                    <h3 id="view-profile-nick" class="font-display font-bold text-base sm:text-lg text-amber-300">Ник</h3>
                     <div id="view-profile-role-badge"></div>
                 </div>
 
@@ -419,8 +415,8 @@
                 </div>
 
                 <div class="space-y-2">
-                    <h4 class="font-bold text-xs text-zinc-400 uppercase tracking-wider">Активность пользователя</h4>
-                    <div id="view-profile-activity" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+                    <h4 class="font-bold text-xs text-zinc-400 uppercase tracking-wider">Активность</h4>
+                    <div id="view-profile-activity" class="space-y-2 max-h-48 overflow-y-auto pr-1 text-xs"></div>
                 </div>
             </div>
         </section>
@@ -436,9 +432,9 @@
                 <div class="w-12 h-12 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400 mx-auto">
                     <i data-lucide="info" class="w-6 h-6 text-amber-400"></i>
                 </div>
-                <h3 class="font-display font-bold text-base text-white">Основной набор в команду завершён</h3>
+                <h3 class="font-display font-bold text-sm sm:text-base text-white">Основной набор в команду завершён</h3>
                 <p class="text-xs text-zinc-400 max-w-md mx-auto leading-relaxed">
-                    На данный момент штат администрации уже укомплектован, и мест почти не осталось. <span class="text-amber-300 font-semibold">Вы всё равно можете отправить анкету</span>, но шанс попасть на должность сейчас невелик — мы рассмотрим только самые сильные заявки.
+                    Штат укомплектован. <span class="text-amber-300 font-semibold">Вы всё равно можете отправить анкету</span>, но рассмотрим только самые сильные заявки.
                 </p>
             </div>
 
@@ -447,24 +443,24 @@
                 <div class="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto">
                     <i data-lucide="shield-alert" class="w-6 h-6"></i>
                 </div>
-                <h3 class="font-display font-bold text-base text-white">Для подачи заявки воспользуйтесь аккаунтом форума</h3>
+                <h3 class="font-display font-bold text-sm sm:text-base text-white">Для подачи заявки воспользуйтесь аккаунтом</h3>
                 <button type="button" onclick="openAuthModal()" class="gold-btn px-6 py-3 rounded-xl font-bold text-zinc-950 text-xs inline-flex items-center gap-2 cursor-pointer">
                     <i data-lucide="log-in" class="w-4 h-4"></i> Войти в аккаунт
                 </button>
             </div>
 
             <!-- Форма анкеты -->
-            <div id="apply-form-wrapper" class="hidden glass-panel rounded-2xl p-5 sm:p-8 shadow-2xl">
-                <div class="mb-5 px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-300 flex justify-between items-center">
-                    <span>Подача анкеты от: <strong id="apply-logged-email" class="font-mono text-white"></strong></span>
-                    <span id="form-status-badge" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">🟢 Набор открыт</span>
+            <div id="apply-form-wrapper" class="hidden glass-panel rounded-2xl p-4 sm:p-8 shadow-2xl">
+                <div class="mb-4 px-3.5 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-300 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <span class="truncate">Подача от: <strong id="apply-logged-email" class="font-mono text-white"></strong></span>
+                    <span id="form-status-badge" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px] shrink-0">🟢 Набор открыт</span>
                 </div>
 
-                <form id="candidate-form" onsubmit="submitApplication(event)" class="space-y-5">
+                <form id="candidate-form" onsubmit="submitApplication(event)" class="space-y-4">
                     <div id="apply-step-1" class="space-y-4">
-                        <h3 class="font-display font-bold text-base text-white border-b border-zinc-800 pb-2">Шаг 1: Основная информация</h3>
+                        <h3 class="font-display font-bold text-sm sm:text-base text-white border-b border-zinc-800 pb-2">Шаг 1: Основная информация</h3>
                         
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div class="sm:col-span-2">
                                 <label class="block text-xs font-medium text-zinc-300 mb-1">Ваше имя *</label>
                                 <input type="text" id="app-name" required placeholder="Например: Александр" class="vel-input w-full px-3.5 py-3 rounded-xl text-xs">
@@ -475,10 +471,10 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs font-medium text-zinc-300 mb-1">Telegram (@username) *</label>
-                                <input type="text" id="app-tg" required placeholder="@your_telegram" class="vel-input w-full px-3.5 py-3 rounded-xl text-xs">
+                                <input type="text" id="app-tg" required placeholder="@username" class="vel-input w-full px-3.5 py-3 rounded-xl text-xs">
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-zinc-300 mb-1">Часовой пояс *</label>
@@ -488,39 +484,39 @@
 
                         <div>
                             <label class="block text-xs font-medium text-zinc-300 mb-1">Почему вы хотите стать администратором? *</label>
-                            <textarea id="app-why" rows="2" required placeholder="Опишите вашу мотивацию и почему мы должны выбрать именно вас..." class="vel-input w-full px-3.5 py-3 rounded-xl text-xs"></textarea>
+                            <textarea id="app-why" rows="2" required placeholder="Опишите вашу мотивацию..." class="vel-input w-full px-3.5 py-3 rounded-xl text-xs"></textarea>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-medium text-zinc-300 mb-1">Сколько времени можете уделять проекту в день? *</label>
-                            <input type="text" id="app-time" required placeholder="Например: 3–4 часа (вечером)" class="vel-input w-full px-3.5 py-3 rounded-xl text-xs">
+                            <label class="block text-xs font-medium text-zinc-300 mb-1">Сколько времени можете уделять в день? *</label>
+                            <input type="text" id="app-time" required placeholder="Например: 3–4 часа" class="vel-input w-full px-3.5 py-3 rounded-xl text-xs">
                         </div>
 
                         <div>
-                            <label class="block text-xs font-medium text-zinc-300 mb-1">Есть ли у вас опыт администратора или модератора? *</label>
-                            <textarea id="app-exp" rows="2" required placeholder="Опишите ваш прошлый опыт или укажите, что его нет, но вы быстро учитесь..." class="vel-input w-full px-3.5 py-3 rounded-xl text-xs"></textarea>
+                            <label class="block text-xs font-medium text-zinc-300 mb-1">Есть ли опыт администратора или модератора? *</label>
+                            <textarea id="app-exp" rows="2" required placeholder="Опишите прошлый опыт..." class="vel-input w-full px-3.5 py-3 rounded-xl text-xs"></textarea>
                         </div>
 
-                        <div class="p-4 rounded-xl bg-zinc-900 border border-zinc-800 space-y-2">
-                            <label class="flex items-start gap-3 cursor-pointer select-none">
-                                <input type="checkbox" id="app-contract-agree" required class="mt-1 w-4 h-4 rounded accent-amber-500 cursor-pointer">
+                        <div class="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800">
+                            <label class="flex items-start gap-2.5 cursor-pointer select-none">
+                                <input type="checkbox" id="app-contract-agree" required class="mt-0.5 w-4 h-4 rounded accent-amber-500 cursor-pointer shrink-0">
                                 <span class="text-xs text-zinc-300 leading-relaxed">
-                                    Я внимательно прочитал <button type="button" onclick="switchTab('contract')" class="text-amber-400 font-semibold underline">Контракт администратора</button> и полностью согласен со всеми правилами проекта VelHamster. <span class="text-amber-400">*</span>
+                                    Я прочитал <button type="button" onclick="switchTab('contract')" class="text-amber-400 font-semibold underline">Контракт администратора</button> и согласен с правилами. <span class="text-amber-400">*</span>
                                 </span>
                             </label>
                         </div>
 
-                        <button type="button" onclick="goToStep2()" class="gold-btn w-full py-3.5 rounded-xl font-bold text-zinc-950 text-xs cursor-pointer">Далее → Пройти тест (9 вопросов)</button>
+                        <button type="button" onclick="goToStep2()" class="gold-btn w-full py-3.5 rounded-xl font-bold text-zinc-950 text-xs cursor-pointer">Далее → Тест (9 вопросов)</button>
                     </div>
 
                     <div id="apply-step-2" class="hidden space-y-4">
-                        <h3 class="font-display font-bold text-base text-white border-b border-zinc-800 pb-2">Шаг 2: Ситуационный тест</h3>
+                        <h3 class="font-display font-bold text-sm sm:text-base text-white border-b border-zinc-800 pb-2">Шаг 2: Ситуационный тест</h3>
                         <p class="text-xs text-zinc-400">Ответьте развернуто на вопросы ниже:</p>
                         
-                        <div id="questions-container" class="space-y-4"></div>
+                        <div id="questions-container" class="space-y-3"></div>
 
                         <div class="flex gap-2 pt-2">
-                            <button type="button" onclick="backToStep1()" class="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-xl text-xs cursor-pointer">← Назад к анкете</button>
+                            <button type="button" onclick="backToStep1()" class="px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-xl text-xs cursor-pointer">← Назад</button>
                             <button type="submit" class="gold-btn flex-1 py-3 rounded-xl font-bold text-zinc-950 text-xs cursor-pointer">Отправить заявку</button>
                         </div>
                     </div>
@@ -528,154 +524,118 @@
             </div>
         </section>
 
-        <!-- РАЗДЕЛ: ЖАЛОБЫ (ФОРУМ) -->
+        <!-- РАЗДЕЛ: ЖАЛОБЫ -->
         <section id="view-complaints" class="tab-content hidden max-w-4xl mx-auto space-y-5">
-            <div class="glass-panel rounded-2xl p-5 sm:p-6 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="glass-panel rounded-2xl p-4 sm:p-6 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="space-y-1">
                     <div class="flex items-center gap-2 text-xs text-zinc-400">
                         <span onclick="switchTab('feed')" class="hover:text-amber-400 cursor-pointer">Форум</span>
                         <span>›</span>
-                        <span class="text-zinc-300">Разделы</span>
-                        <span>›</span>
                         <span class="text-amber-400 font-semibold">Жалобы</span>
                     </div>
-                    <h2 class="font-display font-bold text-xl sm:text-2xl text-white">Жалобы на игроков и Администрацию</h2>
-                    <p class="text-xs text-zinc-400">В данном разделе форума вы можете подать жалобу или апелляцию на неверный мут/бан или нарушение правил.</p>
+                    <h2 class="font-display font-bold text-lg sm:text-2xl text-white">Жалобы на игроков</h2>
+                    <p class="text-xs text-zinc-400">Подайте жалобу на нарушения или неверный мут/бан.</p>
                 </div>
-                <div class="flex gap-2 shrink-0">
-                    <button onclick="switchTab('feed')" class="px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-xs font-semibold cursor-pointer">← На главную</button>
-                    <button onclick="openComplaintModal()" class="gold-btn px-5 py-3 rounded-xl font-bold text-zinc-950 text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer">
-                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Подать жалобу
+                <div class="flex flex-wrap gap-2 shrink-0">
+                    <button onclick="switchTab('feed')" class="px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-xs font-semibold cursor-pointer">← На главную</button>
+                    <button onclick="openComplaintModal()" class="gold-btn px-4 py-2.5 rounded-xl font-bold text-zinc-950 text-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Жалоба
                     </button>
                 </div>
             </div>
 
             <div class="forum-row rounded-2xl p-4 sm:p-5 border-l-4 border-l-pink-500 space-y-2">
-                <div class="flex flex-wrap items-center gap-2">
+                <div class="flex items-center gap-2">
                     <span class="px-2 py-0.5 rounded bg-pink-600 text-white font-bold text-[10px] uppercase tracking-wider">важно</span>
-                    <span class="text-zinc-400 text-xs">📌</span>
-                    <h3 class="font-bold text-sm sm:text-base text-white">Форма и правила подачи жалобы на форуме VelHamster</h3>
+                    <h3 class="font-bold text-xs sm:text-sm text-white">Правила подачи жалобы</h3>
                 </div>
-                <p class="text-xs text-zinc-300 leading-relaxed">
-                    Перед подачей жалобы убедитесь, что у вас есть скриншоты или видео нарушения. Срок рассмотрения жалобы модераторами — от 1 часа до 48 часов.
-                </p>
+                <p class="text-xs text-zinc-300 leading-relaxed">Убедитесь, что у вас есть скриншоты или доказательства. Срок рассмотрения — от 1 до 48 часов.</p>
             </div>
 
             <div class="space-y-2.5">
                 <div class="flex items-center justify-between px-1">
-                    <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Список жалоб на форуме</span>
+                    <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Список жалоб</span>
                     <span id="complaints-count-badge" class="text-xs text-zinc-500">Всего: 0</span>
                 </div>
                 <div id="all-complaints-list" class="space-y-2.5">
-                    <div class="glass-panel rounded-2xl p-8 text-center text-zinc-500 text-xs">Загрузка списка жалоб...</div>
+                    <div class="glass-panel rounded-2xl p-8 text-center text-zinc-500 text-xs">Загрузка...</div>
                 </div>
             </div>
         </section>
 
-        <!-- РАЗДЕЛ: ИДЕИ (ФОРУМ) -->
+        <!-- РАЗДЕЛ: ИДЕИ -->
         <section id="view-ideas" class="tab-content hidden max-w-4xl mx-auto space-y-5">
-            <div class="glass-panel rounded-2xl p-5 sm:p-6 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="glass-panel rounded-2xl p-4 sm:p-6 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="space-y-1">
                     <div class="flex items-center gap-2 text-xs text-zinc-400">
                         <span onclick="switchTab('feed')" class="hover:text-amber-400 cursor-pointer">Форум</span>
                         <span>›</span>
-                        <span class="text-zinc-300">Разделы</span>
-                        <span>›</span>
-                        <span class="text-amber-400 font-semibold">Идеи и предложения</span>
+                        <span class="text-amber-400 font-semibold">Идеи</span>
                     </div>
-                    <h2 class="font-display font-bold text-xl sm:text-2xl text-white">Идеи и предложения по улучшению игры</h2>
-                    <p class="text-xs text-zinc-400">Предлагайте новые функции и механики на форуме! Обсуждайте и поддерживайте лучшие идеи других игроков.</p>
+                    <h2 class="font-display font-bold text-lg sm:text-2xl text-white">Идеи и предложения</h2>
+                    <p class="text-xs text-zinc-400">Предлагайте новые функции и механики для игры.</p>
                 </div>
-                <div class="flex gap-2 shrink-0">
-                    <button onclick="switchTab('feed')" class="px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-xs font-semibold cursor-pointer">← На главную</button>
-                    <button onclick="openIdeaModal()" class="gold-btn px-5 py-3 rounded-xl font-bold text-zinc-950 text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer">
-                        <i data-lucide="lightbulb" class="w-4 h-4"></i> Предложить идею
+                <div class="flex flex-wrap gap-2 shrink-0">
+                    <button onclick="switchTab('feed')" class="px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-xs font-semibold cursor-pointer">← На главную</button>
+                    <button onclick="openIdeaModal()" class="gold-btn px-4 py-2.5 rounded-xl font-bold text-zinc-950 text-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i data-lucide="lightbulb" class="w-4 h-4"></i> Идея
                     </button>
                 </div>
             </div>
 
             <div class="space-y-2.5">
                 <div class="flex items-center justify-between px-1">
-                    <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Предложения участников форума</span>
+                    <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Предложения игроков</span>
                     <span id="ideas-count-badge" class="text-xs text-zinc-500">Всего: 0</span>
                 </div>
                 <div id="all-ideas-list" class="space-y-3">
-                    <div class="glass-panel rounded-2xl p-8 text-center text-zinc-500 text-xs">Загрузка идей...</div>
+                    <div class="glass-panel rounded-2xl p-8 text-center text-zinc-500 text-xs">Загрузка...</div>
                 </div>
             </div>
         </section>
 
         <!-- СТАТУС / МОИ ТИКЕТЫ -->
         <section id="view-status" class="tab-content hidden max-w-2xl mx-auto space-y-6">
-            <div class="glass-panel rounded-2xl p-6 shadow-2xl space-y-4">
+            <div class="glass-panel rounded-2xl p-5 sm:p-6 shadow-2xl space-y-4">
                 <div class="flex justify-between items-center pb-2 border-b border-zinc-800">
-                    <h2 class="font-display font-bold text-lg text-white">Мои тикеты (заявки и жалобы на форуме)</h2>
+                    <h2 class="font-display font-bold text-base sm:text-lg text-white">Мои тикеты</h2>
                     <button onclick="switchTab('feed')" class="px-3 py-1.5 bg-zinc-800 rounded-xl text-xs text-zinc-300 cursor-pointer">← На главную</button>
                 </div>
                 <div id="my-account-apps-container" class="space-y-3">
-                    <div class="text-zinc-500 text-xs">Войдите в аккаунт форума, чтобы видеть свои тикеты.</div>
+                    <div class="text-zinc-500 text-xs">Войдите в аккаунт, чтобы видеть свои тикеты.</div>
                 </div>
             </div>
         </section>
 
         <!-- КОНТРАКТ -->
         <section id="view-contract" class="tab-content hidden max-w-3xl mx-auto space-y-6">
-            <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 text-sm text-zinc-300 leading-relaxed">
+            <div class="glass-panel rounded-2xl p-5 sm:p-8 shadow-2xl space-y-6 text-sm text-zinc-300 leading-relaxed">
                 <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
                     <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
                             <i data-lucide="scroll-text" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h2 class="font-display font-bold text-lg text-white">🤝 Внутреннее соглашение (Контракт) администратора проекта VelHamster</h2>
-                            <p class="text-xs text-zinc-400">Официальное внутреннее соглашение команды</p>
+                            <h2 class="font-display font-bold text-base sm:text-lg text-white">🤝 Контракт администратора</h2>
+                            <p class="text-xs text-zinc-400">Соглашение команды</p>
                         </div>
                     </div>
-                    <button onclick="switchTab('feed')" class="px-3 py-1.5 bg-zinc-800 rounded-xl text-xs text-zinc-300 cursor-pointer">← На главную</button>
+                    <button onclick="switchTab('feed')" class="px-3 py-1.5 bg-zinc-800 rounded-xl text-xs text-zinc-300 cursor-pointer shrink-0">← На главную</button>
                 </div>
 
-                <div class="space-y-6 text-xs sm:text-sm">
-                    <p class="text-zinc-400 italic">
-                        Документ определяет правила взаимодействия между командой проекта VelHamster и назначенным администратором (модератором). Начиная работу, администратор подтверждает своё согласие с данными условиями.
-                    </p>
-
+                <div class="space-y-5 text-xs sm:text-sm">
+                    <p class="text-zinc-400 italic">Документ определяет правила взаимодействия между командой проекта VelHamster и администратором.</p>
                     <div class="space-y-2">
                         <h3 class="font-bold text-amber-400">1. Общие положения</h3>
-                        <p>1.1. Администратор является лицом проекта и представляет его интересы перед игровым комьюнити.</p>
-                        <p>1.2. Главная цель администратора — поддержание порядка, дружелюбной атмосферы и оперативная помощь игрокам.</p>
+                        <p>1.1. Администратор представляет интересы проекта перед комьюнити и помогает игрокам.</p>
                     </div>
-
                     <div class="space-y-2">
-                        <h3 class="font-bold text-amber-400">2. Обязанности администратора</h3>
-                        <p>2.1. Контролировать соблюдение правил во всех официальных чатах и каналах VelHamster.</p>
-                        <p>2.2. Пресекать спам, рекламу, оскорбления, мошенничество и разжигание конфликтов.</p>
-                        <p>2.3. Оперативно отвечать на вопросы игроков и помогать им разобраться в механиках игры.</p>
-                        <p>2.4. Передавать важные баги, жалобы или идеи от игроков старшей команде (разработчикам/админам).</p>
+                        <h3 class="font-bold text-amber-400">2. Обязанности</h3>
+                        <p>2.1. Контролировать правила в чатах, пресекать спам и рекламу, отвечать на вопросы.</p>
                     </div>
-
-                    <div class="p-4 rounded-xl bg-red-500/10 border border-red-500/25 space-y-2">
-                        <h3 class="font-bold text-red-400">3. Категорически запрещено (Штраф / Снятие с должности)</h3>
-                        <p>3.1. Оскорблять участников комьюнити или проявлять токсичность (админ всегда держит лицо).</p>
-                        <p>3.2. Распространять непроверенную информацию, слухи или фейки о листинге, токенах и обновлениях.</p>
-                        <p>3.3. Вымогать у игроков деньги, пароли, сид-фразы или данные аккаунтов (мгновенный перманентный бан и исключение из команды).</p>
-                        <p>3.4. Использовать админ-права в личных целях (разбан друзей по блату, злоупотребление властью).</p>
-                    </div>
-
-                    <div class="space-y-2">
-                        <h3 class="font-bold text-amber-400">4. Условия работы и вознаграждение</h3>
-                        <p>4.1. Формат работы: на добровольной основе (волонтёрство) с возможностью получения внутриигровых бонусов и наград по мере развития проекта.</p>
-                        <p>4.2. График: согласовывается индивидуально, но суммарный актив в сети должен составлять не менее 2–4 часов в день.</p>
-                    </div>
-
-                    <div class="space-y-2">
-                        <h3 class="font-bold text-amber-400">5. Конфиденциальность</h3>
-                        <p>5.1. Вся информация из закрытых чатов команды (планы, даты релизов, код, экономика) является конфиденциальной. Слив инфы наружу карается снятием с поста.</p>
-                    </div>
-
-                    <div class="space-y-2">
-                        <h3 class="font-bold text-amber-400">6. Расторжение контракта</h3>
-                        <p>6.1. Администратор может покинуть проект в любой момент, предупредив старших за 2–3 дня и передав дела.</p>
-                        <p>6.2. Проект оставляет за собой право снять администратора с должности в любой момент без объяснения причин в случае грубых нарушений правил.</p>
+                    <div class="p-3.5 rounded-xl bg-red-500/10 border border-red-500/25 space-y-2">
+                        <h3 class="font-bold text-red-400">3. Категорически запрещено</h3>
+                        <p>3.1. Проявлять токсичность, распространять слухи о листинге, вымогать данные игроков (мгновенный бан).</p>
                     </div>
                 </div>
             </div>
@@ -683,97 +643,83 @@
 
         <!-- ПАНЕЛЬ УПРАВЛЕНИЯ ФОРУМОМ (АДМИНКА) -->
         <section id="view-staff-panel" class="tab-content hidden space-y-6">
-            <div class="glass-panel rounded-2xl p-6 space-y-6 border border-amber-500/25">
-                <div class="flex justify-between items-center pb-4 border-b border-zinc-800">
+            <div class="glass-panel rounded-2xl p-4 sm:p-6 space-y-6 border border-amber-500/25">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-zinc-800 gap-3">
                     <div>
                         <h2 class="font-display font-bold text-base text-white">Панель управления форумом</h2>
-                        <p class="text-xs text-zinc-400">Модерация заявок, жалоб, идей, постов в ленте, релизов и ролей участников</p>
+                        <p class="text-xs text-zinc-400">Модерация контента и выдача ролей</p>
                     </div>
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-3 w-full sm:w-auto justify-between">
                         <span id="staff-role-label" class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold">Роль</span>
                         <button onclick="switchTab('feed')" class="px-3 py-1.5 bg-zinc-800 rounded-xl text-xs text-zinc-300 cursor-pointer">← На главную</button>
                     </div>
                 </div>
 
-                <!-- Переключатель плашки набора на главной странице форума -->
                 <div class="p-4 rounded-xl bg-zinc-900 border border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="space-y-1 text-center sm:text-left">
                         <h3 class="font-bold text-xs text-white flex items-center gap-2 justify-center sm:justify-start">
-                            <i data-lucide="pin" class="w-4 h-4 text-amber-400"></i> Закрепленное объявление о наборе на Главной форума
+                            <i data-lucide="pin" class="w-4 h-4 text-amber-400"></i> Набор на Главной форума
                         </h3>
-                        <p class="text-[11px] text-zinc-400">При закрытии набора закрепленный блок с задачами и описанием мгновенно пропадает с главной страницы.</p>
+                        <p class="text-[11px] text-zinc-400">Включение/выключение плашки набора.</p>
                     </div>
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-3 w-full sm:w-auto justify-between">
                         <span id="settings-apply-status-text" class="text-xs font-bold text-emerald-400">Набор открыт</span>
-                        <button id="toggle-apply-btn" onclick="toggleApplicationStatus()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl text-xs cursor-pointer transition-all">
-                            Закрыть набор
-                        </button>
+                        <button id="toggle-apply-btn" onclick="toggleApplicationStatus()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl text-xs cursor-pointer transition-all">Закрыть</button>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <div class="lg:col-span-5 space-y-6">
                         <div id="admin-post-create-box" class="glass-panel rounded-2xl p-4 space-y-3 hidden">
-                            <h3 class="font-bold text-xs text-white flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4 text-amber-400"></i> Создать пост в ленте форума</h3>
+                            <h3 class="font-bold text-xs text-white flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4 text-amber-400"></i> Создать пост</h3>
                             <form onsubmit="publishAnnouncement(event)" class="space-y-3">
-                                <input type="text" id="post-title" required placeholder="Заголовок объявления" class="vel-input w-full px-3 py-2 rounded-lg text-xs">
-                                
-                                <div class="grid grid-cols-1 gap-2">
-                                    <label class="block text-[11px] text-zinc-400 font-semibold">Категория поста:</label>
-                                    <select id="post-category" onchange="checkCustomCategory(this)" class="vel-input w-full px-3 py-2 rounded-lg text-xs">
-                                        <option value="Вакансии">🔥 Вакансии</option>
-                                        <option value="Новости игры">🎮 Новости игры</option>
-                                        <option value="Гайд">📚 Гайд</option>
-                                        <option value="Важное">📌 Важное</option>
-                                        <option value="custom">✏️ Своя категория...</option>
-                                    </select>
-                                    <input type="text" id="post-custom-category" placeholder="Введите название своей категории" class="vel-input w-full px-3 py-2 rounded-lg text-xs hidden">
-                                </div>
-
-                                <textarea id="post-content" rows="3" required placeholder="Текст объявления..." class="vel-input w-full px-3 py-2 rounded-lg text-xs"></textarea>
-                                
+                                <input type="text" id="post-title" required placeholder="Заголовок" class="vel-input w-full px-3 py-2 rounded-lg text-xs">
+                                <select id="post-category" onchange="checkCustomCategory(this)" class="vel-input w-full px-3 py-2 rounded-lg text-xs">
+                                    <option value="Вакансии">🔥 Вакансии</option>
+                                    <option value="Новости игры">🎮 Новости игры</option>
+                                    <option value="Гайд">📚 Гайд</option>
+                                    <option value="Важное">📌 Важное</option>
+                                    <option value="custom">✏️ Своя категория...</option>
+                                </select>
+                                <input type="text" id="post-custom-category" placeholder="Название категории" class="vel-input w-full px-3 py-2 rounded-lg text-xs hidden">
+                                <textarea id="post-content" rows="3" required placeholder="Текст поста..." class="vel-input w-full px-3 py-2 rounded-lg text-xs"></textarea>
                                 <label class="flex items-center gap-2 cursor-pointer select-none">
                                     <input type="checkbox" id="post-pinned" class="w-4 h-4 rounded accent-amber-500 cursor-pointer">
-                                    <span class="text-xs text-amber-300 font-semibold">📌 Закрепить (только в этой категории)</span>
+                                    <span class="text-xs text-amber-300 font-semibold">📌 Закрепить</span>
                                 </label>
-
-                                <button type="submit" class="gold-btn w-full py-2.5 rounded-xl font-bold text-zinc-950 text-xs cursor-pointer">Опубликовать пост</button>
+                                <button type="submit" class="gold-btn w-full py-2.5 rounded-xl font-bold text-zinc-950 text-xs cursor-pointer">Опубликовать</button>
                             </form>
                         </div>
 
-                        <!-- УПРАВЛЕНИЕ РОЛЯМИ ЧЕРЕЗ СПИСОК ПОЛЬЗОВАТЕЛЕЙ -->
+                        <!-- СПИСОК ПОЛЬЗОВАТЕЛЕЙ И ВЫДАЧА РОЛЕЙ -->
                         <div id="admin-role-manager-box" class="glass-panel rounded-2xl p-4 space-y-3 hidden">
-                            <h3 class="font-bold text-xs text-white flex items-center gap-1.5"><i data-lucide="users" class="w-4 h-4 text-amber-400"></i> Список участников и выдача ролей</h3>
-                            <p class="text-[11px] text-zinc-400">Выберите нужного игрока из списка и измените его роль в один клик:</p>
+                            <h3 class="font-bold text-xs text-white flex items-center gap-1.5"><i data-lucide="users" class="w-4 h-4 text-amber-400"></i> Список игроков и выдача ролей</h3>
+                            <p class="text-[11px] text-zinc-400">Выберите игрока и смените его роль:</p>
                             <div id="admin-users-list-container" class="space-y-2 max-h-[320px] overflow-y-auto pr-1">
-                                <div class="text-zinc-500 text-xs">Загрузка списка пользователей...</div>
+                                <div class="text-zinc-500 text-xs">Загрузка...</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="lg:col-span-7 space-y-6">
                         <div class="glass-panel rounded-2xl p-4 space-y-3">
-                            <h3 class="font-bold text-xs text-white flex items-center gap-1.5"><i data-lucide="file-text" class="w-4 h-4 text-amber-400"></i> Заявки на набор в Администрацию</h3>
+                            <h3 class="font-bold text-xs text-white flex items-center gap-1.5"><i data-lucide="file-text" class="w-4 h-4 text-amber-400"></i> Заявки в админы</h3>
                             <div id="staff-applications-list" class="space-y-3 max-h-[300px] overflow-y-auto pr-1"></div>
                         </div>
-
                         <div class="glass-panel rounded-2xl p-4 space-y-3">
-                            <h3 class="font-bold text-xs text-white flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-4 h-4 text-red-400"></i> Жалобы на форуме</h3>
+                            <h3 class="font-bold text-xs text-white flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-4 h-4 text-red-400"></i> Жалобы</h3>
                             <div id="staff-complaints-list" class="space-y-3 max-h-[300px] overflow-y-auto pr-1"></div>
                         </div>
-
                         <div class="glass-panel rounded-2xl p-4 space-y-3">
-                            <h3 class="font-bold text-xs text-white flex items-center gap-1.5"><i data-lucide="lightbulb" class="w-4 h-4 text-amber-400"></i> Идеи и предложения</h3>
+                            <h3 class="font-bold text-xs text-white flex items-center gap-1.5"><i data-lucide="lightbulb" class="w-4 h-4 text-amber-400"></i> Идеи</h3>
                             <div id="staff-ideas-list" class="space-y-3 max-h-[300px] overflow-y-auto pr-1"></div>
                         </div>
-
                         <div class="glass-panel rounded-2xl p-4 space-y-3">
-                            <h3 class="font-bold text-xs text-white flex items-center gap-1.5"><i data-lucide="newspaper" class="w-4 h-4 text-sky-400"></i> Посты в Ленте форума</h3>
+                            <h3 class="font-bold text-xs text-white flex items-center gap-1.5"><i data-lucide="newspaper" class="w-4 h-4 text-sky-400"></i> Посты в ленте</h3>
                             <div id="staff-announcements-list" class="space-y-3 max-h-[300px] overflow-y-auto pr-1"></div>
                         </div>
-
                         <div class="glass-panel rounded-2xl p-4 space-y-3">
-                            <h3 class="font-bold text-xs text-white flex items-center gap-1.5"><i data-lucide="rocket" class="w-4 h-4 text-amber-400"></i> Релизы обновлений</h3>
+                            <h3 class="font-bold text-xs text-white flex items-center gap-1.5"><i data-lucide="rocket" class="w-4 h-4 text-amber-400"></i> Релизы</h3>
                             <div id="staff-releases-list" class="space-y-3 max-h-[300px] overflow-y-auto pr-1"></div>
                         </div>
                     </div>
@@ -783,49 +729,49 @@
     </main>
 
     <!-- МОДАЛЬНЫЕ ОКНА -->
-    <div id="complaint-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-        <div class="glass-panel border border-zinc-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+    <div id="complaint-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm">
+        <div class="glass-panel border border-zinc-700 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center pb-2 border-b border-zinc-800">
-                <h3 class="font-display font-bold text-base text-white">Подать жалобу на форуме</h3>
+                <h3 class="font-display font-bold text-sm sm:text-base text-white">Подать жалобу</h3>
                 <button onclick="closeComplaintModal()" class="text-zinc-400 hover:text-white cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <form onsubmit="submitComplaint(event)" class="space-y-3.5 text-xs">
+            <form onsubmit="submitComplaint(event)" class="space-y-3 text-xs">
                 <input type="text" id="comp-author-nick" required placeholder="Ваш ник" class="vel-input w-full px-3.5 py-2.5 rounded-xl">
                 <input type="text" id="comp-violator" required placeholder="Ник нарушителя" class="vel-input w-full px-3.5 py-2.5 rounded-xl">
                 <input type="text" id="comp-title" required placeholder="Суть жалобы" class="vel-input w-full px-3.5 py-2.5 rounded-xl">
-                <textarea id="comp-desc" rows="3" required placeholder="Подробное описание..." class="vel-input w-full px-3.5 py-2.5 rounded-xl"></textarea>
+                <textarea id="comp-desc" rows="3" required placeholder="Описание..." class="vel-input w-full px-3.5 py-2.5 rounded-xl"></textarea>
                 <input type="text" id="comp-proof" required placeholder="Ссылка на доказательства" class="vel-input w-full px-3.5 py-2.5 rounded-xl">
-                <button type="submit" class="gold-btn w-full py-2.5 rounded-xl font-bold text-zinc-950 cursor-pointer">Отправить жалобу</button>
+                <button type="submit" class="gold-btn w-full py-2.5 rounded-xl font-bold text-zinc-950 cursor-pointer">Отправить</button>
             </form>
         </div>
     </div>
 
-    <div id="idea-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-        <div class="glass-panel border border-zinc-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+    <div id="idea-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm">
+        <div class="glass-panel border border-zinc-700 rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center pb-2 border-b border-zinc-800">
-                <h3 class="font-display font-bold text-base text-white">Предложить новую идею на форуме</h3>
+                <h3 class="font-display font-bold text-sm sm:text-base text-white">Предложить идею</h3>
                 <button onclick="closeIdeaModal()" class="text-zinc-400 hover:text-white cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <form onsubmit="submitIdea(event)" class="space-y-4 text-xs">
+            <form onsubmit="submitIdea(event)" class="space-y-3 text-xs">
                 <div>
-                    <label class="block text-amber-300 font-semibold mb-1">1. Что бы вы хотели видеть в нашем проекте? *</label>
-                    <input type="text" id="idea-q1" required placeholder="Краткое название или суть идеи..." class="vel-input w-full px-3.5 py-2.5 rounded-xl">
+                    <label class="block text-amber-300 font-semibold mb-1">1. Суть идеи *</label>
+                    <input type="text" id="idea-q1" required placeholder="Название..." class="vel-input w-full px-3.5 py-2.5 rounded-xl">
                 </div>
                 <div>
-                    <label class="block text-amber-300 font-semibold mb-1">2. Почему именно вы хотите добавить эту функцию? *</label>
-                    <textarea id="idea-q2" rows="2" required placeholder="Польза для игроков и проекта..." class="vel-input w-full px-3.5 py-2.5 rounded-xl"></textarea>
+                    <label class="block text-amber-300 font-semibold mb-1">2. Польза для проекта *</label>
+                    <textarea id="idea-q2" rows="2" required placeholder="Почему это нужно..." class="vel-input w-full px-3.5 py-2.5 rounded-xl"></textarea>
                 </div>
                 <div>
-                    <label class="block text-amber-300 font-semibold mb-1">3. Как, по вашему мнению, эта функция будет работать? *</label>
-                    <textarea id="idea-q3" rows="2" required placeholder="Пошаговое описание механики..." class="vel-input w-full px-3.5 py-2.5 rounded-xl"></textarea>
+                    <label class="block text-amber-300 font-semibold mb-1">3. Как это будет работать? *</label>
+                    <textarea id="idea-q3" rows="2" required placeholder="Описание механики..." class="vel-input w-full px-3.5 py-2.5 rounded-xl"></textarea>
                 </div>
                 <div>
-                    <label class="block text-amber-300 font-semibold mb-1">4. Для кого будет полезна эта функция? *</label>
-                    <input type="text" id="idea-q4" required placeholder="Например: Для всех игроков / Для новичков" class="vel-input w-full px-3.5 py-2.5 rounded-xl">
+                    <label class="block text-amber-300 font-semibold mb-1">4. Для кого полезно? *</label>
+                    <input type="text" id="idea-q4" required placeholder="Для всех игроков" class="vel-input w-full px-3.5 py-2.5 rounded-xl">
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-amber-300 font-semibold mb-1">5. Насколько важна эта функция? *</label>
+                        <label class="block text-amber-300 font-semibold mb-1">5. Важность *</label>
                         <select id="idea-q6" class="vel-input w-full px-3 py-2.5 rounded-xl">
                             <option value="Обязательно добавить">🔥 Обязательно добавить</option>
                             <option value="Было бы неплохо">👍 Было бы неплохо</option>
@@ -833,7 +779,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-amber-300 font-semibold mb-1">6. Готовы ли вы помочь с реализацией? *</label>
+                        <label class="block text-amber-300 font-semibold mb-1">6. Готовы помочь? *</label>
                         <select id="idea-q8" class="vel-input w-full px-3 py-2.5 rounded-xl">
                             <option value="Да">✅ Да</option>
                             <option value="Возможно">🤔 Возможно</option>
@@ -841,16 +787,16 @@
                         </select>
                     </div>
                 </div>
-                <button type="submit" class="gold-btn w-full py-2.5 rounded-xl font-bold text-zinc-950 cursor-pointer">Опубликовать идею</button>
+                <button type="submit" class="gold-btn w-full py-2.5 rounded-xl font-bold text-zinc-950 cursor-pointer">Опубликовать</button>
             </form>
         </div>
     </div>
 
-    <!-- ОКНО АВТОРИЗАЦИИ (Только Google и Email) -->
-    <div id="auth-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-        <div class="glass-panel border border-zinc-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+    <!-- ОКНО АВТОРИЗАЦИИ -->
+    <div id="auth-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm">
+        <div class="glass-panel border border-zinc-700 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center">
-                <h3 class="font-display font-bold text-base text-white">Авторизация на форуме VelHamster</h3>
+                <h3 class="font-display font-bold text-sm sm:text-base text-white">Авторизация в VelHamster</h3>
                 <button onclick="closeAuthModal()" class="text-zinc-400 hover:text-white cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="space-y-2">
@@ -862,7 +808,7 @@
             <form onsubmit="handleEmailAuth(event)" class="space-y-3 pt-2 border-t border-zinc-800">
                 <input type="email" id="auth-email-input" required placeholder="email@gmail.com" class="vel-input w-full px-3 py-2.5 rounded-xl text-xs">
                 <input type="password" id="auth-pass-input" minlength="6" required placeholder="Пароль" class="vel-input w-full px-3 py-2.5 rounded-xl text-xs">
-                <button type="submit" class="gold-btn w-full py-3 rounded-xl font-bold text-zinc-950 text-xs cursor-pointer">Войти / Создать через Email</button>
+                <button type="submit" class="gold-btn w-full py-3 rounded-xl font-bold text-zinc-950 text-xs cursor-pointer">Войти / Создать</button>
             </form>
         </div>
     </div>
@@ -929,9 +875,9 @@
                 const btn = document.getElementById('cat-btn-' + cat);
                 if (btn) {
                     if (cat === category) {
-                        btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-500 text-zinc-950 transition-all cursor-pointer shadow-md";
+                        btn.className = "px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-500 text-zinc-950 transition-all cursor-pointer shadow-md shrink-0";
                     } else {
-                        btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer";
+                        btn.className = "px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer shrink-0";
                     }
                 }
             });
@@ -973,7 +919,7 @@
             const container = document.getElementById('questions-container');
             if (container) {
                 container.innerHTML = TEST_QUESTIONS.map((q, i) => `
-                    <div class="p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 space-y-2">
+                    <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1.5">
                         <label class="block text-xs font-semibold text-amber-300">${q}</label>
                         <textarea id="q-${i+1}" rows="2" required placeholder="Ваш развернутый ответ..." class="vel-input w-full px-3 py-2 rounded-lg text-xs"></textarea>
                     </div>
@@ -1108,11 +1054,11 @@
                 if (isApplicationOpen) {
                     settingsText.innerText = "Набор открыт";
                     settingsText.className = "text-xs font-bold text-emerald-400";
-                    toggleBtn.innerText = "Закрыть набор";
+                    toggleBtn.innerText = "Закрыть";
                 } else {
-                    settingsText.innerText = "Набор закрыт (Плашка скрыта)";
+                    settingsText.innerText = "Набор закрыт";
                     settingsText.className = "text-xs font-bold text-amber-400";
-                    toggleBtn.innerText = "Открыть набор";
+                    toggleBtn.innerText = "Открыть";
                 }
             }
 
@@ -1170,7 +1116,7 @@
                 createdAt: new Date().toISOString()
             });
             closeComplaintModal();
-            showToast("Жалоба опубликована на форуме!");
+            showToast("Жалоба опубликована!");
             e.target.reset();
         };
 
@@ -1191,7 +1137,7 @@
                 createdAt: new Date().toISOString()
             });
             closeIdeaModal();
-            showToast("Идея добавлена на форум!");
+            showToast("Идея добавлена!");
             e.target.reset();
         };
 
@@ -1230,7 +1176,7 @@
                 authorName: userProfileData.nickname || currentUser.email.split('@')[0],
                 createdAt: new Date().toISOString()
             });
-            showToast("Пост опубликован в ленте форума!");
+            showToast("Пост опубликован!");
             e.target.reset();
             document.getElementById('post-custom-category').classList.add('hidden');
         };
@@ -1243,13 +1189,13 @@
 
         window.updateAppStatus = async (id, status) => { const staffName = userProfileData.nickname || currentUser.email.split('@')[0]; await updateDoc(doc(db, appId + '_applications', id), { status, handledBy: staffName }); showToast("Статус обновлен"); };
         window.sendAdminResponse = async (id) => { const text = document.getElementById('admin-resp-input-'+id).value; await updateDoc(doc(db, appId + '_applications', id), { adminResponse: text }); showToast("Ответ отправлен"); };
-        window.updateComplaintStatus = async (id, status) => { const staffName = userProfileData.nickname || currentUser.email.split('@')[0]; await updateDoc(doc(db, appId + '_complaints', id), { status, handledBy: staffName }); showToast("Статус жалобы обновлен"); };
+        window.updateComplaintStatus = async (id, status) => { const staffName = userProfileData.nickname || currentUser.email.split('@')[0]; await updateDoc(doc(db, appId + '_complaints', id), { status, handledBy: staffName }); showToast("Статус обновлен"); };
         window.sendComplaintResponse = async (id) => { const text = document.getElementById('comp-resp-input-'+id).value; await updateDoc(doc(db, appId + '_complaints', id), { adminResponse: text }); showToast("Ответ отправлен"); };
 
         window.changeUserRoleDirect = async function(userId, newRole) {
             try {
                 await updateDoc(doc(db, appId + '_users', userId), { role: newRole });
-                showToast("Роль пользователя успешно изменена!");
+                showToast("Роль успешно изменена!");
             } catch(err) {
                 showToast("Ошибка при смене роли");
             }
@@ -1362,23 +1308,23 @@
             if(!container) return;
             const usersArr = Object.values(allUsersMap);
             if(usersArr.length === 0) {
-                container.innerHTML = `<div class="text-zinc-500 text-xs">Нет зарегистрированных пользователей.</div>`;
+                container.innerHTML = `<div class="text-zinc-500 text-xs">Нет пользователей.</div>`;
                 return;
             }
             container.innerHTML = usersArr.map(u => `
                 <div class="p-2.5 bg-zinc-900 rounded-xl border border-zinc-800 flex items-center justify-between gap-2">
-                    <div class="overflow-hidden">
+                    <div class="overflow-hidden min-w-0">
                         <div class="font-bold text-white text-xs truncate flex items-center gap-1.5">
                             <span>${u.avatar && u.avatar.length <= 4 ? u.avatar : '🐹'}</span>
-                            <span class="text-amber-300 truncate">${u.nickname || 'Без никнейма'}</span>
+                            <span class="text-amber-300 truncate">${u.nickname || 'Без ника'}</span>
                         </div>
                         <div class="text-[10px] text-zinc-500 truncate">${u.email || 'Email скрыт'}</div>
                     </div>
-                    <select onchange="changeUserRoleDirect('${u.id}', this.value)" class="vel-input px-2.5 py-1.5 rounded-lg text-xs font-semibold shrink-0">
+                    <select onchange="changeUserRoleDirect('${u.id}', this.value)" class="vel-input px-2 py-1.5 rounded-lg text-xs font-semibold shrink-0">
                         <option value="player" ${u.role === 'player' ? 'selected' : ''}>👤 Игрок</option>
                         <option value="moderator" ${u.role === 'moderator' ? 'selected' : ''}>🔹 Модератор</option>
-                        <option value="senior_moderator" ${u.role === 'senior_moderator' ? 'selected' : ''}>🛡️ Старший модератор</option>
-                        <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>🌟 Администратор</option>
+                        <option value="senior_moderator" ${u.role === 'senior_moderator' ? 'selected' : ''}>🛡️ Ст. модератор</option>
+                        <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>🌟 Админ</option>
                         <option value="founder" ${u.role === 'founder' ? 'selected' : ''}>⭐ Основатель</option>
                     </select>
                 </div>
@@ -1405,19 +1351,19 @@
                 const authorId = p.userId || '';
 
                 return `
-                    <div class="glass-panel rounded-2xl p-5 space-y-2 border ${p.pinned ? 'border-amber-500/50 bg-amber-500/5' : 'border-zinc-800'}">
-                        <div class="flex justify-between items-center text-xs text-zinc-400">
+                    <div class="glass-panel rounded-2xl p-4 sm:p-5 space-y-2 border ${p.pinned ? 'border-amber-500/50 bg-amber-500/5' : 'border-zinc-800'}">
+                        <div class="flex flex-wrap justify-between items-center text-xs text-zinc-400 gap-2">
                             <div>
                                 ${p.pinned ? `<span class="px-2 py-0.5 rounded bg-amber-500 text-zinc-950 font-bold text-[10px] mr-1">📌 Закреплено</span>` : ''}
                                 <span class="bg-zinc-800 px-2.5 py-0.5 rounded text-zinc-300 font-semibold">${p.category || 'Вакансии'}</span>
                             </div>
-                            <div class="flex items-center">
+                            <div class="flex items-center flex-wrap">
                                 <span>Автор: </span>
                                 <button onclick="openUserProfile('${authorId}')" class="ml-1 text-white hover:text-amber-400 font-semibold underline cursor-pointer">${authorName}</button>
                                 ${roleBadge}
                             </div>
                         </div>
-                        <h3 class="font-display font-bold text-base text-white">${p.title}</h3>
+                        <h3 class="font-display font-bold text-sm sm:text-base text-white">${p.title}</h3>
                         <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed whitespace-pre-line">${p.content}</p>
                     </div>
                 `;
@@ -1429,9 +1375,9 @@
             if(!c) return;
             c.innerHTML = allApplications.length === 0 ? `<div class="text-zinc-500 text-xs">Нет заявок</div>` : allApplications.map(a => `
                 <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs space-y-2">
-                    <div class="flex justify-between items-center font-bold text-white">
-                        <span>${a.name} (${a.telegram}) — ${a.email}</span>
-                        <div class="flex items-center gap-2">
+                    <div class="flex justify-between items-center font-bold text-white gap-2">
+                        <span class="truncate">${a.name} (${a.telegram})</span>
+                        <div class="flex items-center gap-2 shrink-0">
                             <span class="text-amber-400">${a.status}</span>
                             <button onclick="deleteDocument('applications', '${a.id}')" class="p-1 rounded bg-red-500/20 text-red-400 cursor-pointer"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                         </div>
@@ -1439,7 +1385,7 @@
                     <p class="text-zinc-300"><strong>Мотивация:</strong> ${a.why}</p>
                     <div class="flex gap-2">
                         <input type="text" id="admin-resp-input-${a.id}" value="${a.adminResponse||''}" placeholder="Комментарий..." class="vel-input flex-1 px-2.5 py-1.5 rounded-lg text-xs">
-                        <button onclick="sendAdminResponse('${a.id}')" class="px-3 py-1.5 bg-amber-500 text-zinc-950 font-bold rounded-lg cursor-pointer">Ответить</button>
+                        <button onclick="sendAdminResponse('${a.id}')" class="px-3 py-1.5 bg-amber-500 text-zinc-950 font-bold rounded-lg cursor-pointer shrink-0">Ответить</button>
                     </div>
                     <div class="flex gap-3 pt-1">
                         <button onclick="updateAppStatus('${a.id}', 'Одобрена')" class="text-emerald-400 font-semibold hover:underline cursor-pointer">✅ Одобрить</button>
@@ -1455,9 +1401,9 @@
             if(!c) return;
             c.innerHTML = allComplaints.length === 0 ? `<div class="text-zinc-500 text-xs">Нет жалоб</div>` : allComplaints.map(x => `
                 <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs space-y-2">
-                    <div class="flex justify-between items-center font-bold text-white">
-                        <span>От: ${x.authorName} на <span class="text-red-400">${x.violator}</span></span>
-                        <div class="flex items-center gap-2">
+                    <div class="flex justify-between items-center font-bold text-white gap-2">
+                        <span class="truncate">От: ${x.authorName} на <span class="text-red-400">${x.violator}</span></span>
+                        <div class="flex items-center gap-2 shrink-0">
                             <span class="text-amber-300">${x.status}</span>
                             <button onclick="deleteDocument('complaints', '${x.id}')" class="p-1 rounded bg-red-500/20 text-red-400 cursor-pointer"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                         </div>
@@ -1465,7 +1411,7 @@
                     <p class="text-zinc-300">${x.description}</p>
                     <div class="flex gap-2">
                         <input type="text" id="comp-resp-input-${x.id}" value="${x.adminResponse||''}" placeholder="Вердикт..." class="vel-input flex-1 px-2.5 py-1.5 rounded-lg text-xs">
-                        <button onclick="sendComplaintResponse('${x.id}')" class="px-3 py-1.5 bg-amber-500 text-zinc-950 font-bold rounded-lg cursor-pointer">Ответить</button>
+                        <button onclick="sendComplaintResponse('${x.id}')" class="px-3 py-1.5 bg-amber-500 text-zinc-950 font-bold rounded-lg cursor-pointer shrink-0">Ответить</button>
                     </div>
                     <div class="flex gap-3 pt-1">
                         <button onclick="updateComplaintStatus('${x.id}', 'одобрено')" class="text-emerald-400 font-semibold hover:underline cursor-pointer">✅ Одобрено</button>
@@ -1480,9 +1426,9 @@
             const c = document.getElementById('staff-ideas-list');
             if(!c) return;
             c.innerHTML = allIdeas.length === 0 ? `<div class="text-zinc-500 text-xs">Нет идей</div>` : allIdeas.map(i => `
-                <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs flex justify-between items-center">
-                    <span>${i.q1_title} (${i.authorName})</span>
-                    <button onclick="deleteDocument('ideas', '${i.id}')" class="p-1 rounded bg-red-500/20 text-red-400 cursor-pointer"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs flex justify-between items-center gap-2">
+                    <span class="truncate">${i.q1_title} (${i.authorName})</span>
+                    <button onclick="deleteDocument('ideas', '${i.id}')" class="p-1 rounded bg-red-500/20 text-red-400 cursor-pointer shrink-0"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                 </div>
             `).join('');
             if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -1492,9 +1438,9 @@
             const c = document.getElementById('staff-announcements-list');
             if(!c) return;
             c.innerHTML = allAnnouncements.length === 0 ? `<div class="text-zinc-500 text-xs">Нет постов</div>` : allAnnouncements.map(p => `
-                <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs flex justify-between items-center">
-                    <span>${p.title} (${p.category})</span>
-                    <button onclick="deleteDocument('announcements', '${p.id}')" class="p-1 rounded bg-red-500/20 text-red-400 cursor-pointer"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs flex justify-between items-center gap-2">
+                    <span class="truncate">${p.title} (${p.category})</span>
+                    <button onclick="deleteDocument('announcements', '${p.id}')" class="p-1 rounded bg-red-500/20 text-red-400 cursor-pointer shrink-0"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                 </div>
             `).join('');
             if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -1504,9 +1450,9 @@
             const c = document.getElementById('staff-releases-list');
             if(!c) return;
             c.innerHTML = allReleases.length === 0 ? `<div class="text-zinc-500 text-xs">Нет релизов</div>` : allReleases.map(r => `
-                <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs flex justify-between items-center">
-                    <span>${r.version} — ${r.title}</span>
-                    <button onclick="deleteDocument('releases', '${r.id}')" class="p-1 rounded bg-red-500/20 text-red-400 cursor-pointer"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs flex justify-between items-center gap-2">
+                    <span class="truncate">${r.version} — ${r.title}</span>
+                    <button onclick="deleteDocument('releases', '${r.id}')" class="p-1 rounded bg-red-500/20 text-red-400 cursor-pointer shrink-0"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                 </div>
             `).join('');
             if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -1519,7 +1465,10 @@
             if(!c) return;
             c.innerHTML = allComplaints.length === 0 ? `<div class="forum-row rounded-2xl p-8 text-center text-zinc-500 text-xs">Нет жалоб.</div>` : allComplaints.map(x => `
                 <div class="forum-row rounded-2xl p-4 space-y-2 text-xs text-zinc-300">
-                    <div class="flex justify-between font-bold text-white"><span>${x.title}</span><span class="text-amber-400">${x.status}</span></div>
+                    <div class="flex justify-between font-bold text-white gap-2">
+                        <span class="truncate">${x.title}</span>
+                        <span class="text-amber-400 shrink-0">${x.status}</span>
+                    </div>
                     <p>Нарушитель: <strong class="text-red-400">${x.violator}</strong>. ${x.description}</p>
                     ${x.adminResponse ? `<p class="text-sky-400 pt-1 border-t border-zinc-800">Ответ администрации: ${x.adminResponse}</p>` : ''}
                 </div>
@@ -1543,9 +1492,9 @@
             const c = document.getElementById('releases-list-container');
             if(!c) return;
             c.innerHTML = allReleases.length === 0 ? `<div class="glass-panel rounded-2xl p-8 text-center text-zinc-500 text-xs">Нет релизов.</div>` : allReleases.map(r => `
-                <div class="glass-panel rounded-2xl p-6 space-y-2 border ${r.pinned ? 'border-amber-500/60 bg-amber-500/5' : 'border-zinc-800'}">
+                <div class="glass-panel rounded-2xl p-5 sm:p-6 space-y-2 border ${r.pinned ? 'border-amber-500/60 bg-amber-500/5' : 'border-zinc-800'}">
                     <span class="px-2 py-0.5 bg-amber-500 text-zinc-950 font-bold text-xs rounded">${r.version}</span>
-                    <h3 class="font-display font-bold text-base text-white">${r.title}</h3>
+                    <h3 class="font-display font-bold text-sm sm:text-base text-white">${r.title}</h3>
                     <p class="text-xs text-zinc-300 whitespace-pre-line">${r.description}</p>
                 </div>
             `).join('');
@@ -1559,7 +1508,7 @@
             let html = '';
             if(apps.length > 0) html += apps.map(a => `<div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs">Заявка в админы (${a.name}) — Статус: <span class="text-amber-400">${a.status}</span></div>`).join('');
             if(comps.length > 0) html += comps.map(x => `<div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs mt-2">Жалоба (${x.title}) — Статус: <span class="text-amber-400">${x.status}</span></div>`).join('');
-            c.innerHTML = html || `<div class="text-zinc-500 text-xs">У вас нет активных тикетов на форуме.</div>`;
+            c.innerHTML = html || `<div class="text-zinc-500 text-xs">У вас нет активных тикетов.</div>`;
         }
 
         window.onload = () => { initApp(); switchTab('feed'); if (typeof lucide !== 'undefined') lucide.createIcons(); };
