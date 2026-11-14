@@ -186,11 +186,10 @@
                 </div>
             </div>
 
-            <!-- ВКЛАДКИ ПЕРЕКЛЮЧЕНИЯ КАТЕГОРИЙ ЛЕНТЫ (ФИЛЬТРЫ КАК НА СКРИНШОТЕ) -->
+            <!-- ВКЛАДКИ ПЕРЕКЛЮЧЕНИЯ КАТЕГОРИЙ (БЕЗ ВКЛАДКИ "ВСЕ") -->
             <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
                 <span class="text-xs text-zinc-400 font-semibold shrink-0">Категории:</span>
-                <button onclick="filterFeed('all')" id="cat-btn-all" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-500 text-zinc-950 transition-all cursor-pointer shadow-md">Все</button>
-                <button onclick="filterFeed('Вакансии')" id="cat-btn-Вакансии" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer">🔥 Вакансии</button>
+                <button onclick="filterFeed('Вакансии')" id="cat-btn-Вакансии" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-500 text-zinc-950 transition-all cursor-pointer shadow-md">🔥 Вакансии</button>
                 <button onclick="filterFeed('Новости игры')" id="cat-btn-Новости игры" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer">🎮 Новости игры</button>
                 <button onclick="filterFeed('Гайд')" id="cat-btn-Гайд" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer">📚 Гайд</button>
                 <button onclick="filterFeed('Важное')" id="cat-btn-Важное" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer">📌 Важное</button>
@@ -227,7 +226,7 @@
                         </div>
                         <div class="p-3.5 bg-zinc-900/90 rounded-xl border border-zinc-800 space-y-1">
                             <h4 class="font-bold text-amber-400 text-xs flex items-center gap-1.5"><i data-lucide="star" class="w-4 h-4"></i> Что нужно, чтобы попасть:</h4>
-                            <p class="text-[11px] text-zinc-400 leading-normal">Возраст от 14 лет (возможны исключения), знание правил и контракта проекта, наличие свободного времени от 2–3 часов в день и успешное прохождение теста.</p>
+                            <p class="text-[11px] text-zinc-400 leading-normal">Возраст от 14 лет (возможные исключения), знание правил и контракта проекта, наличие свободного времени от 2–3 часов в день и успешное прохождение теста.</p>
                         </div>
                     </div>
                 </div>
@@ -326,7 +325,7 @@
             </div>
         </section>
 
-        <!-- ПРОФИЛЬ -->
+        <!-- ПРОФИЛЬ (МОЙ ПРОФИЛЬ) -->
         <section id="view-profile" class="tab-content hidden max-w-xl mx-auto space-y-6">
             <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 border border-amber-500/25">
                 <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
@@ -371,6 +370,42 @@
                         <button type="button" onclick="logoutAccount()" class="px-4 py-3.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 font-semibold text-xs cursor-pointer">Выйти</button>
                     </div>
                 </form>
+            </div>
+        </section>
+
+        <!-- ПРОСМОТР ЧУЖОГО ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ -->
+        <section id="view-user-profile" class="tab-content hidden max-w-xl mx-auto space-y-6">
+            <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 border border-amber-500/25">
+                <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                            <i data-lucide="user" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-display font-bold text-lg text-white">Профиль пользователя</h2>
+                            <p class="text-xs text-zinc-400">Информация об участнике форума</p>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('feed')" class="px-3 py-1.5 bg-zinc-800 rounded-xl text-xs text-zinc-300 cursor-pointer">← На главную</button>
+                </div>
+
+                <div class="flex flex-col items-center justify-center space-y-3">
+                    <div class="w-24 h-24 rounded-2xl bg-zinc-900 border-2 border-amber-500/40 overflow-hidden flex items-center justify-center shadow-xl">
+                        <span id="view-profile-avatar" class="text-4xl">🐹</span>
+                    </div>
+                    <h3 id="view-profile-nick" class="font-display font-bold text-lg text-amber-300">Ник</h3>
+                    <div id="view-profile-role-badge"></div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-zinc-900/90 border border-zinc-800 text-xs space-y-2">
+                    <div><strong class="text-zinc-400">UID:</strong> <span id="view-profile-uid" class="font-mono text-zinc-200 text-[11px]"></span></div>
+                    <div><strong class="text-zinc-400">Email:</strong> <span id="view-profile-email" class="font-mono text-zinc-200"></span></div>
+                </div>
+
+                <div class="space-y-2">
+                    <h4 class="font-bold text-xs text-zinc-400 uppercase tracking-wider">Активность пользователя (посты, тикеты)</h4>
+                    <div id="view-profile-activity" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+                </div>
             </div>
         </section>
 
@@ -614,7 +649,7 @@
             </div>
         </section>
 
-        <!-- ПАНЕЛЬ УПРАВЛЕНИЯ ФОРУМОМ (АДМИНКА С ВЫБОРОМ КАТЕГОРИИ ДЛЯ ПОСТА) -->
+        <!-- ПАНЕЛЬ УПРАВЛЕНИЯ ФОРУМОМ (АДМИНКА) -->
         <section id="view-staff-panel" class="tab-content hidden space-y-6">
             <div class="glass-panel rounded-2xl p-6 space-y-6 border border-amber-500/25">
                 <div class="flex justify-between items-center pb-4 border-b border-zinc-800">
@@ -651,7 +686,6 @@
                             <form onsubmit="publishAnnouncement(event)" class="space-y-3">
                                 <input type="text" id="post-title" required placeholder="Заголовок объявления" class="vel-input w-full px-3 py-2 rounded-lg text-xs">
                                 
-                                <!-- Выпадающий список выбора категории -->
                                 <div class="grid grid-cols-1 gap-2">
                                     <label class="block text-[11px] text-zinc-400 font-semibold">Категория поста:</label>
                                     <select id="post-category" onchange="checkCustomCategory(this)" class="vel-input w-full px-3 py-2 rounded-lg text-xs">
@@ -668,7 +702,7 @@
                                 
                                 <label class="flex items-center gap-2 cursor-pointer select-none">
                                     <input type="checkbox" id="post-pinned" class="w-4 h-4 rounded accent-amber-500 cursor-pointer">
-                                    <span class="text-xs text-amber-300 font-semibold">📌 Закрепить вверху ленты</span>
+                                    <span class="text-xs text-amber-300 font-semibold">📌 Закрепить (только в этой категории)</span>
                                 </label>
 
                                 <button type="submit" class="gold-btn w-full py-2.5 rounded-xl font-bold text-zinc-950 text-xs cursor-pointer">Опубликовать пост</button>
@@ -681,8 +715,10 @@
                                 <input type="text" id="manage-user-email" placeholder="Email пользователя..." class="vel-input w-full px-3 py-2 rounded-lg text-xs">
                                 <select id="manage-user-role" class="vel-input w-full px-3 py-2 rounded-lg text-xs">
                                     <option value="player">👤 Игрок</option>
-                                    <option value="moderator">🛡️ Модератор</option>
-                                    <option value="admin">⭐ Администратор</option>
+                                    <option value="moderator">🔹 Модератор</option>
+                                    <option value="senior_moderator">🛡️ Старший модератор</option>
+                                    <option value="admin">🌟 Администратор</option>
+                                    <option value="founder">⭐ Основатель</option>
                                 </select>
                                 <button type="button" onclick="changeUserRoleByEmail()" class="w-full py-2 bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-bold rounded-lg text-xs cursor-pointer">Изменить роль</button>
                             </div>
@@ -832,9 +868,9 @@
 
         let app, auth, db, currentUser = null;
         let userProfileData = { nickname: '', avatar: '', role: 'player' };
-        let allAnnouncements = [], allApplications = [], allComplaints = [], allIdeas = [], allReleases = [];
+        let allAnnouncements = [], allApplications = [], allComplaints = [], allIdeas = [], allReleases = [], allUsersMap = {};
         let isApplicationOpen = true;
-        let currentFeedCategory = 'all';
+        let currentFeedCategory = 'Вакансии';
 
         const TEST_QUESTIONS = [
             "1. Почему ты хочешь стать администратором проекта VelHamster и как ты понимаешь главную цель этой роли?",
@@ -849,7 +885,7 @@
         ];
 
         window.switchTab = function(tabId) {
-            ['feed', 'rules', 'profile', 'apply', 'complaints', 'ideas', 'status', 'contract', 'staff-panel', 'releases'].forEach(id => {
+            ['feed', 'rules', 'profile', 'user-profile', 'apply', 'complaints', 'ideas', 'status', 'contract', 'staff-panel', 'releases'].forEach(id => {
                 document.getElementById('view-' + id)?.classList.toggle('hidden', id !== tabId);
             });
             document.querySelectorAll('.nav-tab').forEach(btn => {
@@ -866,7 +902,7 @@
 
         window.filterFeed = function(category) {
             currentFeedCategory = category;
-            ['all', 'Вакансии', 'Новости игры', 'Гайд', 'Важное'].forEach(cat => {
+            ['Вакансии', 'Новости игры', 'Гайд', 'Важное'].forEach(cat => {
                 const btn = document.getElementById('cat-btn-' + cat);
                 if (btn) {
                     if (cat === category) {
@@ -975,6 +1011,30 @@
             showToast("Профиль обновлен!");
         };
 
+        window.openUserProfile = function(userId) {
+            const u = allUsersMap[userId];
+            if(!u) { showToast("Пользователь не найден"); return; }
+            
+            document.getElementById('view-profile-avatar').innerText = u.avatar && u.avatar.length <= 4 ? u.avatar : '🐹';
+            document.getElementById('view-profile-nick').innerText = u.nickname || 'Игрок';
+            document.getElementById('view-profile-uid').innerText = userId;
+            document.getElementById('view-profile-email').innerText = u.email || 'Скрыт';
+            
+            const badgeC = document.getElementById('view-profile-role-badge');
+            badgeC.innerHTML = getRoleBadge(u.role);
+
+            // Показываем активность пользователя
+            const actC = document.getElementById('view-profile-activity');
+            const userPosts = allAnnouncements.filter(p => p.userId === userId);
+            const userApps = allApplications.filter(a => a.userId === userId);
+            let html = '';
+            if(userPosts.length > 0) html += `<div class="p-2.5 bg-zinc-900 rounded-lg text-zinc-300">Постов в ленте: ${userPosts.length}</div>`;
+            if(userApps.length > 0) html += `<div class="p-2.5 bg-zinc-900 rounded-lg text-zinc-300">Заявок в админы: ${userApps.length}</div>`;
+            actC.innerHTML = html || `<div class="text-zinc-500 text-xs">Нет публичной активности.</div>`;
+
+            switchTab('user-profile');
+        };
+
         function updateHeaderProfileUI() {
             const defaultNick = currentUser?.email ? currentUser.email.split('@')[0] : 'Игрок';
             const nick = userProfileData.nickname || defaultNick;
@@ -986,9 +1046,7 @@
             if (nickInput && !nickInput.value) nickInput.value = nick;
 
             const badge = document.getElementById('user-role-badge');
-            if (userProfileData.role === 'admin') badge.innerText = "⭐ Администратор";
-            else if (userProfileData.role === 'moderator') badge.innerText = "🛡️ Модератор";
-            else badge.innerText = "👤 Игрок";
+            badge.innerHTML = getRoleBadge(userProfileData.role);
         }
 
         function updateStaffPanelAccess() {
@@ -997,10 +1055,13 @@
             const roleBox = document.getElementById('admin-role-manager-box');
             const releaseBox = document.getElementById('admin-release-create-box');
 
-            if (userProfileData.role === 'admin' || userProfileData.role === 'moderator') {
+            const isStaff = ['admin', 'founder', 'moderator', 'senior_moderator'].includes(userProfileData.role);
+            const isTopStaff = ['admin', 'founder'].includes(userProfileData.role);
+
+            if (isStaff) {
                 navTab.classList.remove('hidden');
                 if (releaseBox) releaseBox.classList.remove('hidden');
-                if (userProfileData.role === 'admin') {
+                if (isTopStaff) {
                     postBox.classList.remove('hidden');
                     roleBox.classList.remove('hidden');
                 } else {
@@ -1014,7 +1075,7 @@
         }
 
         window.toggleApplicationStatus = async function() {
-            if(!currentUser || (userProfileData.role !== 'admin' && userProfileData.role !== 'moderator')) {
+            if(!currentUser || !['admin', 'founder'].includes(userProfileData.role)) {
                 showToast("Недостаточно прав!"); return;
             }
             isApplicationOpen = !isApplicationOpen;
@@ -1132,6 +1193,7 @@
                 title: document.getElementById('release-title').value,
                 description: document.getElementById('release-desc').value,
                 pinned: document.getElementById('release-pinned').checked,
+                userId: currentUser.uid,
                 authorName: userProfileData.nickname || currentUser.email.split('@')[0],
                 dateStr: new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }),
                 createdAt: new Date().toISOString()
@@ -1155,9 +1217,8 @@
                 category: category,
                 content: document.getElementById('post-content').value,
                 pinned: document.getElementById('post-pinned').checked,
+                userId: currentUser.uid,
                 authorName: userProfileData.nickname || currentUser.email.split('@')[0],
-                authorRole: userProfileData.role,
-                likes: 0, likedBy: [],
                 createdAt: new Date().toISOString()
             });
             showToast("Пост опубликован в ленте форума!");
@@ -1190,9 +1251,11 @@
         };
 
         function getRoleBadge(role) {
-            if(role === 'admin') return `<span class="ml-1.5 px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-bold">⭐ Админ</span>`;
-            if(role === 'moderator') return `<span class="ml-1.5 px-2 py-0.5 rounded bg-purple-500/20 border border-purple-500/40 text-purple-300 text-[10px] font-bold">🛡️ Модер</span>`;
-            return '';
+            if(role === 'founder') return `<span class="ml-1.5 px-2 py-0.5 rounded bg-amber-500/25 border border-amber-500/50 text-amber-300 text-[10px] font-bold">⭐ Основатель</span>`;
+            if(role === 'admin') return `<span class="ml-1.5 px-2 py-0.5 rounded bg-orange-500/20 border border-orange-500/40 text-orange-300 text-[10px] font-bold">🌟 Администратор</span>`;
+            if(role === 'senior_moderator') return `<span class="ml-1.5 px-2 py-0.5 rounded bg-purple-500/20 border border-purple-500/40 text-purple-300 text-[10px] font-bold">🛡️ Старший модератор</span>`;
+            if(role === 'moderator') return `<span class="ml-1.5 px-2 py-0.5 rounded bg-sky-500/20 border border-sky-500/40 text-sky-300 text-[10px] font-bold">🔹 Модератор</span>`;
+            return `<span class="ml-1.5 px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-zinc-400 text-[10px] font-semibold">👤 Игрок</span>`;
         }
 
         function showToast(text) {
@@ -1213,6 +1276,18 @@
                 if (cfgDoc.exists()) isApplicationOpen = cfgDoc.data().isApplicationOpen ?? true;
             } catch(e) {}
             updateApplicationUIState();
+
+            // Слушаем всех пользователей для актуальных ролей
+            onSnapshot(collection(db, appId + '_users'), (snap) => {
+                allUsersMap = {};
+                snap.forEach(d => { allUsersMap[d.id] = d.data(); });
+                if(currentUser && allUsersMap[currentUser.uid]) {
+                    userProfileData = allUsersMap[currentUser.uid];
+                    updateHeaderProfileUI();
+                    updateStaffPanelAccess();
+                }
+                renderAnnouncements();
+            });
 
             onAuthStateChanged(auth, async (user) => {
                 currentUser = user;
@@ -1280,27 +1355,36 @@
             const list = document.getElementById('announcements-list');
             if(!list) return;
 
-            let filtered = allAnnouncements;
-            if (currentFeedCategory !== 'all') {
-                filtered = allAnnouncements.filter(p => p.category === currentFeedCategory);
-            }
+            // Фильтруем посты строго по выбранной категории
+            let filtered = allAnnouncements.filter(p => (p.category || 'Вакансии') === currentFeedCategory);
 
             if(filtered.length === 0) { 
-                list.innerHTML = `<div class="glass-panel rounded-2xl p-8 text-center text-zinc-400 text-sm">В этой категории пока нет записей.</div>`; 
+                list.innerHTML = `<div class="glass-panel rounded-2xl p-8 text-center text-zinc-400 text-sm">В категории «${currentFeedCategory}» пока нет записей.</div>`; 
                 return; 
             }
 
+            // Закрепленные посты выводим сверху ТОЛЬКО в этой категории
             filtered.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
             list.innerHTML = filtered.map(p => {
-                const roleBadge = getRoleBadge(p.authorRole);
+                // Берем актуальную роль автора из базы пользователей (динамически!)
+                const authorData = (p.userId && allUsersMap[p.userId]) ? allUsersMap[p.userId] : { role: 'player', nickname: p.authorName };
+                const roleBadge = getRoleBadge(authorData.role);
+                const authorName = authorData.nickname || p.authorName || 'Администратор';
+                const authorId = p.userId || '';
+
                 return `
                     <div class="glass-panel rounded-2xl p-5 space-y-2 border ${p.pinned ? 'border-amber-500/50 bg-amber-500/5' : 'border-zinc-800'}">
                         <div class="flex justify-between items-center text-xs text-zinc-400">
                             <div>
                                 ${p.pinned ? `<span class="px-2 py-0.5 rounded bg-amber-500 text-zinc-950 font-bold text-[10px] mr-1">📌 Закреплено</span>` : ''}
-                                <span class="bg-zinc-800 px-2.5 py-0.5 rounded text-zinc-300 font-semibold">${p.category || 'Общее'}</span>
+                                <span class="bg-zinc-800 px-2.5 py-0.5 rounded text-zinc-300 font-semibold">${p.category || 'Вакансии'}</span>
                             </div>
-                            <span>Автор: <strong class="text-white">${p.authorName || 'Администрация'}</strong>${roleBadge}</span>
+                            <div class="flex items-center">
+                                <span>Автор: </span>
+                                <button onclick="openUserProfile('${authorId}')" class="ml-1 text-white hover:text-amber-400 font-semibold underline cursor-pointer">${authorName}</button>
+                                ${roleBadge}
+                            </div>
                         </div>
                         <h3 class="font-display font-bold text-base text-white">${p.title}</h3>
                         <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed whitespace-pre-line">${p.content}</p>
