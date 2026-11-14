@@ -607,7 +607,7 @@
             </div>
         </section>
 
-        <!-- КОНТРАКТ (Возвращен первоначальный вид) -->
+        <!-- КОНТРАКТ (Правильный текст из запроса) -->
         <section id="view-contract" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="glass-panel rounded-2xl p-5 sm:p-8 shadow-2xl space-y-6 text-sm text-zinc-300 leading-relaxed">
                 <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
@@ -617,25 +617,52 @@
                         </div>
                         <div>
                             <h2 class="font-display font-bold text-base sm:text-lg text-white">🤝 Контракт администратора</h2>
-                            <p class="text-xs text-zinc-400">Соглашение команды</p>
+                            <p class="text-xs text-zinc-400">Внутреннее соглашение команды</p>
                         </div>
                     </div>
                     <button onclick="switchTab('feed')" class="px-3 py-1.5 bg-zinc-800 rounded-xl text-xs text-zinc-300 cursor-pointer shrink-0">← На главную</button>
                 </div>
 
                 <div class="space-y-5 text-xs sm:text-sm">
-                    <p class="text-zinc-400 italic">Документ определяет правила взаимодействия между командой проекта VelHamster и администратором.</p>
+                    <p class="text-zinc-400 italic">Документ определяет правила взаимодействия между командой проекта VelHamster и назначенным администратором (модератором). Начиная работу, администратор подтверждает своё согласие с данными условиями.</p>
+                    
                     <div class="space-y-2">
-                        <h3 class="font-bold text-amber-400">1. Общие положения</h3>
-                        <p>1.1. Администратор представляет интересы проекта перед комьюнити и помогает игрокам.</p>
+                        <h3 class="font-bold text-amber-400 text-sm">1. Общие положения</h3>
+                        <p class="text-zinc-300">1.1. Администратор является лицом проекта и представляет его интересы перед игровым комьюнити.</p>
+                        <p class="text-zinc-300">1.2. Главная цель администратора — поддержание порядка, дружелюбной атмосферы и оперативная помощь игрокам.</p>
                     </div>
+
                     <div class="space-y-2">
-                        <h3 class="font-bold text-amber-400">2. Обязанности</h3>
-                        <p>2.1. Контролировать правила в чатах, пресекать спам и рекламу, отвечать на вопросы.</p>
+                        <h3 class="font-bold text-amber-400 text-sm">2. Обязанности администратора</h3>
+                        <p class="text-zinc-300">2.1. Контролировать соблюдение правил во всех официальных чатах и каналах VelHamster.</p>
+                        <p class="text-zinc-300">2.2. Пресекать спам, рекламу, оскорбления, мошенничество и разжигание конфликтов.</p>
+                        <p class="text-zinc-300">2.3. Оперативно отвечать на вопросы игроков и помогать им разобраться в механиках игры.</p>
+                        <p class="text-zinc-300">2.4. Передавать важные баги, жалобы или идеи от игроков старшей команде (разработчикам/админам).</p>
                     </div>
+
                     <div class="p-3.5 rounded-xl bg-red-500/10 border border-red-500/25 space-y-2">
-                        <h3 class="font-bold text-red-400">3. Категорически запрещено</h3>
-                        <p>3.1. Проявлять токсичность, распространять слухи о листинге, вымогать данные игроков (мгновенный бан).</p>
+                        <h3 class="font-bold text-red-400 text-sm">3. Категорически запрещено (Штраф / Снятие с должности)</h3>
+                        <p class="text-zinc-300">3.1. Оскорблять участников комьюнити или проявлять токсичность (админ всегда держит лицо).</p>
+                        <p class="text-zinc-300">3.2. Распространять непроверенную информацию, слухи или фейки о листинге, токенах и обновлениях.</p>
+                        <p class="text-zinc-300">3.3. Вымогать у игроков деньги, пароли, сид-фразы или данные аккаунтов (мгновенный перманентный бан и исключение из команды).</p>
+                        <p class="text-zinc-300">3.4. Использовать админ-права в личных целях (разбан друзей по блату, злоупотребление властью).</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="font-bold text-amber-400 text-sm">4. Условия работы и вознаграждение</h3>
+                        <p class="text-zinc-300">4.1. Формат работы: на добровольной основе (волонтёрство) с возможностью получения внутриигровых бонусов и наград по мере развития проекта.</p>
+                        <p class="text-zinc-300">4.2. График: согласовывается индивидуально, но суммарный актив в сети должен составлять не менее 2–4 часов в день.</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="font-bold text-amber-400 text-sm">5. Конфиденциальность</h3>
+                        <p class="text-zinc-300">5.1. Вся информация из закрытых чатов команды (планы, даты релизов, код, экономика) является конфиденциальной. Слив инфы наружу карается снятием с поста.</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="font-bold text-amber-400 text-sm">6. Расторжение контракта</h3>
+                        <p class="text-zinc-300">6.1. Администратор может покинуть проект в любой момент, предупредив старших за 2–3 дня и передав дела.</p>
+                        <p class="text-zinc-300">6.2. Проект оставляет за собой право снять администратора с должности в любой момент без объяснения причин в случае грубых нарушений правил.</p>
                     </div>
                 </div>
             </div>
@@ -728,7 +755,7 @@
         </section>
     </main>
 
-    <!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ПОДРОБНОСТЕЙ ЗАЯВКИ -->
+    <!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ПОДРОБНОСТЕЙ ЗАЯВКИ (ВКЛЮЧАЯ ВОПРОСЫ) -->
     <div id="app-details-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm">
         <div class="glass-panel border border-zinc-700 rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center pb-2 border-b border-zinc-800">
@@ -1214,7 +1241,7 @@
             }
         };
 
-        // Функции модального окна просмотра анкеты
+        // Функции модального окна просмотра анкеты с вопросами
         window.openAppDetailsModal = function(appIdStr) {
             const app = allApplications.find(a => a.id === appIdStr);
             if(!app) { showToast("Заявка не найдена"); return; }
@@ -1222,29 +1249,32 @@
             const content = document.getElementById('app-details-content');
             let testHtml = '';
             if(app.testAnswers) {
-                testHtml = Object.entries(app.testAnswers).map(([k, v], idx) => `
-                    <div class="p-2.5 bg-zinc-900 rounded-lg border border-zinc-800 space-y-1">
-                        <strong class="text-amber-300">Вопрос ${idx+1}:</strong>
-                        <p class="text-zinc-200">${v || 'Нет ответа'}</p>
-                    </div>
-                `).join('');
+                testHtml = Object.entries(app.testAnswers).map(([k, v], idx) => {
+                    const qText = TEST_QUESTIONS[idx] || (`Вопрос ${idx+1}`);
+                    return `
+                        <div class="p-3 bg-zinc-900 rounded-xl border border-zinc-800 space-y-1.5">
+                            <span class="block font-semibold text-amber-300 text-xs">${qText}</span>
+                            <p class="text-zinc-200 text-xs bg-zinc-950/50 p-2.5 rounded-lg border border-zinc-800/80">${v || 'Нет ответа'}</p>
+                        </div>
+                    `;
+                }).join('');
             }
 
             content.innerHTML = `
-                <div class="space-y-2 p-3 bg-zinc-900/60 rounded-xl border border-zinc-800">
-                    <p><strong>Имя:</strong> ${app.name}</p>
-                    <p><strong>Возраст:</strong> ${app.age}</p>
-                    <p><strong>Telegram:</strong> ${app.telegram}</p>
-                    <p><strong>Часовой пояс:</strong> ${app.timezone}</p>
-                    <p><strong>Мотивация:</strong> ${app.why}</p>
-                    <p><strong>Время в день:</strong> ${app.time}</p>
-                    <p><strong>Опыт:</strong> ${app.experience}</p>
-                    <p><strong>Email:</strong> ${app.email}</p>
-                    <p><strong>Статус:</strong> <span class="text-amber-400 font-bold">${app.status}</span></p>
+                <div class="space-y-2 p-3.5 bg-zinc-900 rounded-xl border border-zinc-800 text-xs">
+                    <p><strong>Имя кандидата:</strong> <span class="text-white">${app.name}</span></p>
+                    <p><strong>Возраст:</strong> <span class="text-white">${app.age}</span></p>
+                    <p><strong>Telegram:</strong> <span class="text-white">${app.telegram}</span></p>
+                    <p><strong>Часовой пояс:</strong> <span class="text-white">${app.timezone}</span></p>
+                    <p><strong>Мотивация:</strong> <span class="text-white">${app.why}</span></p>
+                    <p><strong>Время в день:</strong> <span class="text-white">${app.time}</span></p>
+                    <p><strong>Опыт:</strong> <span class="text-white">${app.experience}</span></p>
+                    <p><strong>Email аккаунта:</strong> <span class="font-mono text-white">${app.email}</span></p>
+                    <p><strong>Текущий статус:</strong> <span class="text-amber-400 font-bold">${app.status}</span></p>
                 </div>
-                <div class="pt-2 space-y-2">
-                    <h4 class="font-bold text-white text-xs uppercase tracking-wider">Ответы на тест:</h4>
-                    ${testHtml || '<p class="text-zinc-500">Нет ответов на тест</p>'}
+                <div class="pt-2 space-y-2.5">
+                    <h4 class="font-bold text-white text-xs uppercase tracking-wider">Ответы на ситуационный тест:</h4>
+                    ${testHtml || '<p class="text-zinc-500 text-xs">Нет ответов на тест</p>'}
                 </div>
             `;
             document.getElementById('app-details-modal').classList.remove('hidden');
@@ -1438,7 +1468,7 @@
                     </div>
                     <p class="text-zinc-300"><strong>Мотивация:</strong> ${a.why}</p>
                     <div class="flex gap-2">
-                        <button onclick="openAppDetailsModal('${a.id}')" class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-semibold rounded-lg cursor-pointer">👁️ Подробнее (анкета)</button>
+                        <button onclick="openAppDetailsModal('${a.id}')" class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-semibold rounded-lg cursor-pointer">👁️ Подробнее (анкета и вопросы)</button>
                     </div>
                     <div class="flex gap-2">
                         <input type="text" id="admin-resp-input-${a.id}" value="${a.adminResponse||''}" placeholder="Комментарий..." class="vel-input flex-1 px-2.5 py-1.5 rounded-lg text-xs">
