@@ -79,20 +79,10 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Исправление разрывов текстов и плашек на мобильных */
-        .badge-warn, .badge-mute, .badge-ban {
-            display: inline-block;
-            white-space: nowrap !important;
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 11px;
-            vertical-align: middle;
-            margin: 1px 0;
-        }
-        .badge-warn { background: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.3); }
-        .badge-mute { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .badge-ban { background: #dc2626; color: #ffffff; border: 1px solid rgba(239, 68, 68, 0.5); }
+        /* Стили для аккуратных статусных тегов */
+        .badge-warn { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: rgba(249, 115, 22, 0.15); color: #fb923c; font-weight: 700; border: 1px solid rgba(249, 115, 22, 0.3); white-space: nowrap; font-size: 11px; }
+        .badge-mute { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: rgba(239, 68, 68, 0.15); color: #f87171; font-weight: 700; border: 1px solid rgba(239, 68, 68, 0.3); white-space: nowrap; font-size: 11px; }
+        .badge-ban { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #dc2626; color: #ffffff; font-weight: 700; border: 1px solid rgba(239, 68, 68, 0.5); white-space: nowrap; font-size: 11px; }
     </style>
 </head>
 <body class="min-h-screen relative selection:bg-amber-500/30 selection:text-amber-200 flex flex-col">
@@ -202,7 +192,7 @@
                 <button onclick="filterFeed('Вакансии')" id="cat-btn-Вакансии" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-500 text-zinc-950 transition-all cursor-pointer shadow-md shrink-0">🔥 Вакансии</button>
                 <button onclick="filterFeed('Новости игры')" id="cat-btn-Новости игры" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer shrink-0">🎮 Новости игры</button>
                 <button onclick="filterFeed('Гайд')" id="cat-btn-Гайд" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer shrink-0">📚 Гайд</button>
-                <button onclick="filterFeed('Важное')" id="cat-btn-Важное" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer shrink-0">📌 Важное</button>
+                <button onclick="filterFeed('Важное')" id="cat-btn-Важное" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition-all cursor-pointer shrink-0">📌 Важное</button>
             </div>
 
             <!-- ЗАКРЕПЛЕННОЕ ОБЪЯВЛЕНИЕ О НАБОРЕ -->
@@ -295,7 +285,7 @@
             </div>
         </section>
 
-        <!-- РАЗДЕЛ: ПРАВИЛА ЧАТА И ИГРЫ (Полностью исправлены плашки) -->
+        <!-- РАЗДЕЛ: ПРАВИЛА ЧАТА И ИГРЫ -->
         <section id="view-rules" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="glass-panel rounded-2xl p-5 sm:p-8 shadow-2xl space-y-6 text-sm text-zinc-300 leading-relaxed">
                 <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
@@ -737,6 +727,19 @@
             </div>
         </section>
     </main>
+
+    <!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ДЕТАЛЕЙ ЗАЯВКИ -->
+    <div id="app-details-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm">
+        <div class="glass-panel border border-zinc-700 rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center pb-2 border-b border-zinc-800">
+                <h3 class="font-display font-bold text-sm sm:text-base text-white flex items-center gap-2">
+                    <i data-lucide="file-text" class="w-4 h-4 text-amber-400"></i> Детали заявки кандидата
+                </h3>
+                <button onclick="closeAppDetailsModal()" class="text-zinc-400 hover:text-white cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="app-details-content" class="space-y-3 text-xs text-zinc-300"></div>
+        </div>
+    </div>
 
     <!-- МОДАЛЬНЫЕ ОКНА -->
     <div id="complaint-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm">
@@ -1211,6 +1214,47 @@
             }
         };
 
+        // Функции для модального окна просмотра подробностей заявки в админке
+        window.openAppDetailsModal = function(appIdStr) {
+            const app = allApplications.find(a => a.id === appIdStr);
+            if(!app) { showToast("Заявка не найдена"); return; }
+            
+            const content = document.getElementById('app-details-content');
+            let testHtml = '';
+            if(app.testAnswers) {
+                testHtml = Object.entries(app.testAnswers).map(([k, v], idx) => `
+                    <div class="p-2.5 bg-zinc-900 rounded-lg border border-zinc-800 space-y-1">
+                        <strong class="text-amber-300">Вопрос ${idx+1}:</strong>
+                        <p class="text-zinc-200">${v || 'Нет ответа'}</p>
+                    </div>
+                `).join('');
+            }
+
+            content.innerHTML = `
+                <div class="space-y-2">
+                    <p><strong>Имя кандидата:</strong> ${app.name}</p>
+                    <p><strong>Возраст:</strong> ${app.age}</p>
+                    <p><strong>Telegram:</strong> ${app.telegram}</p>
+                    <p><strong>Часовой пояс:</strong> ${app.timezone}</p>
+                    <p><strong>Мотивация:</strong> ${app.why}</p>
+                    <p><strong>Время в день:</strong> ${app.time}</p>
+                    <p><strong>Опыт:</strong> ${app.experience}</p>
+                    <p><strong>Email аккаунта:</strong> ${app.email}</p>
+                    <p><strong>Статус заявки:</strong> <span class="text-amber-400 font-bold">${app.status}</span></p>
+                </div>
+                <div class="pt-2 border-t border-zinc-800 space-y-2">
+                    <h4 class="font-bold text-white">Ответы на тест:</h4>
+                    ${testHtml || '<p class="text-zinc-500">Нет ответов на тест</p>'}
+                </div>
+            `;
+            document.getElementById('app-details-modal').classList.remove('hidden');
+            document.getElementById('app-details-modal').classList.add('flex');
+        };
+
+        window.closeAppDetailsModal = function() {
+            document.getElementById('app-details-modal').classList.add('hidden');
+        };
+
         function getRoleBadge(role) {
             if(role === 'founder') return `<span class="ml-1.5 px-2 py-0.5 rounded bg-amber-500/25 border border-amber-500/50 text-amber-300 text-[10px] font-bold">⭐ Основатель</span>`;
             if(role === 'admin') return `<span class="ml-1.5 px-2 py-0.5 rounded bg-orange-500/20 border border-orange-500/40 text-orange-300 text-[10px] font-bold">🌟 Администратор</span>`;
@@ -1394,10 +1438,14 @@
                     </div>
                     <p class="text-zinc-300"><strong>Мотивация:</strong> ${a.why}</p>
                     <div class="flex gap-2">
+                        <button onclick="openAppDetailsModal('${a.id}')" class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-semibold rounded-lg cursor-pointer">👁️ Подробнее</button>
+                    </div>
+                    <div class="flex gap-2">
                         <input type="text" id="admin-resp-input-${a.id}" value="${a.adminResponse||''}" placeholder="Комментарий..." class="vel-input flex-1 px-2.5 py-1.5 rounded-lg text-xs">
                         <button onclick="sendAdminResponse('${a.id}')" class="px-3 py-1.5 bg-amber-500 text-zinc-950 font-bold rounded-lg cursor-pointer shrink-0">Ответить</button>
                     </div>
-                    <div class="flex gap-3 pt-1">
+                    <div class="flex flex-wrap gap-3 pt-1">
+                        <button onclick="updateAppStatus('${a.id}', 'На рассмотрение')" class="text-amber-400 font-semibold hover:underline cursor-pointer">⏳ На рассмотрение</button>
                         <button onclick="updateAppStatus('${a.id}', 'Одобрена')" class="text-emerald-400 font-semibold hover:underline cursor-pointer">✅ Одобрить</button>
                         <button onclick="updateAppStatus('${a.id}', 'Отклонена')" class="text-red-400 font-semibold hover:underline cursor-pointer">❌ Отклонить</button>
                     </div>
