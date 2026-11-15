@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#11101b">
+  <title>VelHamster — Форум</title>
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <a class="brand" href="#"><img class="brand-logo" src="/logo.jpg" alt="Логотип VelHamster"><span>Vel<span class="accent">Hamster</span><small>ИГРОВОЕ СООБЩЕСТВО</small></span></a>
+      <nav><a href="#forum">Форум</a><a href="#news">Новости</a></nav>
+      <div class="account" id="account-area">
+        <button class="btn btn-ghost" id="open-auth">Войти</button>
+        <button class="btn" id="open-register">Регистрация</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <div><div class="eyebrow">СООБЩЕСТВО ИГРОКОВ</div>
+          <h1>Добро пожаловать<br>в <span class="accent">VelHamster</span></h1>
+          <p>Общайся, делись идеями и следи за новостями любимой игры.</p>
+          <button class="btn btn-large" id="hero-register">✚ Присоединиться</button>
+        </div><div class="hero-art">🐹<span>✦</span></div>
+      </section>
+
+      <section class="stats">
+        <div><b id="users-count">—</b><span>Участников</span></div>
+        <div><b id="topics-count">—</b><span>Тем</span></div>
+        <div><b id="posts-count">—</b><span>Ответов</span></div>
+      </section>
+
+      <section id="forum">
+        <div class="section-head"><div><div class="eyebrow">НАШЕ СООБЩЕСТВО</div><h2>Разделы форума</h2></div></div>
+        <div class="category-grid" id="categories"></div>
+      </section>
+
+      <section id="news">
+        <div class="section-head"><div><div class="eyebrow">ПОСЛЕДНИЕ ОБСУЖДЕНИЯ</div><h2>Новые темы</h2></div>
+          <button class="btn" id="new-topic">Создать тему</button>
+        </div>
+        <div class="card topic-list" id="topics-list"><div class="empty">Загружаем темы…</div></div>
+      </section>
+    </main>
+
+    <footer>© <span id="year"></span> VelHamster · Форум игрового сообщества</footer>
+  </div>
+
+  <div class="modal hidden" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <div class="modal-backdrop" data-close="true"></div>
+    <section class="auth-card">
+      <button class="modal-close" id="close-auth" aria-label="Закрыть">×</button>
+      <div class="form-mascot"><img src="/logo.jpg" alt="Логотип VelHamster"></div>
+      <div class="eyebrow">VELHAMSTER COMMUNITY</div>
+      <h2 id="auth-title">Добро пожаловать!</h2>
+      <p class="muted" id="auth-description">Войдите или создайте аккаунт, чтобы участвовать в жизни сообщества.</p>
+      <div class="auth-actions">
+        <button class="oauth-button google" id="google-login">
+          <svg class="oauth-icon google-icon" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.9c-.58 2.96-2.26 5.47-4.76 7.16l7.73 6C44.38 37.98 46.98 31.88 46.98 24.55Z"/><path fill="#FBBC05" d="M10.54 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.76-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.87.93 7.52 2.56 10.78l7.98-6.19Z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.9-5.82l-7.73-6c-2.14 1.44-4.89 2.3-8.17 2.3-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48Z"/></svg>
+          <span>Войти через Google</span>
+        </button>
+        <button class="oauth-button apple" id="apple-login">
+          <svg class="oauth-icon apple-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.37 12.24c.02 2.17 1.9 2.9 1.92 2.91-.02.05-.3 1.03-.99 2.04-.6.88-1.22 1.76-2.2 1.78-.96.02-1.27-.57-2.37-.57s-1.45.55-2.35.59c-.94.04-1.66-.95-2.27-1.82-1.24-1.79-2.19-5.06-.91-7.27.63-1.1 1.75-1.8 2.97-1.82.93-.02 1.8.63 2.37.63.57 0 1.64-.78 2.77-.67.47.02 1.8.19 2.65 1.44-.07.04-1.58.92-1.59 2.76ZM14.55 6.6c.5-.6.83-1.44.74-2.27-.72.03-1.59.48-2.11 1.08-.46.53-.86 1.39-.75 2.2.8.06 1.62-.4 2.12-1.01Z"/></svg>
+          <span>Войти через Apple ID</span>
+        </button>
+      </div>
+      <div class="or"><span>или</span></div>
+      <form id="email-form">
+        <label for="email">Электронная почта</label>
+        <input id="email" type="email" autocomplete="email" placeholder="name@example.com" required>
+        <label for="password">Пароль</label>
+        <input id="password" type="password" minlength="6" autocomplete="current-password" placeholder="Минимум 6 символов" required>
+        <button class="btn btn-large full" id="email-submit" type="submit">Войти по почте</button>
+      </form>
+      <p class="switch"><span id="switch-text">Нет аккаунта?</span> <button class="text-button" id="switch-mode">Зарегистрироваться</button></p>
+      <p class="auth-note">Продолжая, вы соглашаетесь с правилами сообщества VelHamster.</p>
+      <p class="status" id="auth-status" aria-live="polite"></p>
+    </section>
+  </div>
+
+  <div class="modal hidden" id="topic-modal" role="dialog" aria-modal="true" aria-labelledby="topic-title">
+    <div class="modal-backdrop" data-topic-close="true"></div>
+    <section class="auth-card topic-card">
+      <button class="modal-close" id="close-topic" aria-label="Закрыть">×</button>
+      <div class="eyebrow">СООБЩЕСТВО VELHAMSTER</div><h2 id="topic-title">Создать тему</h2>
+      <form id="topic-form">
+        <label for="topic-category">Раздел</label><select id="topic-category" required></select>
+        <label for="topic-heading">Заголовок</label><input id="topic-heading" maxlength="100" minlength="5" required placeholder="О чём хотите поговорить?">
+        <label for="topic-body">Сообщение</label><textarea id="topic-body" rows="5" minlength="10" maxlength="5000" required placeholder="Напишите ваше сообщение..."></textarea>
+        <button class="btn btn-large full" type="submit">Опубликовать тему</button>
+      </form>
+      <p class="status" id="topic-status" aria-live="polite"></p>
+    </section>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
