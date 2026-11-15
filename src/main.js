@@ -18,12 +18,12 @@ import {
   4) Create Firestore Database.
 */
 const firebaseConfig = {
-  apiKey: "PASTE_API_KEY",
-  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_PROJECT_ID",
-  storageBucket: "PASTE_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "PASTE_MESSAGING_SENDER_ID",
-  appId: "PASTE_APP_ID"
+  apiKey: "AIzaSyDGZaZHuJfBiJG6MZJEfgHp011t4Vw8PR4",
+  authDomain: "velhamster-ff5d5.firebaseapp.com",
+  projectId: "velhamster-ff5d5",
+  storageBucket: "velhamster-ff5d5.firebasestorage.app",
+  messagingSenderId: "422952681206",
+  appId: "1:422952681206:web:e5d168fb537960b59cf6d7"
 };
 
 const configured = !Object.values(firebaseConfig).some(v => String(v).startsWith("PASTE_"));
