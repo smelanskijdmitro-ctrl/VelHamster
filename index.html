@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Форум проекта VelHamster</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rw: {
+                            bg: '#111318',
+                            card: '#181b22',
+                            cardHover: '#1f232c',
+                            border: '#262a35',
+                            accent: '#ff6b00',
+                            accentHover: '#ff852b',
+                            muted: '#8c95a5'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #111318;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+        /* Стили плашек ролей в стиле ReallyWorld */
+        .role-badge-admin { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+        .role-badge-tech_admin { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+        .role-badge-moder { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+        .role-badge-helper { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .role-badge-player { background: rgba(255, 107, 0, 0.15); color: #ff9f43; border: 1px solid rgba(255, 107, 0, 0.3); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-rw-accent selection:text-white">
+
+    <!-- БАННЕР БЛОКИРОВКИ -->
+    <div id="ban-alert-banner" class="hidden bg-rose-600 text-white px-4 py-2 text-center text-xs font-bold items-center justify-center gap-2 shadow-lg"></div>
+
+    <!-- ШАПКА ФОРУМА -->
+    <header class="bg-[#151821] border-b border-rw-border sticky top-0 z-40 backdrop-blur-md bg-opacity-95">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+            <!-- Логотип и навигация -->
+            <div class="flex items-center gap-6">
+                <a href="#" onclick="window.navigateToHome(); return false;" class="flex items-center gap-3 group">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 p-0.5 shadow-lg shadow-orange-500/20 group-hover:scale-105 transition">
+                        <img src="logo.jpg" onerror="this.src='https://placehold.co/100x100/ff6b00/ffffff?text=VH'" alt="VelHamster Logo" class="w-full h-full rounded-[14px] object-cover">
+                    </div>
+                    <div>
+                        <span class="text-xl font-black tracking-wider text-white uppercase flex items-center gap-1.5">
+                            Vel<span class="text-rw-accent">Hamster</span>
+                        </span>
+                        <span class="block text-[10px] text-rw-muted font-bold tracking-widest uppercase">Игровой форум проекта</span>
+                    </div>
+                </a>
+
+                <nav class="hidden md:flex items-center gap-1 text-sm font-semibold text-gray-300">
+                    <a href="#" onclick="window.navigateToHome(); return false;" class="px-3 py-2 rounded-xl hover:bg-white/5 hover:text-white transition">Главная</a>
+                    <a href="#" onclick="window.showLatestThreads(); return false;" class="px-3 py-2 rounded-xl hover:bg-white/5 hover:text-white transition">Что нового?</a>
+                </nav>
+            </div>
+
+            <!-- Авторизация и профиль -->
+            <div id="header-auth-area" class="flex items-center gap-3">
+                <!-- Динамически заполняется JS -->
+            </div>
+        </div>
+    </header>
+
+    <!-- ХЛЕБНЫЕ КРОШКИ -->
+    <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6">
+        <div id="breadcrumbs" class="flex items-center gap-2 text-xs text-rw-muted flex-wrap"></div>
+    </div>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1">
+        <!-- Список разделов или тем (3 колонки) -->
+        <div id="main-content-area" class="lg:col-span-3 space-y-6">
+            <!-- Рендерится через JS -->
+        </div>
+
+        <!-- САЙДБАР (1 колонка) -->
+        <aside class="space-y-6">
+            <!-- Виджет команды проекта -->
+            <div class="bg-rw-card border border-rw-border rounded-xl p-5 shadow-lg">
+                <div class="flex items-center justify-between pb-3 border-b border-rw-border mb-4">
+                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-white flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-rw-accent"></i>
+                        Команда VelHamster
+                    </h3>
+                    <span id="staff-count-badge" class="px-2 py-0.5 text-[10px] font-black rounded-full bg-rw-accent/20 text-rw-accent">0</span>
+                </div>
+                <div id="staff-list-widget" class="space-y-3">
+                    <!-- Заполняется JS -->
+                </div>
+            </div>
+
+            <!-- Статистика форума -->
+            <div class="bg-rw-card border border-rw-border rounded-xl p-5 shadow-lg space-y-3">
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-white flex items-center gap-2 pb-3 border-b border-rw-border">
+                    <i class="fa-solid fa-chart-pie text-amber-400"></i>
+                    Статистика форума
+                </h3>
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between text-rw-muted">
+                        <span>Всего тем:</span>
+                        <span id="stat-threads" class="text-white font-bold">0</span>
+                    </div>
+                    <div class="flex justify-between text-rw-muted">
+                        <span>Сообщений:</span>
+                        <span id="stat-posts" class="text-white font-bold">0</span>
+                    </div>
+                    <div class="flex justify-between text-rw-muted">
+                        <span>Пользователей:</span>
+                        <span id="stat-users" class="text-white font-bold">0</span>
+                    </div>
+                    <div class="flex justify-between text-rw-muted pt-2 border-t border-rw-border">
+                        <span>Новый участник:</span>
+                        <span id="stat-newest-user" class="text-rw-accent font-semibold truncate max-w-[120px]">—</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- ФУТЕР -->
+    <footer class="bg-[#151821] border-t border-rw-border mt-12 py-8 text-center text-xs text-rw-muted">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2">
+            <p class="font-bold text-gray-300">VelHamster © 2026. Все права защищены.</p>
+            <p>Игровой форум проекта в стиле ReallyWorld. Подключен к Firebase Cloud Firestore.</p>
+        </div>
+    </footer>
+
+    <!-- МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ И РЕГИСТРАЦИИ -->
+    <div id="auth-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-rw-card border border-rw-border rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+            <button onclick="window.closeAuthModal()" class="absolute top-4 right-4 text-rw-muted hover:text-white transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center mb-5">
+                <h3 class="text-xl font-extrabold text-white">Авторизация VelHamster</h3>
+                <p class="text-xs text-rw-muted mt-1">Войдите через Google или по электронной почте</p>
+            </div>
+            
+            <div id="auth-error-box" class="hidden bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs p-3 rounded-xl mb-4"></div>
+
+            <!-- Вход через Google -->
+            <button type="button" onclick="window.loginWithGoogle()" class="w-full bg-white hover:bg-gray-100 text-gray-900 font-bold text-xs sm:text-sm py-3 px-4 rounded-xl shadow flex items-center justify-center gap-3 transition mb-4">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
+                <span>Продолжить с Google</span>
+            </button>
+
+            <div class="relative flex py-2 items-center mb-4">
+                <div class="flex-grow border-t border-rw-border"></div>
+                <span class="flex-shrink mx-3 text-[10px] uppercase font-bold text-rw-muted">Или через Email</span>
+                <div class="flex-grow border-t border-rw-border"></div>
+            </div>
+
+            <form onsubmit="window.handleEmailAuth(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs font-bold text-rw-muted uppercase mb-1">Электронная почта</label>
+                    <input type="email" id="auth-email" required placeholder="player@velhamster.ru" class="w-full bg-[#111318] border border-rw-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-rw-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-rw-muted uppercase mb-1">Пароль</label>
+                    <input type="password" id="auth-password" required minlength="6" placeholder="Минимум 6 символов" class="w-full bg-[#111318] border border-rw-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-rw-accent">
+                </div>
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <button type="submit" onclick="window.setAuthMode('login')" class="bg-rw-accent hover:bg-rw-accentHover text-white text-xs font-bold py-3 rounded-xl shadow transition">
+                        Войти
+                    </button>
+                    <button type="submit" onclick="window.setAuthMode('register')" class="bg-[#232732] hover:bg-[#2c313e] text-white border border-rw-border text-xs font-bold py-3 rounded-xl transition">
+                        Регистрация
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО СОЗДАНИЯ ТЕМЫ -->
+    <div id="create-thread-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-rw-card border border-rw-border rounded-2xl w-full max-w-xl p-6 shadow-2xl relative">
+            <button onclick="window.closeCreateModal()" class="absolute top-4 right-4 text-rw-muted hover:text-white transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-lg font-extrabold text-white mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square text-rw-accent"></i> Создание новой темы
+            </h3>
+            <form onsubmit="window.handleCreateThread(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-rw-muted uppercase mb-1">Раздел</label>
+                        <select id="new-thread-category" class="w-full bg-[#111318] border border-rw-border rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-rw-accent"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-rw-muted uppercase mb-1">Префикс</label>
+                        <select id="new-thread-prefix" class="w-full bg-[#111318] border border-rw-border rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-rw-accent">
+                            <option value="">Без префикса</option>
+                            <option value="Важно">Важно</option>
+                            <option value="Жалоба">Жалоба</option>
+                            <option value="Заявка">Заявка</option>
+                            <option value="Вопрос">Вопрос</option>
+                            <option value="Баг">Баг</option>
+                            <option value="Обсуждение">Обсуждение</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-rw-muted uppercase mb-1">Заголовок темы</label>
+                    <input type="text" id="new-thread-title" required minlength="5" maxlength="100" placeholder="Кратко опишите суть..." class="w-full bg-[#111318] border border-rw-border rounded-xl px-3.5 py-3 text-sm text-white focus:outline-none focus:border-rw-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-rw-muted uppercase mb-1">Сообщение</label>
+                    <textarea id="new-thread-content" rows="5" required minlength="10" placeholder="Подробное описание..." class="w-full bg-[#111318] border border-rw-border rounded-xl p-3.5 text-sm text-white focus:outline-none focus:border-rw-accent"></textarea>
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="window.closeCreateModal()" class="px-4 py-2.5 rounded-xl text-xs font-bold text-rw-muted hover:bg-white/5 transition">Отмена</button>
+                    <button type="submit" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-lg transition">Опубликовать тему</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ПРОФИЛЯ -->
+    <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-rw-card border border-rw-border rounded-2xl w-full max-w-lg p-6 shadow-2xl relative space-y-5">
+            <button onclick="window.closeProfileModal()" class="absolute top-4 right-4 text-rw-muted hover:text-white transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div id="profile-modal-body" class="space-y-4">
+                <!-- Заполняется JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО БЛОКИРОВКИ -->
+    <div id="ban-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-rw-card border border-rw-border rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+            <button onclick="window.closeBanModal()" class="absolute top-4 right-4 text-rw-muted hover:text-white transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-base font-extrabold text-rose-400 mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-ban"></i> Блокировка аккаунта
+            </h3>
+            <p class="text-xs text-rw-muted mb-4">Укажите причину блокировки для пользователя <strong id="ban-target-name" class="text-white"></strong>:</p>
+            <form onsubmit="window.confirmBanUser(event)" class="space-y-4">
+                <textarea id="ban-reason-input" rows="3" required placeholder="Причина нарушения правил..." class="w-full bg-[#111318] border border-rw-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-rose-500"></textarea>
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="window.closeBanModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-rw-muted">Отмена</button>
+                    <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-5 py-2 rounded-xl transition">Заблокировать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- УВЕДОМЛЕНИЯ (TOAST) -->
+    <div id="toast" class="fixed bottom-5 right-5 px-4 py-3 rounded-xl shadow-2xl text-sm font-bold flex items-center gap-2 transform translate-y-24 opacity-0 transition-all duration-300 z-50 bg-emerald-600 text-white">
+        <i id="toast-icon" class="fa-solid fa-circle-check"></i>
+        <span id="toast-msg">Успешно!</span>
+    </div>
+
+    <!-- ПОДКЛЮЧЕНИЕ FIREBASE SDK И ЛОГИКА ФОРУМА -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            GoogleAuthProvider, 
+            signInWithPopup, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword,
+            signInWithCustomToken,
+            signInAnonymously,
+            onAuthStateChanged, 
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            updateDoc, 
+            deleteDoc, 
+            collection, 
+            onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Конфигурация вашего проекта Firebase (velhamster-26)
+        const USER_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyByzsfenJpJn5_U9Ncg9p9pqkgmda9Mg3Q",
+            authDomain: "velhamster-26.firebaseapp.com",
+            projectId: "velhamster-26",
+            storageBucket: "velhamster-26.firebasestorage.app",
+            messagingSenderId: "896882257934",
+            appId: "1:896882257934:web:2827dd15da40d5256c8c5f",
+            measurementId: "G-RHHCHLNCV3"
+        };
+
+        // Поддержка среды предпросмотра и самостоятельного хостинга
+        const isPreviewEnv = typeof __firebase_config !== 'undefined';
+        const firebaseConfig = isPreviewEnv ? JSON.parse(__firebase_config) : USER_FIREBASE_CONFIG;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'velhamster-26';
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // Пути к коллекциям в Cloud Firestore (строго по правилам безопасности)
+        const usersColRef = collection(db, 'artifacts', appId, 'public', 'data', 'vh_users');
+        const threadsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'vh_threads');
+        const postsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'vh_posts');
+
+        // --- СПРАВОЧНИК РОЛЕЙ И РАЗДЕЛОВ ---
+        const ROLES_CONFIG = {
+            guest: { label: 'Гость', badgeClass: 'role-badge-player', level: 0 },
+            player: { label: 'Игрок', badgeClass: 'role-badge-player', level: 1 },
+            helper: { label: 'Хелпер', badgeClass: 'role-badge-helper', level: 2 },
+            moder: { label: 'Модератор', badgeClass: 'role-badge-moder', level: 3 },
+            tech_admin: { label: 'Тех. Админ', badgeClass: 'role-badge-tech_admin', level: 4 },
+            admin: { label: 'Администратор', badgeClass: 'role-badge-admin', level: 5 }
+        };
+
+        const CATEGORIES = [
+            {
+                group: "Официальная информация",
+                icon: "fa-bullhorn",
+                items: [
+                    {
+                        id: "news",
+                        title: "Новости и обновления VelHamster",
+                        desc: "Официальные анонсы обновлений игры, патчноуты и важные события проекта.",
+                        icon: "fa-newspaper",
+                        color: "text-orange-400",
+                        bg: "bg-orange-500/15",
+                        minRoleLevelToCreate: 4
+                    },
+                    {
+                        id: "rules",
+                        title: "Правила проекта и форума",
+                        desc: "Свод правил VelHamster. Обязательно к ознакомлению для всех игроков.",
+                        icon: "fa-scale-balanced",
+                        color: "text-rose-400",
+                        bg: "bg-rose-500/15",
+                        minRoleLevelToCreate: 4
+                    }
+                ]
+            },
+            {
+                group: "Игровой процесс и поддержка",
+                icon: "fa-shield-halved",
+                items: [
+                    {
+                        id: "complaints",
+                        title: "Жалобы на игроков и автокликеры",
+                        desc: "Подача жалоб на нарушителей правил проекта VelHamster.",
+                        icon: "fa-gavel",
+                        color: "text-red-400",
+                        bg: "bg-red-500/15",
+                        minRoleLevelToCreate: 1
+                    },
+                    {
+                        id: "applications",
+                        title: "Заявки на пост Хелпера / Модератора",
+                        desc: "Набор в команду модерации VelHamster. Оставьте анкету.",
+                        icon: "fa-user-tie",
+                        color: "text-blue-400",
+                        bg: "bg-blue-500/15",
+                        minRoleLevelToCreate: 1
+                    },
+                    {
+                        id: "bugs",
+                        title: "Баги и технические проблемы",
+                        desc: "Сообщите о найденных недоработках или ошибках в тапалке.",
+                        icon: "fa-bug",
+                        color: "text-purple-400",
+                        bg: "bg-purple-500/15",
+                        minRoleLevelToCreate: 1
+                    }
+                ]
+            },
+            {
+                group: "Сообщество",
+                icon: "fa-users",
+                items: [
+                    {
+                        id: "general",
+                        title: "Общение игроков VelHamster",
+                        desc: "Свободное общение участников сообщества, обсуждение стратегий тапанья.",
+                        icon: "fa-comments",
+                        color: "text-emerald-400",
+                        bg: "bg-emerald-500/15",
+                        minRoleLevelToCreate: 1
+                    }
+                ]
+            }
+        ];
+
+        // --- СОСТОЯНИЕ ДАННЫХ ИЗ FIRESTORE ---
+        let dbUsers = {}; // ключ: uid
+        let dbThreads = [];
+        let dbPosts = [];
+        let currentAuthUser = null;
+        let authMode = 'login';
+        let listenersStarted = false;
+
+        function getCurrentUserProfile() {
+            if (!currentAuthUser || currentAuthUser.isAnonymous) return null;
+            return dbUsers[currentAuthUser.uid] || null;
+        }
+
+        function getUserRoleLevel(uid) {
+            const u = dbUsers[uid];
+            if (!u) return 0;
+            return ROLES_CONFIG[u.role]?.level || 1;
+        }
+
+        function findCategoryById(catId) {
+            for (const g of CATEGORIES) {
+                const found = g.items.find(i => i.id === catId);
+                if (found) return found;
+            }
+            return null;
+        }
+
+        function formatDate(ts) {
+            if (!ts) return 'Недавно';
+            const d = new Date(ts);
+            return d.toLocaleDateString('ru-RU', { day: '2-digit', month: 'short', year: 'numeric' }) + ' в ' +
+                   d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.className = `fixed bottom-5 right-5 px-4 py-3 rounded-xl shadow-2xl text-sm font-bold flex items-center gap-2 transform transition-all duration-300 z-50 ${
+                type === 'error' ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'
+            }`;
+            icon.className = type === 'error' ? 'fa-solid fa-circle-exclamation' : 'fa-solid fa-circle-check';
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-24', 'opacity-0');
+            });
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3500);
+        }
+
+        function getPrefixBadge(prefix) {
+            if (!prefix) return '';
+            const styles = {
+                'Одобрено': 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40',
+                'На рассмотрении': 'bg-amber-500/20 text-amber-400 border-amber-500/40',
+                'Отказано': 'bg-rose-500/20 text-rose-400 border-rose-500/40',
+                'Закрыто': 'bg-gray-500/20 text-gray-400 border-gray-500/40',
+                'Важно': 'bg-orange-500/20 text-orange-400 border-orange-500/40',
+                'Жалоба': 'bg-red-500/20 text-red-400 border-red-500/40',
+                'Заявка': 'bg-blue-500/20 text-blue-400 border-blue-500/40',
+                'Вопрос': 'bg-sky-500/20 text-sky-400 border-sky-500/40',
+                'Баг': 'bg-purple-500/20 text-purple-400 border-purple-500/40',
+                'Обсуждение': 'bg-teal-500/20 text-teal-400 border-teal-500/40'
+            };
+            const cls = styles[prefix] || 'bg-amber-500/20 text-amber-400 border-amber-500/40';
+            return `<span class="inline-block px-2 py-0.5 text-[11px] font-extrabold rounded border ${cls} mr-1.5 uppercase tracking-wide">${prefix}</span>`;
+        }
+
+        // --- СИНХРОНИЗАЦИЯ С CLOUD FIRESTORE ---
+        function startRealtimeSync() {
+            if (listenersStarted) return;
+            listenersStarted = true;
+
+            onSnapshot(usersColRef, (snapshot) => {
+                const updated = {};
+                snapshot.forEach(docSnap => {
+                    updated[docSnap.id] = { uid: docSnap.id, ...docSnap.data() };
+                });
+                dbUsers = updated;
+                renderHeaderAuth();
+                renderSidebarWidgets();
+                rerenderCurrentView();
+            }, (err) => console.error("Ошибка загрузки пользователей:", err));
+
+            onSnapshot(threadsColRef, (snapshot) => {
+                const list = [];
+                snapshot.forEach(docSnap => {
+                    list.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                dbThreads = list;
+                renderSidebarWidgets();
+                rerenderCurrentView();
+            }, (err) => console.error("Ошибка загрузки тем:", err));
+
+            onSnapshot(postsColRef, (snapshot) => {
+                const list = [];
+                snapshot.forEach(docSnap => {
+                    list.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+                dbPosts = list;
+                renderSidebarWidgets();
+                rerenderCurrentView();
+            }, (err) => console.error("Ошибка загрузки сообщений:", err));
+        }
+
+        // Создание или обновление профиля пользователя в Firestore при входе
+        async function ensureUserProfileInFirestore(user) {
+            if (!user || user.isAnonymous) return;
+            const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'vh_users', user.uid);
+            const snap = await getDoc(userRef);
+
+            if (!snap.exists()) {
+                // Генерируем уникальный базовый никнейм
+                let baseName = (user.displayName || user.email?.split('@')[0] || 'Hamster').replace(/[^a-zA-Z0-9а-яА-ЯёЁ_]/g, '');
+                if (baseName.length < 3) baseName = 'Player_' + Math.floor(1000 + Math.random() * 9000);
+                
+                const isTaken = Object.values(dbUsers).some(u => u.name?.toLowerCase() === baseName.toLowerCase());
+                if (isTaken) baseName = baseName + '_' + Math.floor(10 + Math.random() * 89);
+
+                // Если на форуме ещё нет ни одного администратора, первый пользователь получает права Администратора
+                const hasAnyAdmin = Object.values(dbUsers).some(u => u.role === 'admin');
+
+                const newProfile = {
+                    uid: user.uid,
+                    name: baseName,
+                    email: user.email || '',
+                    photoURL: user.photoURL || '',
+                    role: hasAnyAdmin ? 'player' : 'admin',
+                    reputation: 0,
+                    repGivenBy: [],
+                    messagesCount: 0,
+                    createdAt: Date.now(),
+                    lastNickChange: 0,
+                    isBanned: false,
+                    banReason: ''
+                };
+                await setDoc(userRef, newProfile);
+                dbUsers[user.uid] = newProfile;
+            }
+        }
+
+        // Инициализация авторизации при загрузке
+        async function initFirebaseAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else if (!auth.currentUser) {
+                    await signInAnonymously(auth);
+                }
+            } catch (e) {
+                console.warn("Анонимная сессия для чтения данных:", e.message);
+            }
+
+            onAuthStateChanged(auth, async (user) => {
+                currentAuthUser = user;
+                if (user) {
+                    startRealtimeSync();
+                    if (!user.isAnonymous) {
+                        await ensureUserProfileInFirestore(user);
+                    }
+                }
+                renderHeaderAuth();
+                renderSidebarWidgets();
+                rerenderCurrentView();
+            });
+        }
+
+        // --- АВТОРИЗАЦИЯ И РЕГИСТРАЦИЯ ---
+        window.openAuthModal = () => {
+            document.getElementById('auth-error-box').classList.add('hidden');
+            document.getElementById('auth-modal').classList.remove('hidden');
+        };
+        window.closeAuthModal = () => {
+            document.getElementById('auth-modal').classList.add('hidden');
+        };
+        window.setAuthMode = (mode) => {
+            authMode = mode;
+        };
+
+        window.loginWithGoogle = async () => {
+            const errBox = document.getElementById('auth-error-box');
+            errBox.classList.add('hidden');
+            try {
+                const res = await signInWithPopup(auth, googleProvider);
+                await ensureUserProfileInFirestore(res.user);
+                window.closeAuthModal();
+                showToast(`Добро пожаловать на VelHamster!`);
+            } catch (err) {
+                errBox.textContent = "Ошибка входа через Google: " + err.message;
+                errBox.classList.remove('hidden');
+            }
+        };
+
+        window.handleEmailAuth = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const errBox = document.getElementById('auth-error-box');
+            errBox.classList.add('hidden');
+
+            try {
+                let res;
+                if (authMode === 'register') {
+                    res = await createUserWithEmailAndPassword(auth, email, password);
+                    showToast("Регистрация выполнена успешно!");
+                } else {
+                    res = await signInWithEmailAndPassword(auth, email, password);
+                    showToast("Вы успешно вошли в аккаунт!");
+                }
+                await ensureUserProfileInFirestore(res.user);
+                window.closeAuthModal();
+            } catch (err) {
+                errBox.textContent = "Ошибка авторизации: " + err.message;
+                errBox.classList.remove('hidden');
+            }
+        };
+
+        window.logoutUser = async () => {
+            try {
+                await signOut(auth);
+                await signInAnonymously(auth);
+                showToast("Вы вышли из аккаунта");
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        // --- РЕНДЕР ИНТЕРФЕЙСА ---
+        function renderHeaderAuth() {
+            const area = document.getElementById('header-auth-area');
+            const banBanner = document.getElementById('ban-alert-banner');
+            const profile = getCurrentUserProfile();
+
+            if (!profile) {
+                banBanner.classList.add('hidden');
+                banBanner.classList.remove('flex');
+                area.innerHTML = `
+                    <button onclick="window.openAuthModal()" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl shadow-md transition transform active:scale-95 flex items-center gap-2">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Войти / Регистрация</span>
+                    </button>
+                `;
+                return;
+            }
+
+            if (profile.isBanned) {
+                banBanner.innerHTML = `
+                    <i class="fa-solid fa-ban text-white"></i>
+                    <span>Ваш аккаунт заблокирован${profile.banReason ? ': ' + profile.banReason : ''}</span>
+                `;
+                banBanner.classList.remove('hidden');
+                banBanner.classList.add('flex');
+            } else {
+                banBanner.classList.add('hidden');
+                banBanner.classList.remove('flex');
+            }
+
+            const roleInfo = ROLES_CONFIG[profile.role] || ROLES_CONFIG.player;
+            const canCreateAnywhere = !profile.isBanned && getUserRoleLevel(profile.uid) >= 1;
+            const avatarUrl = profile.photoURL || `https://placehold.co/40x40/ff6b00/ffffff?text=${encodeURIComponent(profile.name[0].toUpperCase())}`;
+
+            area.innerHTML = `
+                ${canCreateAnywhere ? `
+                    <button onclick="window.openCreateModal()" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs sm:text-sm font-bold px-3.5 py-2.5 rounded-xl shadow-md transition transform active:scale-95 flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i>
+                        <span class="hidden sm:inline">Создать тему</span>
+                    </button>
+                ` : ''}
+
+                <div onclick="window.openUserProfile('${profile.uid}')" class="flex items-center gap-2.5 pl-2 border-l border-rw-border cursor-pointer group">
+                    <img src="${avatarUrl}" onerror="this.src='https://placehold.co/40x40/ff6b00/ffffff?text=VH'" alt="Avatar" class="w-9 h-9 rounded-xl border border-orange-500/40 object-cover">
+                    <div class="hidden lg:block leading-tight">
+                        <div class="text-xs font-bold text-white group-hover:text-rw-accent transition">${profile.name}</div>
+                        <span class="inline-block mt-0.5 px-1.5 py-0.2 rounded text-[9px] font-black uppercase ${roleInfo.badgeClass}">${roleInfo.label}</span>
+                    </div>
+                </div>
+
+                <button onclick="window.logoutUser()" title="Выйти" class="p-2 rounded-lg text-rw-muted hover:text-rose-400 hover:bg-white/5 transition">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            `;
+        }
+
+        function renderSidebarWidgets() {
+            const staffList = Object.values(dbUsers).filter(u => ['helper', 'moder', 'tech_admin', 'admin'].includes(u.role));
+            staffList.sort((a, b) => (ROLES_CONFIG[b.role]?.level || 0) - (ROLES_CONFIG[a.role]?.level || 0));
+
+            document.getElementById('staff-count-badge').textContent = staffList.length;
+            const staffContainer = document.getElementById('staff-list-widget');
+
+            if (staffList.length === 0) {
+                staffContainer.innerHTML = `<p class="text-xs text-rw-muted">Персонал ещё не назначен.</p>`;
+            } else {
+                staffContainer.innerHTML = staffList.map(st => {
+                    const r = ROLES_CONFIG[st.role];
+                    const av = st.photoURL || `https://placehold.co/36x36/ff6b00/ffffff?text=${encodeURIComponent(st.name[0].toUpperCase())}`;
+                    return `
+                    <div onclick="window.openUserProfile('${st.uid}')" class="flex items-center justify-between cursor-pointer hover:bg-white/5 p-1.5 rounded-lg transition">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <img src="${av}" onerror="this.src='https://placehold.co/36x36/ff6b00/ffffff?text=VH'" class="w-8 h-8 rounded-lg object-cover shrink-0">
+                            <div class="truncate">
+                                <div class="text-xs font-bold text-white truncate">${st.name}</div>
+                                <div class="text-[10px] text-rw-muted">Рейтинг: ${st.reputation || 0}</div>
+                            </div>
+                        </div>
+                        <span class="text-[9px] font-black px-2 py-0.5 rounded uppercase shrink-0 ${r.badgeClass}">${r.label}</span>
+                    </div>
+                    `;
+                }).join('');
+            }
+
+            const allUsersArr = Object.values(dbUsers);
+            document.getElementById('stat-threads').textContent = dbThreads.length;
+            document.getElementById('stat-posts').textContent = dbPosts.length;
+            document.getElementById('stat-users').textContent = allUsersArr.length;
+
+            if (allUsersArr.length > 0) {
+                const newest = [...allUsersArr].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))[0];
+                document.getElementById('stat-newest-user').innerHTML = `<button onclick="window.openUserProfile('${newest.uid}')" class="hover:underline">${newest.name}</button>`;
+            } else {
+                document.getElementById('stat-newest-user').textContent = '—';
+            }
+        }
+
+        // --- НАВИГАЦИЯ ---
+        let currentView = 'home';
+        let activeCategoryId = null;
+        let activeThreadId = null;
+        let banTargetUid = null;
+
+        function updateBreadcrumbs(items) {
+            const container = document.getElementById('breadcrumbs');
+            let html = `<button onclick="window.navigateToHome()" class="hover:text-rw-accent transition flex items-center gap-1 font-medium"><i class="fa-solid fa-house"></i> Форум VelHamster</button>`;
+            items.forEach(item => {
+                html += `<i class="fa-solid fa-chevron-right text-[10px] text-gray-600"></i>`;
+                if (item.action) {
+                    html += `<button onclick="${item.action}" class="hover:text-rw-accent transition font-medium">${item.label}</button>`;
+                } else {
+                    html += `<span class="text-white font-semibold truncate max-w-[200px] sm:max-w-md">${item.label}</span>`;
+                }
+            });
+            container.innerHTML = html;
+        }
+
+        function rerenderCurrentView() {
+            if (currentView === 'home') window.navigateToHome(false);
+            else if (currentView === 'category' && activeCategoryId) window.openCategory(activeCategoryId, false);
+            else if (currentView === 'thread' && activeThreadId) window.openThread(activeThreadId, false);
+            else if (currentView === 'latest') window.showLatestThreads(false);
+        }
+
+        window.navigateToHome = (scroll = true) => {
+            currentView = 'home';
+            activeCategoryId = null;
+            activeThreadId = null;
+            updateBreadcrumbs([]);
+
+            const container = document.getElementById('main-content-area');
+            let html = '';
+
+            CATEGORIES.forEach(group => {
+                html += `
+                <div class="bg-rw-card border border-rw-border rounded-xl overflow-hidden shadow-lg">
+                    <div class="px-5 py-3.5 bg-gradient-to-r from-[#1d2028] to-[#181b21] border-b border-rw-border flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-lg bg-rw-accent/15 text-rw-accent flex items-center justify-center text-xs">
+                            <i class="fa-solid ${group.icon}"></i>
+                        </div>
+                        <h2 class="text-sm font-extrabold uppercase tracking-wider text-white">${group.group}</h2>
+                    </div>
+                    <div class="divide-y divide-rw-border">
+                `;
+
+                group.items.forEach(cat => {
+                    const catThreads = dbThreads.filter(t => t.categoryId === cat.id);
+                    const catThreadIds = new Set(catThreads.map(t => t.id));
+                    const catPostsCount = dbPosts.filter(p => catThreadIds.has(p.threadId)).length;
+                    const lastThread = catThreads[0];
+                    const lastAuthorName = lastThread ? (dbUsers[lastThread.authorUid]?.name || lastThread.authorName || 'Игрок') : '';
+
+                    html += `
+                    <div onclick="window.openCategory('${cat.id}')" class="p-4 sm:px-5 hover:bg-rw-cardHover transition cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
+                        <div class="flex items-start sm:items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-xl ${cat.bg} ${cat.color} flex items-center justify-center text-lg shrink-0 group-hover:scale-105 transition">
+                                <i class="fa-solid ${cat.icon}"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="text-base font-bold text-white group-hover:text-rw-accent transition">${cat.title}</h3>
+                                    ${cat.minRoleLevelToCreate >= 4 ? `<span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-orange-500/15 text-orange-400 border border-orange-500/30">Только администрация</span>` : ''}
+                                </div>
+                                <p class="text-xs text-rw-muted mt-0.5 line-clamp-1">${cat.desc}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between sm:justify-end gap-6 pl-14 sm:pl-0 shrink-0">
+                            <div class="flex items-center gap-4 text-center">
+                                <div>
+                                    <div class="text-xs font-extrabold text-white">${catThreads.length}</div>
+                                    <div class="text-[10px] text-rw-muted uppercase">Темы</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-extrabold text-white">${catPostsCount}</div>
+                                    <div class="text-[10px] text-rw-muted uppercase">Сообщ.</div>
+                                </div>
+                            </div>
+
+                            <div class="hidden md:block w-52 bg-[#121419] border border-rw-border rounded-lg px-3 py-2">
+                                ${lastThread ? `
+                                    <div class="text-xs font-semibold text-gray-200 truncate">${lastThread.title}</div>
+                                    <div class="text-[10px] text-rw-muted mt-0.5 flex items-center justify-between">
+                                        <span class="text-rw-accent font-medium truncate max-w-[110px]">${lastAuthorName}</span>
+                                        <span>${new Date(lastThread.createdAt).toLocaleDateString('ru-RU')}</span>
+                                    </div>
+                                ` : `<span class="text-xs text-rw-muted">Тем пока нет</span>`}
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+            });
+
+            container.innerHTML = html;
+            if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.openCategory = (categoryId, scroll = true) => {
+            const cat = findCategoryById(categoryId);
+            if (!cat) return window.navigateToHome();
+
+            currentView = 'category';
+            activeCategoryId = categoryId;
+            activeThreadId = null;
+
+            updateBreadcrumbs([{ label: cat.title }]);
+
+            const catThreads = dbThreads.filter(t => t.categoryId === categoryId);
+            catThreads.sort((a, b) => ((b.pinned === true) - (a.pinned === true)) || ((b.createdAt || 0) - (a.createdAt || 0)));
+
+            const profile = getCurrentUserProfile();
+            const userCanCreate = profile && !profile.isBanned && getUserRoleLevel(profile.uid) >= cat.minRoleLevelToCreate;
+            let actionButtonHtml = '';
+
+            if (!profile) {
+                actionButtonHtml = `
+                    <button onclick="window.openAuthModal()" class="bg-[#232732] hover:bg-[#2c313e] text-amber-400 border border-amber-500/30 text-xs font-bold px-4 py-2.5 rounded-xl transition shrink-0">
+                        <i class="fa-solid fa-lock mr-1.5"></i>Войдите, чтобы создать тему
+                    </button>
+                `;
+            } else if (profile.isBanned) {
+                actionButtonHtml = `
+                    <span class="text-xs font-bold text-rose-400 bg-rose-500/15 border border-rose-500/30 px-3 py-2 rounded-xl shrink-0">
+                        <i class="fa-solid fa-ban mr-1"></i>Аккаунт заблокирован
+                    </span>
+                `;
+            } else if (userCanCreate) {
+                actionButtonHtml = `
+                    <button onclick="window.openCreateModal('${categoryId}')" class="bg-rw-accent hover:bg-rw-accentHover text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition shrink-0 flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Создать тему
+                    </button>
+                `;
+            }
+
+            const container = document.getElementById('main-content-area');
+            let html = `
+                <div class="bg-rw-card border border-rw-border rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md">
+                    <div>
+                        <h1 class="text-xl font-extrabold text-white">${cat.title}</h1>
+                        <p class="text-xs text-rw-muted mt-1">${cat.desc}</p>
+                    </div>
+                    ${actionButtonHtml}
+                </div>
+
+                <div class="bg-rw-card border border-rw-border rounded-xl overflow-hidden shadow-lg divide-y divide-rw-border">
+            `;
+
+            if (catThreads.length === 0) {
+                html += `
+                    <div class="p-10 text-center">
+                        <i class="fa-regular fa-folder-open text-4xl text-rw-muted mb-3"></i>
+                        <p class="text-sm font-bold text-white">В этом разделе пока нет тем</p>
+                    </div>
+                `;
+            } else {
+                catThreads.forEach(thread => {
+                    html += renderThreadRow(thread);
+                });
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+            if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.showLatestThreads = (scroll = true) => {
+            currentView = 'latest';
+            updateBreadcrumbs([{ label: 'Что нового?' }]);
+
+            const container = document.getElementById('main-content-area');
+            let html = `
+                <div class="bg-rw-card border border-rw-border rounded-xl p-5 shadow-md">
+                    <h1 class="text-xl font-extrabold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-amber-400"></i>
+                        Последние темы на форуме VelHamster
+                    </h1>
+                </div>
+                <div class="bg-rw-card border border-rw-border rounded-xl overflow-hidden shadow-lg divide-y divide-rw-border">
+            `;
+
+            if (dbThreads.length === 0) {
+                html += `<div class="p-8 text-center text-xs text-rw-muted">Тем пока нет.</div>`;
+            } else {
+                dbThreads.forEach(thread => {
+                    html += renderThreadRow(thread);
+                });
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+            if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        function renderThreadRow(thread) {
+            const repliesCount = dbPosts.filter(p => p.threadId === thread.id).length;
+            const authorUser = dbUsers[thread.authorUid];
+            const authorName = authorUser?.name || thread.authorName || 'Игрок';
+            const avatar = authorUser?.photoURL || `https://placehold.co/40x40/ff6b00/ffffff?text=${encodeURIComponent(authorName[0].toUpperCase())}`;
+
+            return `
+            <div onclick="window.openThread('${thread.id}')" class="p-4 sm:px-5 hover:bg-rw-cardHover transition cursor-pointer flex items-center justify-between gap-4 group">
+                <div class="flex items-start sm:items-center gap-3.5 min-w-0">
+                    <img src="${avatar}" onerror="this.src='https://placehold.co/40x40/ff6b00/ffffff?text=VH'" class="w-10 h-10 rounded-xl shrink-0 border border-white/10 object-cover">
+                    <div class="min-w-0">
+                        <div class="flex items-center flex-wrap gap-y-1">
+                            ${thread.pinned ? `<i class="fa-solid fa-thumbtack text-amber-400 text-xs mr-2" title="Закреплено"></i>` : ''}
+                            ${thread.locked ? `<i class="fa-solid fa-lock text-rose-400 text-xs mr-2" title="Закрыто"></i>` : ''}
+                            ${getPrefixBadge(thread.prefix)}
+                            <span class="text-sm sm:text-base font-bold text-white group-hover:text-rw-accent transition truncate">${thread.title}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-rw-muted mt-1">
+                            <span onclick="event.stopPropagation(); window.openUserProfile('${thread.authorUid}')" class="font-semibold text-gray-300 hover:text-rw-accent hover:underline">${authorName}</span>
+                            <span>•</span>
+                            <span>${formatDate(thread.createdAt)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-5 shrink-0 text-right">
+                    <div class="hidden sm:block">
+                        <div class="text-xs font-bold text-white">${repliesCount}</div>
+                        <div class="text-[10px] text-rw-muted">Сообщ.</div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs text-rw-muted group-hover:text-rw-accent transition"></i>
+                </div>
+            </div>
+            `;
+        }
+
+        window.openThread = (threadId, scroll = true) => {
+            const thread = dbThreads.find(t => t.id === threadId);
+            if (!thread) return window.navigateToHome();
+
+            currentView = 'thread';
+            activeThreadId = threadId;
+
+            const cat = findCategoryById(thread.categoryId);
+            const threadPosts = dbPosts.filter(p => p.threadId === threadId);
+            const profile = getCurrentUserProfile();
+            const myLevel = profile ? getUserRoleLevel(profile.uid) : 0;
+            const isStaff = myLevel >= 2 && !profile?.isBanned;
+            const threadAuthorName = dbUsers[thread.authorUid]?.name || thread.authorName || 'Игрок';
+
+            updateBreadcrumbs([
+                { label: cat ? cat.title : 'Раздел', action: `window.openCategory('${thread.categoryId}')` },
+                { label: thread.title }
+            ]);
+
+            let modToolbarHtml = '';
+            if (isStaff) {
+                modToolbarHtml = `
+                <div class="mt-4 pt-3 border-t border-rw-border flex flex-wrap items-center justify-between gap-3 bg-[#13151b] p-3 rounded-xl">
+                    <div class="flex items-center gap-2 text-xs">
+                        <span class="font-bold text-amber-400"><i class="fa-solid fa-shield-halved mr-1"></i>Модерация:</span>
+                        <select onchange="window.changeThreadPrefix('${thread.id}', this.value)" class="bg-[#1b1e26] border border-rw-border rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none">
+                            <option value="" ${!thread.prefix ? 'selected' : ''}>Без префикса</option>
+                            <option value="На рассмотрении" ${thread.prefix === 'На рассмотрении' ? 'selected' : ''}>На рассмотрении</option>
+                            <option value="Одобрено" ${thread.prefix === 'Одобрено' ? 'selected' : ''}>Одобрено</option>
+                            <option value="Отказано" ${thread.prefix === 'Отказано' ? 'selected' : ''}>Отказано</option>
+                            <option value="Закрыто" ${thread.prefix === 'Закрыто' ? 'selected' : ''}>Закрыто</option>
+                            <option value="Важно" ${thread.prefix === 'Важно' ? 'selected' : ''}>Важно</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="window.toggleThreadLock('${thread.id}', ${!thread.locked})" class="px-3 py-1 rounded-lg text-xs font-bold ${thread.locked ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'} transition">
+                            ${thread.locked ? 'Открыть' : 'Закрыть'}
+                        </button>
+                        ${myLevel >= 3 ? `<button onclick="window.deleteThread('${thread.id}')" class="px-3 py-1 rounded-lg text-xs font-bold bg-red-600/20 text-red-400">Удалить</button>` : ''}
+                    </div>
+                </div>
+                `;
+            }
+
+            const container = document.getElementById('main-content-area');
+            let html = `
+                <div class="bg-rw-card border border-rw-border rounded-xl p-5 shadow-md">
+                    <div class="flex items-center flex-wrap gap-2 mb-2">
+                        ${getPrefixBadge(thread.prefix)}
+                        ${thread.locked ? `<span class="px-2 py-0.5 text-[11px] font-bold rounded bg-rose-500/15 text-rose-400"><i class="fa-solid fa-lock mr-1"></i>Закрыто</span>` : ''}
+                    </div>
+                    <h1 class="text-lg sm:text-2xl font-extrabold text-white leading-snug">${thread.title}</h1>
+                    <div class="flex items-center gap-4 text-xs text-rw-muted mt-2 pt-2 border-t border-rw-border">
+                        <span>Автор: <button onclick="window.openUserProfile('${thread.authorUid}')" class="font-bold text-gray-200 hover:text-rw-accent hover:underline">${threadAuthorName}</button></span>
+                        <span>${formatDate(thread.createdAt)}</span>
+                    </div>
+                    ${modToolbarHtml}
+                </div>
+
+                <div class="space-y-4">
+            `;
+
+            threadPosts.forEach((post, index) => {
+                const pUser = dbUsers[post.authorUid] || { name: post.authorName || 'Игрок', role: 'player', reputation: 0, messagesCount: 0 };
+                const pRole = ROLES_CONFIG[pUser.role] || ROLES_CONFIG.player;
+                const likes = Array.isArray(post.likes) ? post.likes : [];
+                const isLiked = profile && likes.includes(profile.uid);
+                const av = pUser.photoURL || `https://placehold.co/80x80/ff6b00/ffffff?text=${encodeURIComponent(pUser.name[0].toUpperCase())}`;
+
+                html += `
+                <div class="bg-rw-card border border-rw-border rounded-xl overflow-hidden shadow-md flex flex-col sm:flex-row">
+                    <div onclick="window.openUserProfile('${post.authorUid}')" class="sm:w-48 bg-[#14171d] p-4 border-b sm:border-b-0 sm:border-r border-rw-border flex sm:flex-col items-center sm:text-center gap-3.5 shrink-0 cursor-pointer group">
+                        <img src="${av}" onerror="this.src='https://placehold.co/80x80/ff6b00/ffffff?text=VH'" class="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl border-2 border-white/10 object-cover">
+                        <div class="flex-1 sm:w-full min-w-0">
+                            <div class="font-extrabold text-sm text-white group-hover:text-rw-accent transition truncate">${pUser.name}</div>
+                            <div class="mt-1.5 inline-block sm:block w-full py-1 px-2 rounded text-[10px] font-black uppercase ${pRole.badgeClass}">${pRole.label}</div>
+                            <div class="hidden sm:block mt-3 pt-3 border-t border-rw-border space-y-1 text-[11px]">
+                                <div class="flex justify-between text-rw-muted"><span>Сообщ:</span><span class="text-white">${pUser.messagesCount || 0}</span></div>
+                                <div class="flex justify-between text-rw-muted"><span>Рейтинг:</span><span class="text-amber-400">${pUser.reputation || 0}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 p-4 sm:p-5 flex flex-col justify-between min-w-0">
+                        <div>
+                            <div class="flex items-center justify-between text-[11px] text-rw-muted pb-3 mb-3 border-b border-rw-border">
+                                <span>${formatDate(post.createdAt)}</span>
+                                <span class="font-mono text-gray-500">#${index + 1}</span>
+                            </div>
+                            <div class="text-sm text-gray-200 whitespace-pre-line leading-relaxed break-words">${post.content}</div>
+                        </div>
+                        <div class="flex items-center justify-between pt-4 mt-6 border-t border-rw-border">
+                            <button onclick="window.toggleLikePost('${post.id}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg ${isLiked ? 'bg-rw-accent/20 text-rw-accent border-rw-accent/40' : 'bg-[#1c2028] text-gray-300'} text-xs font-bold border transition">
+                                <i class="fa-solid fa-thumbs-up"></i>
+                                <span>Нравится</span>
+                                <span class="ml-1 px-1.5 py-0.2 rounded bg-black/30 text-amber-400">${likes.length}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+
+            html += `</div>`;
+
+            if (!profile) {
+                html += `
+                <div class="bg-rw-card border border-rw-border rounded-xl p-6 text-center space-y-3">
+                    <p class="text-sm font-bold text-white">Хотите ответить в этой теме?</p>
+                    <button onclick="window.openAuthModal()" class="bg-rw-accent hover:bg-rw-accentHover text-white text-xs font-bold px-5 py-2.5 rounded-xl">Войти / Регистрация</button>
+                </div>
+                `;
+            } else if (profile.isBanned) {
+                html += `<div class="bg-rose-500/10 border border-rose-500/30 rounded-xl p-4 text-center text-xs font-bold text-rose-400">Аккаунт заблокирован.</div>`;
+            } else if (thread.locked && !isStaff) {
+                html += `<div class="bg-rose-500/10 border border-rose-500/30 rounded-xl p-4 text-center text-xs font-bold text-rose-400">Тема закрыта.</div>`;
+            } else {
+                html += `
+                <div class="bg-rw-card border border-rw-border rounded-xl p-5 shadow-md">
+                    <h3 class="text-sm font-extrabold text-white mb-3">Написать ответ</h3>
+                    <form onsubmit="window.handleReply(event, '${thread.id}')">
+                        <textarea id="reply-input" rows="4" required minlength="2" placeholder="Ваше сообщение..." class="w-full bg-[#111318] border border-rw-border rounded-xl p-3.5 text-sm text-white focus:outline-none focus:border-rw-accent mb-3"></textarea>
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-xl shadow-lg">Отправить</button>
+                        </div>
+                    </form>
+                </div>
+                `;
+            }
+
+            container.innerHTML = html;
+            if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // --- СОЗДАНИЕ ТЕМ И ПОСТОВ В FIRESTORE ---
+        window.openCreateModal = (preCat = null) => {
+            const profile = getCurrentUserProfile();
+            if (!profile) return window.openAuthModal();
+            if (profile.isBanned) return showToast("Аккаунт заблокирован", "error");
+
+            const select = document.getElementById('new-thread-category');
+            const myLevel = getUserRoleLevel(profile.uid);
+            let html = '';
+            CATEGORIES.forEach(g => {
+                g.items.forEach(c => {
+                    if (myLevel >= c.minRoleLevelToCreate) {
+                        html += `<option value="${c.id}">${c.title}</option>`;
+                    }
+                });
+            });
+            select.innerHTML = html;
+            if (preCat) select.value = preCat;
+            document.getElementById('create-thread-modal').classList.remove('hidden');
+        };
+
+        window.closeCreateModal = () => document.getElementById('create-thread-modal').classList.add('hidden');
+
+        window.handleCreateThread = async (e) => {
+            e.preventDefault();
+            const profile = getCurrentUserProfile();
+            if (!profile || profile.isBanned) return;
+
+            const categoryId = document.getElementById('new-thread-category').value;
+            const prefix = document.getElementById('new-thread-prefix').value;
+            const title = document.getElementById('new-thread-title').value.trim();
+            const content = document.getElementById('new-thread-content').value.trim();
+
+            try {
+                const threadId = 't_' + Date.now();
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'vh_threads', threadId), {
+                    categoryId,
+                    prefix,
+                    title,
+                    authorUid: profile.uid,
+                    authorName: profile.name,
+                    createdAt: Date.now(),
+                    pinned: false,
+                    locked: false
+                });
+
+                const postId = 'p_' + Date.now();
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'vh_posts', postId), {
+                    threadId,
+                    authorUid: profile.uid,
+                    authorName: profile.name,
+                    content,
+                    createdAt: Date.now(),
+                    likes: []
+                });
+
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'vh_users', profile.uid), {
+                    messagesCount: (profile.messagesCount || 0) + 1
+                });
+
+                window.closeCreateModal();
+                window.openThread(threadId);
+                showToast("Тема успешно создана!");
+            } catch (err) {
+                showToast("Ошибка при создании темы: " + err.message, "error");
+            }
+        };
+
+        window.handleReply = async (e, threadId) => {
+            e.preventDefault();
+            const profile = getCurrentUserProfile();
+            if (!profile || profile.isBanned) return;
+
+            const input = document.getElementById('reply-input');
+            const content = input.value.trim();
+            if (!content) return;
+
+            try {
+                const postId = 'p_' + Date.now();
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'vh_posts', postId), {
+                    threadId,
+                    authorUid: profile.uid,
+                    authorName: profile.name,
+                    content,
+                    createdAt: Date.now(),
+                    likes: []
+                });
+
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'vh_users', profile.uid), {
+                    messagesCount: (profile.messagesCount || 0) + 1
+                });
+
+                input.value = '';
+                showToast("Ответ добавлен!");
+            } catch (err) {
+                showToast("Ошибка отправки: " + err.message, "error");
+            }
+        };
+
+        window.toggleLikePost = async (postId) => {
+            const profile = getCurrentUserProfile();
+            if (!profile) return window.openAuthModal();
+            const post = dbPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            const likes = Array.isArray(post.likes) ? [...post.likes] : [];
+            const idx = likes.indexOf(profile.uid);
+            if (idx === -1) likes.push(profile.uid);
+            else likes.splice(idx, 1);
+
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'vh_posts', postId), { likes });
+            } catch (err) {
+                showToast("Ошибка: " + err.message, "error");
+            }
+        };
+
+        window.changeThreadPrefix = async (threadId, newPrefix) => {
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'vh_threads', threadId), { prefix: newPrefix });
+                showToast("Префикс изменен");
+            } catch (err) {
+                showToast("Ошибка: " + err.message, "error");
+            }
+        };
+
+        window.toggleThreadLock = async (threadId, lock) => {
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'vh_threads', threadId), { locked: lock });
+                showToast(lock ? "Тема закрыта" : "Тема открыта");
+            } catch (err) {
+                showToast("Ошибка: " + err.message, "error");
+            }
+        };
+
+        window.deleteThread = async (threadId) => {
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'vh_threads', threadId));
+                window.navigateToHome();
+                showToast("Тема удалена");
+            } catch (err) {
+                showToast("Ошибка удаления: " + err.message, "error");
+            }
+        };
+
+        // --- ПРОФИЛИ И УПРАВЛЕНИЕ АККАУНТАМИ ---
+        window.openUserProfile = (uid) => {
+            const target = dbUsers[uid];
+            if (!target) return showToast("Профиль пользователя не найден", "error");
+
+            const profile = getCurrentUserProfile();
+            const isOwn = profile && profile.uid === target.uid;
+            const myLevel = profile ? getUserRoleLevel(profile.uid) : 0;
+            const roleInfo = ROLES_CONFIG[target.role] || ROLES_CONFIG.player;
+            const regDate = new Date(target.createdAt || Date.now()).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+            const av = target.photoURL || `https://placehold.co/96x96/ff6b00/ffffff?text=${encodeURIComponent(target.name[0].toUpperCase())}`;
+
+            const targetIsStaff = (ROLES_CONFIG[target.role]?.level || 1) >= 2;
+            const cooldownMs = 14 * 24 * 60 * 60 * 1000;
+            const canChangeNow = targetIsStaff || (Date.now() >= (target.lastNickChange || 0) + cooldownMs);
+            const daysLeft = Math.ceil(((target.lastNickChange || 0) + cooldownMs - Date.now()) / (1000 * 60 * 60 * 24));
+
+            const repList = Array.isArray(target.repGivenBy) ? target.repGivenBy : [];
+            const alreadyRepped = profile && repList.includes(profile.uid);
+            const canGiveRep = profile && !isOwn && !profile.isBanned;
+
+            let html = `
+                ${target.isBanned ? `<div class="bg-rose-500/15 border border-rose-500/40 rounded-xl p-3 text-xs text-rose-300">Заблокирован: <strong>${target.banReason || 'Нарушение правил'}</strong></div>` : ''}
+                <div class="flex items-center gap-4">
+                    <img src="${av}" onerror="this.src='https://placehold.co/96x96/ff6b00/ffffff?text=VH'" class="w-20 h-20 rounded-2xl border-2 border-rw-accent/40 object-cover">
+                    <div>
+                        <h4 class="text-xl font-black text-white">${target.name}</h4>
+                        <span class="inline-block mt-1 px-2.5 py-0.5 rounded text-[11px] font-black uppercase ${roleInfo.badgeClass}">${roleInfo.label}</span>
+                        <div class="text-xs text-rw-muted mt-1">Регистрация: ${regDate}</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-2.5 text-center">
+                    <div class="bg-[#12141a] border border-rw-border rounded-xl p-3">
+                        <div class="text-lg font-black text-amber-400">${target.reputation || 0}</div>
+                        <div class="text-[10px] uppercase text-rw-muted font-bold">Рейтинг</div>
+                    </div>
+                    <div class="bg-[#12141a] border border-rw-border rounded-xl p-3">
+                        <div class="text-lg font-black text-white">${target.messagesCount || 0}</div>
+                        <div class="text-[10px] uppercase text-rw-muted font-bold">Сообщений</div>
+                    </div>
+                    <div class="bg-[#12141a] border border-rw-border rounded-xl p-3">
+                        <div class="text-sm font-black ${target.isBanned ? 'text-rose-400' : 'text-emerald-400'} mt-1">${target.isBanned ? 'Бан' : 'Активен'}</div>
+                        <div class="text-[10px] uppercase text-rw-muted font-bold mt-0.5">Статус</div>
+                    </div>
+                </div>
+
+                ${canGiveRep ? `
+                    <button onclick="window.toggleUserReputation('${target.uid}')" class="w-full py-2.5 px-4 rounded-xl text-xs font-bold border transition ${alreadyRepped ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-[#1d212b] text-white border-rw-border'}">
+                        <i class="fa-solid fa-star text-amber-400 mr-1.5"></i> ${alreadyRepped ? 'Оценка рейтинга поставлена' : 'Повысить рейтинг (+1)'}
+                    </button>
+                ` : ''}
+
+                ${isOwn && !profile.isBanned ? `
+                    <div class="bg-[#13151b] border border-rw-border rounded-xl p-4 space-y-2">
+                        <div class="flex items-center justify-between"><span class="text-xs font-extrabold text-white uppercase">Смена никнейма</span><span class="text-[10px] text-rw-muted">${targetIsStaff ? 'Без задержки' : 'Раз в 14 дней'}</span></div>
+                        ${canChangeNow ? `
+                            <form onsubmit="window.handleChangeNickname(event)" class="flex gap-2">
+                                <input type="text" id="new-nick-input" required minlength="4" maxlength="20" value="${target.name}" class="flex-1 bg-[#0f1115] border border-rw-border rounded-xl px-3 py-2 text-xs text-white">
+                                <button type="submit" class="bg-rw-accent text-white text-xs font-bold px-3 py-2 rounded-xl">Сохранить</button>
+                            </form>
+                        ` : `<div class="text-xs text-amber-400">Смена ника доступна через ${daysLeft} дн.</div>`}
+                    </div>
+                ` : ''}
+
+                ${myLevel >= 3 && !isOwn ? `
+                    <div class="bg-[#15131c] border border-purple-500/30 rounded-xl p-4 space-y-3">
+                        <div class="text-xs font-extrabold text-purple-300 uppercase"><i class="fa-solid fa-user-shield mr-1"></i> Управление аккаунтом</div>
+                        ${myLevel >= 4 ? `
+                            <div class="flex gap-2">
+                                <select id="admin-role-sel" class="flex-1 bg-[#0f1115] border border-rw-border rounded-xl px-3 py-2 text-xs text-white">
+                                    <option value="player" ${target.role === 'player' ? 'selected' : ''}>Игрок</option>
+                                    <option value="helper" ${target.role === 'helper' ? 'selected' : ''}>Хелпер</option>
+                                    <option value="moder" ${target.role === 'moder' ? 'selected' : ''}>Модератор</option>
+                                    <option value="tech_admin" ${target.role === 'tech_admin' ? 'selected' : ''}>Тех. Админ</option>
+                                    <option value="admin" ${target.role === 'admin' ? 'selected' : ''}>Администратор</option>
+                                </select>
+                                <button onclick="window.assignUserRole('${target.uid}')" class="bg-purple-600 text-white text-xs font-bold px-3 py-2 rounded-xl">Выдать роль</button>
+                            </div>
+                        ` : ''}
+                        <div>
+                            ${target.isBanned ? `
+                                <button onclick="window.unbanUser('${target.uid}')" class="w-full bg-emerald-600 text-white text-xs font-bold py-2 rounded-xl">Разблокировать</button>
+                            ` : `
+                                <button onclick="window.openBanModal('${target.uid}')" class="w-full bg-rose-600 text-white text-xs font-bold py-2 rounded-xl">Заблокировать</button>
+                            `}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+
+            document.getElementById('profile-modal-body').innerHTML = html;
+            document.getElementById('profile-modal').classList.remove('hidden');
+        };
+
+        window.closeProfileModal = () => document.getElementById('profile-modal').classList.add('hidden');
+
+        window.toggleUserReputation = async (targetUid) => {
+            const profile = getCurrentUserProfile();
+            if (!profile || profile.isBanned) return;
+            const target = dbUsers[targetUid];
+            if (!target) return;
+
+            const repGivenBy = Array.isArray(target.repGivenBy) ? [...target.repGivenBy] : [];
+            const idx = repGivenBy.indexOf(profile.uid);
+            let newRep = target.reputation || 0;
+
+            if (idx === -1) {
+                repGivenBy.push(profile.uid);
+                newRep += 1;
+            } else {
+                repGivenBy.splice(idx, 1);
+                newRep = Math.max(0, newRep - 1);
+            }
+
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'vh_users', targetUid), {
+                    repGivenBy,
+                    reputation: newRep
+                });
+                window.openUserProfile(targetUid);
+                showToast("Рейтинг обновлен!");
+            } catch (err) {
+                showToast("Ошибка: " + err.message, "error");
+            }
+        };
+
+        window.handleChangeNickname = async (e) => {
+            e.preventDefault();
+            const profile = getCurrentUserProfile();
+            if (!profile || profile.isBanned) return;
+
+            const newNick = document.getElementById('new-nick-input').value.trim();
+            if (newNick.length < 4) {
+                return showToast("Ник должен быть не меньше 4 символов", "error");
+            }
+
+            const isTaken = Object.values(dbUsers).some(u => u.uid !== profile.uid && u.name?.toLowerCase() === newNick.toLowerCase());
+            if (isTaken) {
+                return showToast("Этот никнейм уже занят другим игроком", "error");
+            }
+
+            const isStaff = (ROLES_CONFIG[profile.role]?.level || 1) >= 2;
+            if (!isStaff && Date.now() - (profile.lastNickChange || 0) < 14 * 86400000) {
+                return showToast("Кулдаун смены ника 14 дней", "error");
+            }
+
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'vh_users', profile.uid), {
+                    name: newNick,
+                    lastNickChange: Date.now()
+                });
+                window.closeProfileModal();
+                showToast("Ник успешно изменен!");
+            } catch (err) {
+                showToast("Ошибка смены ника: " + err.message, "error");
+            }
+        };
+
+        window.assignUserRole = async (targetUid) => {
+            const newRole = document.getElementById('admin-role-sel').value;
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'vh_users', targetUid), { role: newRole });
+                window.openUserProfile(targetUid);
+                showToast("Роль обновлена");
+            } catch (err) {
+                showToast("Ошибка: " + err.message, "error");
+            }
+        };
+
+        window.openBanModal = (uid) => {
+            banTargetUid = uid;
+            document.getElementById('ban-target-name').textContent = dbUsers[uid]?.name || 'Игрок';
+            document.getElementById('ban-reason-input').value = '';
+            document.getElementById('ban-modal').classList.remove('hidden');
+        };
+
+        window.closeBanModal = () => document.getElementById('ban-modal').classList.add('hidden');
+
+        window.confirmBanUser = async (e) => {
+            e.preventDefault();
+            if (!banTargetUid) return;
+            const reason = document.getElementById('ban-reason-input').value.trim();
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'vh_users', banTargetUid), {
+                    isBanned: true,
+                    banReason: reason
+                });
+                window.closeBanModal();
+                window.openUserProfile(banTargetUid);
+                showToast("Аккаунт заблокирован");
+            } catch (err) {
+                showToast("Ошибка: " + err.message, "error");
+            }
+        };
+
+        window.unbanUser = async (uid) => {
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'vh_users', uid), {
+                    isBanned: false,
+                    banReason: ''
+                });
+                window.openUserProfile(uid);
+                showToast("Аккаунт разблокирован");
+            } catch (err) {
+                showToast("Ошибка: " + err.message, "error");
+            }
+        };
+
+        // --- ЗАПУСК ПРИЛОЖЕНИЯ ---
+        renderHeaderAuth();
+        renderSidebarWidgets();
+        window.navigateToHome(false);
+        initFirebaseAuth();
+    </script>
+</body>
+</html>
