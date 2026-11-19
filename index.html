@@ -332,14 +332,28 @@
             </button>
 
             <div class="text-center mb-5">
+                <div class="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center mx-auto mb-3 text-xl">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                </div>
+                <h2 class="text-xl font-bold text-white">Вход на форум VelHamster</h2>
+                <p class="text-xs text-vh-muted mt-1">Авторизуйтесь, чтобы подавать заявки, жалобы и общаться</p>
+            </div>
+
+            <div id="auth-error-box" class="hidden mb-4 p-3 rounded-xl bg-red-500/15 border border-red-500/40 text-red-300 text-xs"></div>
+
             <button onclick="loginWithGoogle()" class="w-full py-3 px-4 rounded-xl bg-white hover:bg-gray-100 text-gray-900 font-bold text-sm flex items-center justify-center gap-3 transition shadow-md mb-2.5">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
                 Продолжить с Google
             </button>
 
-            <button onclick="loginWithApple()" class="w-full py-3 px-4 rounded-xl bg-[#0a0c10] hover:bg-[#161922] text-white border border-white/20 font-bold text-sm flex items-center justify-center gap-3 transition shadow-md mb-4">
+            <button onclick="loginWithApple()" class="w-full py-3 px-4 rounded-xl bg-[#0a0c10] hover:bg-[#161922] text-white border border-white/20 font-bold text-sm flex items-center justify-center gap-3 transition shadow-md mb-2.5">
                 <i class="fa-brands fa-apple text-lg"></i>
                 Продолжить с Apple ID
+            </button>
+
+            <button type="button" onclick="sendEmailSignInLink()" class="w-full py-2.5 px-4 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 font-bold text-xs flex items-center justify-center gap-2 transition mb-4">
+                <i class="fa-solid fa-envelope-open-text"></i>
+                <span>Отправить ссылку для входа на Email</span>
             </button>
 
             <div class="relative flex py-2 items-center mb-4">
@@ -540,7 +554,10 @@
             OAuthProvider,
             signInWithPopup, 
             signInWithEmailAndPassword, 
-            createUserWithEmailAndPassword, 
+            createUserWithEmailAndPassword,
+            sendSignInLinkToEmail,
+            isSignInWithEmailLink,
+            signInWithEmailLink,
             signOut, 
             onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -578,6 +595,14 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const APP_ID = "velhamster-26-forum";
+
+        // Настройки ссылки входа по почте (actionCodeSettings)
+        const actionCodeSettings = {
+            url: typeof window !== 'undefined' && window.location.href.startsWith('http')
+                ? window.location.href.split('#')[0]
+                : 'https://velhamster-26.firebaseapp.com',
+            handleCodeInApp: true
+        };
 
         const usersCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'users');
         const threadsCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'threads');
@@ -695,7 +720,7 @@
                             '2.3. Администрация вправе заблокировать/удалить аккаунт с некорректным никнеймом (см. 2.2.1 – 2.2.3) или никнеймом, не являющимся смысловым (набор букв/цифр).',
                             '2.4. При регистрации рекомендуется использовать надёжный пароль, а также указывать настоящую почту.',
                             '2.5. Форум и администраторы форума имеют право рассылать информацию об обновлениях тем, на которые подписан участник, на его почту.',
-                            '2.6. Участник вправе отказаться от любой рассылки на форуме.',
+                            '2.6. Участник в праве отказаться от любой рассылки на форуме.',
                             '2.7. Администрация не несёт ответственность за утерянный форумный аккаунт.'
                         ]
                     },
@@ -1199,6 +1224,44 @@
             }
         };
 
+        window.sendEmailSignInLink = async () => {
+            const rawEmail = document.getElementById('auth-email').value.trim();
+            const errBox = document.getElementById('auth-error-box');
+            errBox.classList.add('hidden');
+
+            if (!rawEmail || !rawEmail.includes('@')) {
+                errBox.textContent = 'Введите корректный адрес электронной почты в поле Email, чтобы получить ссылку для входа.';
+                errBox.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                await sendSignInLinkToEmail(auth, rawEmail, actionCodeSettings);
+                window.localStorage.setItem('vhEmailForSignIn', rawEmail);
+                showToast(`Ссылка для входа отправлена на ${rawEmail}! Проверьте почту.`, 'success');
+            } catch (err) {
+                errBox.textContent = formatAuthError(err, 'Email Link');
+                errBox.classList.remove('hidden');
+            }
+        };
+
+        async function completeEmailLinkSignInIfNeeded() {
+            if (!isSignInWithEmailLink(auth, window.location.href)) return;
+            let email = window.localStorage.getItem('vhEmailForSignIn');
+            if (!email) {
+                email = window.prompt('Подтвердите ваш Email для завершения входа по ссылке:') || '';
+            }
+            if (!email.trim()) return;
+            try {
+                const res = await signInWithEmailLink(auth, email.trim(), window.location.href);
+                window.localStorage.removeItem('vhEmailForSignIn');
+                await ensureUserProfile(res.user);
+                showToast('Вход по ссылке на почту выполнен успешно!', 'success');
+            } catch (err) {
+                showToast(formatAuthError(err, 'Email Link'), 'error');
+            }
+        }
+
         function formatAuthError(err, providerLabel = '') {
             if (err?.code === 'auth/operation-not-allowed') {
                 return `Вход через ${providerLabel || 'этот способ'} ещё не включён в Firebase Console -> Authentication -> Sign-in method (включите Email/Password или Apple).`;
@@ -1209,7 +1272,6 @@
         function normalizeEmailInput(rawInput) {
             const clean = (rawInput || '').trim();
             if (!clean) return '';
-            // Если пользователь ввёл свой логин/почту без @ или без домена — приводим к валидному адресу
             if (!clean.includes('@')) {
                 const slug = clean.toLowerCase().replace(/[^a-z0-9._-]/g, '');
                 return `${slug || 'player'}@velhamster.local`;
@@ -1267,44 +1329,6 @@
             }
         };
 
-        window.handleEmailAuth = async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const nickname = document.getElementById('auth-nickname').value.trim();
-            const errBox = document.getElementById('auth-error-box');
-            errBox.classList.add('hidden');
-
-            try {
-                if (state.authMode === 'register') {
-                    if (nickname.length < 4) {
-                        errBox.textContent = 'Игровой никнейм должен содержать минимум 4 символа.';
-                        errBox.classList.remove('hidden');
-                        return;
-                    }
-                    const agreed = document.getElementById('auth-agree-rules').checked;
-                    if (!agreed) {
-                        errBox.textContent = 'Для регистрации необходимо подтвердить согласие с правилами форума!';
-                        errBox.classList.remove('hidden');
-                        return;
-                    }
-                    const subscribeNews = document.getElementById('auth-subscribe-news').checked;
-                    const res = await createUserWithEmailAndPassword(auth, email, password);
-                    await ensureUserProfile(res.user, nickname, { rulesAccepted: true, subscribeNews });
-                    closeModal('auth-modal');
-                    showToast('Регистрация завершена! Вы приняли правила форума.', 'success');
-                } else {
-                    const res = await signInWithEmailAndPassword(auth, email, password);
-                    await ensureUserProfile(res.user);
-                    closeModal('auth-modal');
-                    showToast('Вы успешно вошли в аккаунт!', 'success');
-                }
-            } catch (err) {
-                errBox.textContent = 'Ошибка: ' + err.message;
-                errBox.classList.remove('hidden');
-            }
-        };
-
         window.logoutUser = async () => {
             try {
                 await signOut(auth);
@@ -1351,8 +1375,8 @@
                     role: initialRole,
                     rating: 0,
                     repVoters: {},
-                    followers: [], // Подписчики (для Главного Ютубера и Администрации)
-                    followEvents: [], // Лог подписок
+                    followers: [],
+                    followEvents: [],
                     rulesAccepted: extraFlags.rulesAccepted || false,
                     rulesAcceptedAt: extraFlags.rulesAccepted ? Date.now() : 0,
                     subscribeNews: extraFlags.subscribeNews !== undefined ? extraFlags.subscribeNews : true,
@@ -1383,10 +1407,15 @@
 
         onAuthStateChanged(auth, async (user) => {
             state.authUser = user;
-            if (user) await ensureUserProfile(user);
-            else state.currentUserProfile = null;
+            if (user) {
+                await ensureUserProfile(user);
+            } else {
+                state.currentUserProfile = null;
+            }
             renderAll();
         });
+
+        completeEmailLinkSignInIfNeeded();
 
         onSnapshot(usersCol, (snapshot) => {
             const map = {};
@@ -1493,7 +1522,6 @@
                 (!q || (u.nickname || '').toLowerCase().startsWith(q) || (u.nickname || '').toLowerCase().includes(q))
             );
 
-            // Сортируем так, чтобы ники, начинающиеся с введённых букв, шли первыми
             allUsers.sort((a, b) => {
                 const aStarts = (a.nickname || '').toLowerCase().startsWith(q) ? 0 : 1;
                 const bStarts = (b.nickname || '').toLowerCase().startsWith(q) ? 0 : 1;
@@ -2492,7 +2520,6 @@
             }
         };
 
-        // Удаление аккаунта — доступно ТОЛЬКО Главному Тех. Админу (уровень 7)
         window.deleteUserAccount = async (targetUid) => {
             if (getUserLevel() < 7) {
                 showToast('Удалять аккаунты пользователей могут только Главные Тех. Администраторы!', 'error');
@@ -2535,7 +2562,6 @@
             const userPosts = state.posts.filter(p => p.authorUid === target.uid && !p.isSystemVerdict);
             const totalContentCount = userThreads.length + userPosts.length;
 
-            // Особая карточка для Главного Ютубера и всей Администрации/Модерации (уровень >= 2.5)
             const isMediaOrAdminProfile = targetRole.level >= 2.5;
             const followers = Array.isArray(target.followers) ? target.followers : [];
             const followEvents = Array.isArray(target.followEvents) ? target.followEvents : [];
@@ -2556,7 +2582,6 @@
             const canDeleteUser = viewer && viewerLevel === 7 && !isSelf;
             const hasSettingsAccess = isSelf || canManageRole || canManageBan || canDeleteUser;
 
-            // Лента профиля (включая события подписок для Ютубера и Администрации)
             const combinedActivity = [
                 ...(isMediaOrAdminProfile ? followEvents.map(fe => ({ type: 'follow', createdAt: fe.createdAt || 0, data: fe })) : []),
                 ...userThreads.map(t => ({ type: 'thread', createdAt: t.createdAt || 0, data: t })),
@@ -2564,7 +2589,6 @@
             ].sort((a, b) => b.createdAt - a.createdAt);
 
             container.innerHTML = `
-                <!-- ШАПКА ПРОФИЛЯ -->
                 <div class="bg-vh-card border border-vh-border rounded-2xl overflow-hidden shadow-xl">
                     <div class="h-36 sm:h-48 w-full ${bannerClass} relative">
                         ${target.isBanned ? `
@@ -2604,7 +2628,6 @@
                             </div>
                         </div>
 
-                        <!-- Кнопки действий в профиле -->
                         <div class="flex items-center flex-wrap gap-2 self-start lg:self-center">
                             ${isMediaOrAdminProfile && viewer && !isSelf ? `
                                 <button onclick="toggleFollowUser('${target.uid}')" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-2 ${isFollowing ? 'bg-vh-bg border border-pink-500/50 text-pink-300 hover:bg-pink-950/30' : 'bg-pink-600 hover:bg-pink-500 text-white shadow-lg shadow-pink-600/20'}">
@@ -2642,7 +2665,6 @@
                     </div>
                 </div>
 
-                <!-- ПАНЕЛЬ НАСТРОЕК И ТЕХ. УПРАВЛЕНИЯ -->
                 ${state.profileSettingsOpen && hasSettingsAccess ? `
                     <div class="bg-vh-card border border-amber-500/40 rounded-2xl p-5 sm:p-6 space-y-5 shadow-xl">
                         <div class="flex items-center justify-between border-b border-vh-border pb-3">
@@ -2738,12 +2760,10 @@
                     </div>
                 ` : ''}
 
-                <!-- РЕЖИМ 1: ОБЗОР ПРОФИЛЯ -->
                 ${state.profileMode === 'overview' ? `
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                         <div class="lg:col-span-4 space-y-5">
                             ${isMediaOrAdminProfile ? `
-                                <!-- Плашка достижения -->
                                 <div class="bg-vh-card border border-vh-border rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-3">
                                     <div>
                                         <div class="text-sm font-extrabold text-white">${targetRole.name} VelHamster</div>
@@ -2791,7 +2811,6 @@
                                 </div>
 
                                 ${isMediaOrAdminProfile ? `
-                                    <!-- Блок подписчиков -->
                                     <div class="p-4 sm:p-5 flex items-center justify-between gap-2">
                                         <div class="flex items-center gap-3.5">
                                             <div class="w-10 h-10 rounded-xl bg-vh-bg text-vh-muted flex items-center justify-center text-lg">
@@ -2850,7 +2869,6 @@
                         </div>
                     </div>
                 ` : `
-                    <!-- РЕЖИМ 2: ОБЗОР КОНТЕНТА -->
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                         <div class="lg:col-span-3 bg-vh-card border border-vh-border rounded-2xl p-3 space-y-3">
                             <button onclick="switchProfileContentTab('activity')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition ${state.profileContentTab === 'activity' ? 'bg-amber-500 text-black shadow-md' : 'text-gray-300 hover:bg-vh-cardHover'}">
@@ -2990,7 +3008,6 @@
                     </div>
                 ` : `
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                        <!-- Список диалогов -->
                         <div class="lg:col-span-4 bg-vh-card border border-vh-border rounded-2xl overflow-hidden divide-y divide-vh-border">
                             ${myDialogs.map(m => {
                                 const isUnread = !(m.readBy || []).includes(me.uid);
@@ -3009,7 +3026,6 @@
                             }).join('')}
                         </div>
 
-                        <!-- Активная переписка -->
                         <div class="lg:col-span-8 bg-vh-card border border-vh-border rounded-2xl p-5 sm:p-6 space-y-5">
                             ${activeMsg ? (() => {
                                 const sender = state.users[activeMsg.senderUid];
@@ -3321,7 +3337,6 @@
                 `;
             }
 
-            // Очередь на рассмотрение
             const pendingBox = document.getElementById('sidebar-pending-box');
             const pendingList = document.getElementById('sidebar-pending-list');
             const pendingCountBadge = document.getElementById('pending-count-badge');
@@ -3349,7 +3364,6 @@
                 pendingBox.classList.add('hidden');
             }
 
-            // Команда проекта
             const staffListEl = document.getElementById('sidebar-staff-list');
             const allUsers = Object.values(state.users);
             const staffMembers = allUsers
@@ -3498,7 +3512,6 @@
                 forumGrid.classList.remove('hidden');
             }
 
-            // 1. ГЛАВНАЯ СТРАНИЦА
             if (state.view === 'home') {
                 const groups = [...new Set(CATEGORIES.map(c => c.group))];
                 container.innerHTML = groups.map(groupName => {
@@ -3554,7 +3567,6 @@
                 return;
             }
 
-            // 2. РАЗДЕЛ (ВКЛЮЧАЯ ВСТРОЕННЫЕ ПРАВИЛА ФОРУМА, ИГРЫ И ПЕРСОНАЛА)
             if (state.view === 'category') {
                 const cat = CATEGORIES.find(c => c.id === state.activeCategoryId);
                 if (!cat) return;
@@ -3605,7 +3617,6 @@
                     </div>
 
                     ${builtinRule ? `
-                        <!-- ОФИЦИАЛЬНЫЙ ТЕКСТ ПРАВИЛ -->
                         <div class="bg-vh-card border border-vh-border rounded-2xl p-5 sm:p-7 space-y-6 shadow-xl">
                             ${builtinRule.sections.map(sec => `
                                 <div class="space-y-2.5">
@@ -3619,7 +3630,6 @@
                                 </div>
                             `).join('')}
 
-                            <!-- КНОПКА ПОДТВЕРЖДЕНИЯ ПРОЧТЕНИЯ ПРАВИЛ -->
                             <div class="pt-5 border-t border-vh-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-vh-bg/70 p-4 rounded-xl">
                                 <div class="flex items-center gap-3">
                                     <div class="w-9 h-9 rounded-xl ${hasAcceptedRules ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'} flex items-center justify-center text-base shrink-0">
@@ -3719,7 +3729,6 @@
                 return;
             }
 
-            // 3. ПРОСМОТР ТЕМЫ / РЕЛИЗА / АНКЕТЫ
             if (state.view === 'thread') {
                 const t = state.threads.find(item => item.id === state.activeThreadId);
                 if (!t) {
@@ -3904,7 +3913,6 @@
                         </article>
                     `}
 
-                    <!-- Ответы в теме -->
                     <div class="space-y-4">
                         ${replies.map((p, index) => {
                             const pAuthor = state.users[p.authorUid];
@@ -3948,7 +3956,6 @@
                         }).join('')}
                     </div>
 
-                    <!-- Форма ответа с прикреплением скриншотов -->
                     <div class="bg-vh-card border border-vh-border rounded-2xl p-5">
                         ${!state.currentUserProfile ? `
                             <div class="text-center py-3">
