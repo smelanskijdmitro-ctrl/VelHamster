@@ -332,23 +332,19 @@
             </button>
 
             <div class="text-center mb-5">
-                <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-3 text-xl">
-                    <i class="fa-solid fa-right-to-bracket"></i>
-                </div>
-                <h2 class="text-xl font-bold text-white">Вход на форум VelHamster</h2>
-                <p class="text-xs text-vh-muted mt-1">Авторизуйтесь, чтобы подавать заявки, жалобы и общаться</p>
-            </div>
-
-            <div id="auth-error-box" class="hidden mb-4 p-3 rounded-xl bg-red-500/15 border border-red-500/40 text-red-300 text-xs"></div>
-
-            <button onclick="loginWithGoogle()" class="w-full py-3 px-4 rounded-xl bg-white hover:bg-gray-100 text-gray-900 font-bold text-sm flex items-center justify-center gap-3 transition shadow-md mb-4">
+            <button onclick="loginWithGoogle()" class="w-full py-3 px-4 rounded-xl bg-white hover:bg-gray-100 text-gray-900 font-bold text-sm flex items-center justify-center gap-3 transition shadow-md mb-2.5">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
                 Продолжить с Google
             </button>
 
+            <button onclick="loginWithApple()" class="w-full py-3 px-4 rounded-xl bg-[#0a0c10] hover:bg-[#161922] text-white border border-white/20 font-bold text-sm flex items-center justify-center gap-3 transition shadow-md mb-4">
+                <i class="fa-brands fa-apple text-lg"></i>
+                Продолжить с Apple ID
+            </button>
+
             <div class="relative flex py-2 items-center mb-4">
                 <div class="flex-grow border-t border-vh-border"></div>
-                <span class="flex-shrink mx-3 text-xs text-vh-muted uppercase">или по почте</span>
+                <span class="flex-shrink mx-3 text-xs text-vh-muted uppercase">или по почте / логину</span>
                 <div class="flex-grow border-t border-vh-border"></div>
             </div>
 
@@ -363,12 +359,16 @@
                     <input type="text" id="auth-nickname" placeholder="Например: VelPlayer" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">Email</label>
-                    <input type="email" id="auth-email" required placeholder="player@velhamster.ru" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:outline-none focus:border-amber-500">
+                    <label id="auth-email-label" class="block text-xs font-semibold text-gray-300 mb-1">Email (или свой логин)</label>
+                    <input type="text" id="auth-email" required placeholder="player@velhamster.ru или свой_логин" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-300 mb-1">Пароль</label>
                     <input type="password" id="auth-password" required minlength="6" placeholder="Минимум 6 символов" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:outline-none focus:border-amber-500">
+                </div>
+                <div id="register-confirm-password-field" class="hidden">
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">Подтвердите пароль</label>
+                    <input type="password" id="auth-password-confirm" minlength="6" placeholder="Повторите пароль ещё раз" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
 
                 <!-- Чекбоксы согласия с правилами и рассылкой -->
@@ -537,6 +537,7 @@
         import { 
             getAuth, 
             GoogleAuthProvider, 
+            OAuthProvider,
             signInWithPopup, 
             signInWithEmailAndPassword, 
             createUserWithEmailAndPassword, 
@@ -1142,6 +1143,8 @@
             const tabLogin = document.getElementById('tab-login');
             const tabReg = document.getElementById('tab-register');
             const nickField = document.getElementById('register-nick-field');
+            const confirmPassField = document.getElementById('register-confirm-password-field');
+            const confirmPassInput = document.getElementById('auth-password-confirm');
             const regAgreements = document.getElementById('register-agreements');
             const submitBtn = document.getElementById('email-auth-submit');
 
@@ -1149,12 +1152,16 @@
                 tabReg.className = 'py-1.5 text-xs font-bold rounded-lg bg-amber-500 text-black transition';
                 tabLogin.className = 'py-1.5 text-xs font-bold rounded-lg text-vh-muted hover:text-white transition';
                 nickField.classList.remove('hidden');
+                confirmPassField.classList.remove('hidden');
+                if (confirmPassInput) confirmPassInput.required = true;
                 regAgreements.classList.remove('hidden');
                 submitBtn.textContent = 'Создать аккаунт';
             } else {
                 tabLogin.className = 'py-1.5 text-xs font-bold rounded-lg bg-amber-500 text-black transition';
                 tabReg.className = 'py-1.5 text-xs font-bold rounded-lg text-vh-muted hover:text-white transition';
                 nickField.classList.add('hidden');
+                confirmPassField.classList.add('hidden');
+                if (confirmPassInput) confirmPassInput.required = false;
                 regAgreements.classList.add('hidden');
                 submitBtn.textContent = 'Войти в аккаунт';
             }
@@ -1170,7 +1177,92 @@
                 closeModal('auth-modal');
                 showToast('Добро пожаловать на VelHamster!', 'success');
             } catch (err) {
-                errBox.textContent = 'Ошибка входа через Google: ' + err.message;
+                errBox.textContent = formatAuthError(err, 'Google');
+                errBox.classList.remove('hidden');
+            }
+        };
+
+        window.loginWithApple = async () => {
+            const errBox = document.getElementById('auth-error-box');
+            errBox.classList.add('hidden');
+            try {
+                const provider = new OAuthProvider('apple.com');
+                provider.addScope('email');
+                provider.addScope('name');
+                const res = await signInWithPopup(auth, provider);
+                await ensureUserProfile(res.user);
+                closeModal('auth-modal');
+                showToast('Добро пожаловать через Apple ID!', 'success');
+            } catch (err) {
+                errBox.textContent = formatAuthError(err, 'Apple ID');
+                errBox.classList.remove('hidden');
+            }
+        };
+
+        function formatAuthError(err, providerLabel = '') {
+            if (err?.code === 'auth/operation-not-allowed') {
+                return `Вход через ${providerLabel || 'этот способ'} ещё не включён в Firebase Console -> Authentication -> Sign-in method (включите Email/Password или Apple).`;
+            }
+            return 'Ошибка входа: ' + (err?.message || String(err));
+        }
+
+        function normalizeEmailInput(rawInput) {
+            const clean = (rawInput || '').trim();
+            if (!clean) return '';
+            // Если пользователь ввёл свой логин/почту без @ или без домена — приводим к валидному адресу
+            if (!clean.includes('@')) {
+                const slug = clean.toLowerCase().replace(/[^a-z0-9._-]/g, '');
+                return `${slug || 'player'}@velhamster.local`;
+            }
+            const [localPart, domainPart] = clean.split('@');
+            if (!domainPart || !domainPart.includes('.')) {
+                const slug = (localPart || 'player').toLowerCase().replace(/[^a-z0-9._-]/g, '');
+                return `${slug || 'player'}@velhamster.local`;
+            }
+            return clean;
+        }
+
+        window.handleEmailAuth = async (e) => {
+            e.preventDefault();
+            const rawEmail = document.getElementById('auth-email').value.trim();
+            const email = normalizeEmailInput(rawEmail);
+            const password = document.getElementById('auth-password').value;
+            const confirmPassword = document.getElementById('auth-password-confirm')?.value || '';
+            const nickname = document.getElementById('auth-nickname').value.trim();
+            const errBox = document.getElementById('auth-error-box');
+            errBox.classList.add('hidden');
+
+            try {
+                if (state.authMode === 'register') {
+                    if (nickname.length < 4) {
+                        errBox.textContent = 'Игровой никнейм должен содержать минимум 4 символа.';
+                        errBox.classList.remove('hidden');
+                        return;
+                    }
+                    if (password !== confirmPassword) {
+                        errBox.textContent = 'Пароли не совпадают! Проверьте поле «Подтвердите пароль».';
+                        errBox.classList.remove('hidden');
+                        return;
+                    }
+                    const agreed = document.getElementById('auth-agree-rules').checked;
+                    if (!agreed) {
+                        errBox.textContent = 'Для регистрации необходимо подтвердить согласие с правилами форума!';
+                        errBox.classList.remove('hidden');
+                        return;
+                    }
+                    const subscribeNews = document.getElementById('auth-subscribe-news').checked;
+                    const res = await createUserWithEmailAndPassword(auth, email, password);
+                    await ensureUserProfile(res.user, nickname, { rulesAccepted: true, subscribeNews });
+                    closeModal('auth-modal');
+                    showToast('Регистрация завершена! Вы приняли правила форума.', 'success');
+                } else {
+                    const res = await signInWithEmailAndPassword(auth, email, password);
+                    await ensureUserProfile(res.user);
+                    closeModal('auth-modal');
+                    showToast('Вы успешно вошли в аккаунт!', 'success');
+                }
+            } catch (err) {
+                errBox.textContent = formatAuthError(err, 'Email / Пароль');
                 errBox.classList.remove('hidden');
             }
         };
