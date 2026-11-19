@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VelHamster — Официальный игровой форум</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script>
         tailwind.config = {
@@ -15,14 +15,14 @@
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
                         vh: {
-                            bg: '#0f1117',
-                            card: '#181b24',
+                            bg: '#111319',
+                            card: '#181b23',
                             cardHover: '#1f232e',
-                            border: '#272c3a',
+                            border: '#262b38',
                             accent: '#f59e0b',
                             accentHover: '#d97706',
                             text: '#e2e8f0',
-                            muted: '#94a3b8'
+                            muted: '#8e98aa'
                         }
                     }
                 }
@@ -31,17 +31,17 @@
     </script>
     <style>
         body {
-            background-color: #0f1117;
+            background-color: #111319;
             color: #e2e8f0;
             overflow-x: hidden;
         }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0f1117; }
-        ::-webkit-scrollbar-thumb { background: #272c3a; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: #111319; }
+        ::-webkit-scrollbar-thumb { background: #262b38; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
 
         .forum-glow {
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.12);
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.1);
         }
         .badge-shine {
             position: relative;
@@ -52,13 +52,21 @@
             position: absolute;
             top: -50%; left: -50%;
             width: 200%; height: 200%;
-            background: linear-gradient(to right, transparent, rgba(255,255,255,0.18), transparent);
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.22), transparent);
             transform: rotate(30deg);
             animation: shine 4s infinite;
         }
         @keyframes shine {
             0% { transform: translateX(-100%) rotate(30deg); }
             100% { transform: translateX(100%) rotate(30deg); }
+        }
+        /* Полигональный фон шапки профиля в стиле скриншота */
+        .profile-banner-poly {
+            background-color: #293954;
+            background-image: 
+                linear-gradient(135deg, rgba(49, 71, 107, 0.9) 0%, rgba(33, 47, 71, 0.95) 50%, rgba(44, 64, 97, 0.9) 100%),
+                repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 40px, transparent 40px, transparent 80px),
+                repeating-linear-gradient(-45deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 50px, transparent 50px, transparent 100px);
         }
     </style>
 </head>
@@ -68,11 +76,11 @@
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
     <!-- Шапка сайта -->
-    <header class="sticky top-0 z-40 bg-[#141720]/95 backdrop-blur-md border-b border-vh-border">
+    <header class="sticky top-0 z-40 bg-[#151821]/95 backdrop-blur-md border-b border-vh-border">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 sm:h-20 gap-3">
                 
-                <!-- Логотип и название проекта -->
+                <!-- Логотип -->
                 <div onclick="navigate('home')" class="flex items-center gap-3 cursor-pointer group shrink-0">
                     <div class="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20 border border-amber-400/30 group-hover:scale-105 transition-transform">
                         <img src="logo.jpg" alt="VelHamster" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -93,18 +101,21 @@
                     </div>
                 </div>
 
-                <!-- Навигация по центру (десктоп) -->
+                <!-- Навигация по центру -->
                 <nav class="hidden md:flex items-center gap-1 bg-vh-bg/80 p-1.5 rounded-xl border border-vh-border">
-                    <button onclick="navigate('home')" id="nav-home" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black">
+                    <button onclick="navigate('home')" id="nav-home" class="nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black">
                         <i class="fa-solid fa-comments mr-1.5"></i>Форум
                     </button>
-                    <button onclick="openCategory('applications')" id="nav-applications" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold text-vh-muted hover:text-white transition-all">
-                        <i class="fa-solid fa-file-signature mr-1.5 text-amber-400"></i>Заявки в состав
+                    <button onclick="openCategory('announcements')" id="nav-announcements" class="nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold text-vh-muted hover:text-white transition-all">
+                        <i class="fa-solid fa-bullhorn mr-1.5 text-orange-400"></i>Объявления
                     </button>
-                    <button onclick="openCategory('complaints')" id="nav-complaints" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold text-vh-muted hover:text-white transition-all">
+                    <button onclick="openCategory('applications')" id="nav-applications" class="nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold text-vh-muted hover:text-white transition-all">
+                        <i class="fa-solid fa-file-signature mr-1.5 text-purple-400"></i>Заявки в состав
+                    </button>
+                    <button onclick="openCategory('complaints')" id="nav-complaints" class="nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold text-vh-muted hover:text-white transition-all">
                         <i class="fa-solid fa-gavel mr-1.5 text-red-400"></i>Жалобы
                     </button>
-                    <button onclick="openCategory('ideas')" id="nav-ideas" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold text-vh-muted hover:text-white transition-all">
+                    <button onclick="openCategory('ideas')" id="nav-ideas" class="nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold text-vh-muted hover:text-white transition-all">
                         <i class="fa-solid fa-lightbulb mr-1.5 text-emerald-400"></i>Идеи
                     </button>
                 </nav>
@@ -118,18 +129,18 @@
     </header>
 
     <!-- Баннер приветствия -->
-    <div class="bg-gradient-to-r from-[#191d29] via-[#221c18] to-[#191d29] border-b border-vh-border">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+    <div id="top-welcome-banner" class="bg-gradient-to-r from-[#181c28] via-[#221c18] to-[#181c28] border-b border-vh-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div class="flex items-center gap-3 text-center sm:text-left">
-                <span class="hidden sm:flex w-9 h-9 rounded-lg bg-amber-500/20 text-amber-400 items-center justify-center shrink-0">
-                    <i class="fa-solid fa-bullhorn"></i>
+                <span class="hidden sm:flex w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 items-center justify-center shrink-0">
+                    <i class="fa-solid fa-fire"></i>
                 </span>
                 <p class="text-xs sm:text-sm text-gray-300">
-                    Добро пожаловать на официальный форум <strong class="text-amber-400">VelHamster</strong>! Подавайте заявки в команду проекта, предлагайте идеи и следите за обновлениями.
+                    Добро пожаловать на официальный форум <strong class="text-amber-400">VelHamster</strong>! Подавайте заявки в состав, предлагайте идеи и следите за новостями.
                 </p>
             </div>
             <div class="flex items-center gap-2 shrink-0">
-                <button onclick="openCategory('applications')" class="text-xs font-semibold px-3.5 py-2 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/30 transition">
+                <button onclick="openCategory('applications')" class="text-xs font-bold px-3.5 py-2 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/30 transition">
                     <i class="fa-solid fa-user-shield mr-1"></i>Подать заявку на должность
                 </button>
             </div>
@@ -147,23 +158,22 @@
             <div id="top-action-buttons" class="flex items-center gap-2"></div>
         </div>
 
-        <!-- Сетка: Основной контент + Сайдбар -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            
-            <!-- Левая / Центральная колонка (8 или 9 колонок) -->
-            <div id="main-content" class="lg:col-span-8 xl:col-span-9 space-y-6">
-                <!-- Контент рендерится динамически -->
-            </div>
+        <!-- Контейнер страницы профиля (полноширинный, как на скриншотах) -->
+        <div id="profile-page-container" class="hidden space-y-6"></div>
 
-            <!-- Правый сайдбар (4 или 3 колонки) -->
+        <!-- Сетка форума: Основной контент + Сайдбар -->
+        <div id="forum-grid-container" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Левая / Центральная колонка -->
+            <div id="main-content" class="lg:col-span-8 xl:col-span-9 space-y-6"></div>
+
+            <!-- Правый сайдбар -->
             <aside class="lg:col-span-4 xl:col-span-3 space-y-5">
                 
                 <!-- Карточка текущего пользователя -->
-                <div id="sidebar-user-card" class="bg-vh-card border border-vh-border rounded-2xl p-5 forum-glow">
-                    <!-- Заполняется JS -->
-                </div>
+                <div id="sidebar-user-card" class="bg-vh-card border border-vh-border rounded-2xl p-5 forum-glow"></div>
 
-                <!-- Панель очереди на рассмотрение (видна только Модераторам, Тех. Админам и Админам) -->
+                <!-- Очередь на рассмотрение для персонала (Модератор и выше) -->
                 <div id="sidebar-pending-box" class="hidden bg-gradient-to-b from-amber-500/10 to-vh-card border border-amber-500/30 rounded-2xl p-5">
                     <div class="flex items-center justify-between mb-3">
                         <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
@@ -171,11 +181,11 @@
                         </h3>
                         <span id="pending-count-badge" class="px-2 py-0.5 text-xs font-extrabold rounded-full bg-amber-500 text-black">0</span>
                     </div>
-                    <p class="text-xs text-vh-muted mb-3">Новые анкеты, жалобы и идеи, ожидающие решения администрации:</p>
-                    <div id="sidebar-pending-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+                    <p class="text-xs text-vh-muted mb-3">Ожидают решения персонала:</p>
+                    <div id="sidebar-pending-list" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
                 </div>
 
-                <!-- Команда проекта онлайн / состав -->
+                <!-- Команда проекта -->
                 <div class="bg-vh-card border border-vh-border rounded-2xl p-5">
                     <h3 class="text-sm font-bold uppercase tracking-wider text-gray-300 mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-shield-halved text-amber-400"></i> Команда VelHamster
@@ -215,7 +225,7 @@
     </main>
 
     <!-- Футер -->
-    <footer class="bg-[#141720] border-t border-vh-border mt-12 py-6">
+    <footer class="bg-[#151821] border-t border-vh-border mt-12 py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-vh-muted">
             <div class="flex items-center gap-2">
                 <span class="font-bold text-white">VelHamster</span>
@@ -223,7 +233,7 @@
             </div>
             <div class="flex items-center gap-4">
                 <button onclick="openCategory('rules')" class="hover:text-amber-400 transition">Правила форума</button>
-                <button onclick="openCategory('applications')" class="hover:text-amber-400 transition">Набор в команду</button>
+                <button onclick="openCategory('applications')" class="hover:text-amber-400 transition">Набор в состав</button>
                 <button onclick="openCategory('complaints')" class="hover:text-amber-400 transition">Подать жалобу</button>
             </div>
         </div>
@@ -246,7 +256,6 @@
 
             <div id="auth-error-box" class="hidden mb-4 p-3 rounded-xl bg-red-500/15 border border-red-500/40 text-red-300 text-xs"></div>
 
-            <!-- Вход через Google -->
             <button onclick="loginWithGoogle()" class="w-full py-3 px-4 rounded-xl bg-white hover:bg-gray-100 text-gray-900 font-bold text-sm flex items-center justify-center gap-3 transition shadow-md mb-4">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
                 Продолжить с Google
@@ -258,7 +267,6 @@
                 <div class="flex-grow border-t border-vh-border"></div>
             </div>
 
-            <!-- Переключатель Вход / Регистрация -->
             <div class="grid grid-cols-2 gap-1 bg-vh-bg p-1 rounded-xl mb-4 border border-vh-border">
                 <button type="button" id="tab-login" onclick="switchAuthTab('login')" class="py-1.5 text-xs font-bold rounded-lg bg-amber-500 text-black transition">Вход</button>
                 <button type="button" id="tab-register" onclick="switchAuthTab('register')" class="py-1.5 text-xs font-bold rounded-lg text-vh-muted hover:text-white transition">Регистрация</button>
@@ -298,7 +306,6 @@
                 <h2 id="modal-thread-heading" class="text-xl font-bold text-white">Создание новой темы</h2>
             </div>
 
-            <!-- Динамическая форма (меняется в зависимости от категории: Анкета на должность, Жалоба, Идея или Обычная тема) -->
             <form id="create-thread-form" onsubmit="submitNewThread(event)" class="space-y-4">
                 <input type="hidden" id="thread-category-id">
                 <div id="dynamic-thread-fields" class="space-y-4"></div>
@@ -312,16 +319,6 @@
                     </button>
                 </div>
             </form>
-        </div>
-    </div>
-
-    <!-- МОДАЛЬНОЕ ОКНО: ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ (Смена ника, выдача ролей, блокировка) -->
-    <div id="profile-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
-        <div class="bg-vh-card border border-vh-border rounded-2xl max-w-lg w-full p-6 shadow-2xl relative my-8">
-            <button onclick="closeModal('profile-modal')" class="absolute top-4 right-4 text-vh-muted hover:text-white p-2">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            <div id="profile-modal-content"></div>
         </div>
     </div>
 
@@ -350,7 +347,7 @@
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // =========================================================================
-        // 1. КОНФИГУРАЦИЯ FIREBASE (Твой проект velhamster-26)
+        // 1. КОНФИГУРАЦИЯ FIREBASE (Проект velhamster-26)
         // =========================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyByzsfenJpJn5_U9Ncg9p9pqkgmda9Mg3Q",
@@ -363,50 +360,103 @@
         };
 
         // =========================================================================
-        // 2. НАЗНАЧЕНИЕ ГЛАВНОГО ТЕХ. АДМИНИСТРАТОРА / ВЛАДЕЛЬЦА
-        // Укажи здесь свой Email или UID, либо создай в Firestore документ:
-        // Путь: artifacts/velhamster-26-forum/public/data/staff_invites/{твой_email_или_uid}
-        // Поле: { role: "tech_admin" } (или "admin")
+        // 2. НАЗНАЧЕНИЕ ГЛАВНОГО ТЕХ. АДМИНИСТРАТОРА В БАЗЕ / КОНФИГЕ
         // =========================================================================
         const OWNER_EMAILS = [
             "smelanskijdmitro@gmail.com"
         ];
-        const OWNER_UIDS = [
-            // Можешь также вписать свой Firebase UID сюда
-        ];
+        const OWNER_UIDS = [];
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const APP_ID = "velhamster-26-forum";
 
-        // Пути к коллекциям по стандарту безопасности
         const usersCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'users');
         const threadsCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'threads');
         const postsCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'posts');
         const invitesCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'staff_invites');
 
         // =========================================================================
-        // 3. СИСТЕМА РОЛЕЙ И КАТЕГОРИЙ ФОРУМА
+        // 3. РАСШИРЕННАЯ ИЕРАРХИЯ ДОЛЖНОСТЕЙ И ПРАВ ДОСТУПА
         // =========================================================================
         const ROLES = {
-            guest: { name: 'Гость', level: 0, badge: 'bg-gray-700/60 text-gray-300 border-gray-600', icon: 'fa-user' },
-            player: { name: 'Игрок', level: 1, badge: 'bg-slate-700/70 text-slate-200 border-slate-600', icon: 'fa-gamepad' },
-            helper: { name: 'Хелпер', level: 2, badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', icon: 'fa-life-ring' },
-            moderator: { name: 'Модератор', level: 3, badge: 'bg-blue-500/20 text-blue-300 border-blue-500/40', icon: 'fa-shield-halved' },
-            tech_admin: { name: 'Главный Тех. Админ', level: 4, badge: 'bg-purple-500/25 text-purple-300 border-purple-500/50 badge-shine', icon: 'fa-screwdriver-wrench' },
-            admin: { name: 'Администратор', level: 5, badge: 'bg-gradient-to-r from-red-500/30 to-amber-500/30 text-amber-300 border-amber-500/50 badge-shine', icon: 'fa-crown' }
+            guest: {
+                name: 'Гость',
+                level: 0,
+                badge: 'bg-gray-700/60 text-gray-300 border-gray-600',
+                icon: 'fa-user',
+                desc: 'Просмотр форума без возможности публикаций'
+            },
+            player: {
+                name: 'Игрок',
+                level: 1,
+                badge: 'bg-slate-700/70 text-slate-200 border-slate-600',
+                icon: 'fa-gamepad',
+                desc: 'Участник проекта VelHamster'
+            },
+            helper: {
+                name: 'Хелпер',
+                level: 2,
+                badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+                icon: 'fa-life-ring',
+                desc: 'Помощь игрокам в разделах форума'
+            },
+            moderator: {
+                name: 'Модератор',
+                level: 3,
+                badge: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
+                icon: 'fa-shield-halved',
+                desc: 'Проверка жалоб и идей, одобрение/отклонение обращений, блокировка нарушителей'
+            },
+            sr_moderator: {
+                name: 'Старший модератор',
+                level: 4,
+                badge: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 badge-shine',
+                icon: 'fa-user-shield',
+                desc: 'Публикация объявлений, закрепление тем, проверка всех анкет включая заявки в состав'
+            },
+            admin: {
+                name: 'Администратор',
+                level: 5,
+                badge: 'bg-red-500/25 text-red-300 border-red-500/50 badge-shine',
+                icon: 'fa-crown',
+                desc: 'Публикация новостей, обновлений и правил, управление персоналом и форумом'
+            },
+            tech_admin: {
+                name: 'Главный Тех. Админ',
+                level: 6,
+                badge: 'bg-gradient-to-r from-purple-500/35 to-amber-500/35 text-amber-300 border-purple-400/60 badge-shine',
+                icon: 'fa-screwdriver-wrench',
+                desc: 'Полный технический и административный доступ ко всем функциям проекта'
+            }
         };
 
+        // =========================================================================
+        // 4. РАЗДЕЛЫ ФОРУМА И УРОВНИ ДОСТУПА
+        // =========================================================================
         const CATEGORIES = [
             {
                 id: 'news',
                 group: 'Официальный раздел',
                 title: 'Новости и обновления VelHamster',
-                desc: 'Анонсы обновлений, новые механики, события и важные новости проекта.',
+                desc: 'Анонсы обновлений, новые механики и важные новости от Администрации.',
                 icon: 'fa-newspaper',
                 iconBg: 'bg-amber-500/20 text-amber-400',
-                minCreateLevel: 4, // Только Тех. Админ и Админ
+                minCreateLevel: 5, // Администратор и Главный Тех. Админ
+                minReviewLevel: 5,
+                formType: 'standard',
+                defaultStatus: 'important'
+            },
+            {
+                id: 'announcements',
+                group: 'Официальный раздел',
+                title: 'Объявления и мероприятия',
+                desc: 'Важные объявления от Старшей модерации и администрации, конкурсы и ивенты.',
+                icon: 'fa-bullhorn',
+                iconBg: 'bg-cyan-500/20 text-cyan-400',
+                minCreateLevel: 4, // Старший модератор, Администратор и Главный Тех. Админ
+                minReviewLevel: 4,
                 formType: 'standard',
                 defaultStatus: 'important'
             },
@@ -417,45 +467,49 @@
                 desc: 'Официальный свод правил поведения на форуме и в проекте VelHamster.',
                 icon: 'fa-book-open',
                 iconBg: 'bg-red-500/20 text-red-400',
-                minCreateLevel: 4, // Только Тех. Админ и Админ
+                minCreateLevel: 5, // Администратор и Главный Тех. Админ
+                minReviewLevel: 5,
                 formType: 'standard',
                 defaultStatus: 'important'
             },
             {
                 id: 'applications',
-                group: 'Набор в команду и обращения',
+                group: 'Набор в состав и обращения',
                 title: 'Заявки на должность (Хелпер / Модератор)',
                 desc: 'Подача анкет на вступление в команду администрации проекта VelHamster.',
                 icon: 'fa-file-signature',
                 iconBg: 'bg-purple-500/20 text-purple-400',
-                minCreateLevel: 1, // Доступно зарегистрированным игрокам
+                minCreateLevel: 1,
+                minReviewLevel: 4, // Проверять заявки в состав могут Старший модератор, Администратор и Главный Тех. Админ
                 formType: 'application',
                 defaultStatus: 'pending',
-                slaNotice: 'Срок рассмотрения анкеты составляет от 1 часа до 7 дней. Если вы не дождались ответа и отправите повторную заявку до истечения 7 дней — вы получите автоматический отказ.'
+                slaNotice: 'Срок рассмотрения анкеты составляет от 1 часа до 7 дней. Если вам ещё не ответили и вы отправите повторную анкету до истечения 7 дней — вы получите автоматический отказ.'
             },
             {
                 id: 'complaints',
-                group: 'Набор в команду и обращения',
+                group: 'Набор в состав и обращения',
                 title: 'Жалобы на игроков и персонал',
-                desc: 'Подача жалоб на нарушителей правил, багоюз, мультиаккаунты или действия модерации.',
+                desc: 'Подача жалоб на нарушителей правил, багоюз или действия модерации.',
                 icon: 'fa-gavel',
                 iconBg: 'bg-rose-500/20 text-rose-400',
                 minCreateLevel: 1,
+                minReviewLevel: 3, // Модератор и выше
                 formType: 'complaint',
                 defaultStatus: 'pending',
-                slaNotice: 'Жалобы обычно рассматриваются быстрее анкет (в среднем от 30 минут до 48 часов). Все новые жалобы получают статус «На рассмотрении».'
+                slaNotice: 'Жалобы проверяются Модераторами и Старшей администрацией. Все новые жалобы получают статус «На рассмотрении».'
             },
             {
                 id: 'ideas',
-                group: 'Набор в команду и обращения',
+                group: 'Набор в состав и обращения',
                 title: 'Идеи и предложения по проекту',
                 desc: 'Предложите улучшения для VelHamster — лучшие идеи попадают в обновления!',
                 icon: 'fa-lightbulb',
                 iconBg: 'bg-emerald-500/20 text-emerald-400',
                 minCreateLevel: 1,
+                minReviewLevel: 3, // Модератор и выше
                 formType: 'idea',
                 defaultStatus: 'pending',
-                slaNotice: 'Администрация регулярно проверяет раздел идей. Вы можете получить статус «Одобрено» и награду за полезное предложение.'
+                slaNotice: 'Модераторы и администрация регулярно рассматривают раздел идей и выносят решение «Одобрено» или «Отказано».'
             },
             {
                 id: 'general',
@@ -465,6 +519,7 @@
                 icon: 'fa-comments',
                 iconBg: 'bg-sky-500/20 text-sky-400',
                 minCreateLevel: 1,
+                minReviewLevel: 3,
                 formType: 'standard',
                 defaultStatus: 'open'
             }
@@ -472,14 +527,22 @@
 
         const STATUS_BADGES = {
             pending: { label: 'На рассмотрении', cls: 'bg-amber-500/20 text-amber-300 border-amber-500/40', icon: 'fa-clock' },
-            approved: { label: 'Одобрено', cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', icon: 'fa-circle-check' },
-            rejected: { label: 'Отклонено', cls: 'bg-red-500/20 text-red-300 border-red-500/40', icon: 'fa-circle-xmark' },
-            important: { label: 'Важно', cls: 'bg-rose-500/20 text-rose-300 border-rose-500/40', icon: 'fa-fire' },
-            open: { label: 'Открыто', cls: 'bg-sky-500/15 text-sky-300 border-sky-500/30', icon: 'fa-message' }
+            approved: { label: 'одобрено', cls: 'bg-emerald-600 text-white border-emerald-500', icon: 'fa-circle-check' },
+            rejected: { label: 'отказано', cls: 'bg-red-600 text-white border-red-500', icon: 'fa-circle-xmark' },
+            important: { label: 'важно', cls: 'bg-rose-600 text-white border-rose-500', icon: 'fa-fire' },
+            open: { label: 'открыто', cls: 'bg-sky-500/15 text-sky-300 border-sky-500/30', icon: 'fa-message' }
+        };
+
+        const BANNER_THEMES = {
+            default: 'profile-banner-poly',
+            amber: 'bg-gradient-to-r from-amber-900 via-orange-800 to-amber-950',
+            purple: 'bg-gradient-to-r from-indigo-950 via-purple-900 to-slate-900',
+            emerald: 'bg-gradient-to-r from-emerald-950 via-teal-900 to-slate-900',
+            crimson: 'bg-gradient-to-r from-rose-950 via-red-900 to-neutral-900'
         };
 
         // =========================================================================
-        // 4. СОСТОЯНИЕ ПРИЛОЖЕНИЯ В ПАМЯТИ
+        // 5. СОСТОЯНИЕ ПРИЛОЖЕНИЯ
         // =========================================================================
         let state = {
             authUser: null,
@@ -487,14 +550,18 @@
             users: {},
             threads: [],
             posts: [],
-            view: 'home', // 'home' | 'category' | 'thread'
+            view: 'home', // 'home' | 'category' | 'thread' | 'profile'
             activeCategoryId: null,
             activeThreadId: null,
+            profileUid: null,
+            profileMode: 'overview', // 'overview' (главная профиля) | 'content' (обзор контента)
+            profileContentTab: 'activity', // 'activity' | 'threads' | 'posts'
+            profileSettingsOpen: false,
             authMode: 'login'
         };
 
         // =========================================================================
-        // 5. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ UI
+        // 6. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ UI
         // =========================================================================
         window.showToast = (message, type = 'info') => {
             const container = document.getElementById('toast-container');
@@ -514,9 +581,7 @@
             el.className = `pointer-events-auto p-3.5 rounded-xl border shadow-xl backdrop-blur-md flex items-start gap-3 text-xs sm:text-sm transition-all transform translate-y-2 opacity-0 ${colors[type] || colors.info}`;
             el.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} mt-0.5 text-base"></i><div class="flex-1 leading-snug">${message}</div>`;
             container.appendChild(el);
-            requestAnimationFrame(() => {
-                el.classList.remove('translate-y-2', 'opacity-0');
-            });
+            requestAnimationFrame(() => el.classList.remove('translate-y-2', 'opacity-0'));
             setTimeout(() => {
                 el.classList.add('opacity-0', 'translate-y-2');
                 setTimeout(() => el.remove(), 300);
@@ -525,18 +590,12 @@
 
         window.openModal = (id) => {
             const m = document.getElementById(id);
-            if (m) {
-                m.classList.remove('hidden');
-                m.classList.add('flex');
-            }
+            if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
         };
 
         window.closeModal = (id) => {
             const m = document.getElementById(id);
-            if (m) {
-                m.classList.add('hidden');
-                m.classList.remove('flex');
-            }
+            if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
         };
 
         function escapeHtml(str) {
@@ -555,18 +614,31 @@
             return d.toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
+        function formatFullDate(ts) {
+            if (!ts) return 'Недавно';
+            const d = new Date(ts);
+            return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
         function getRoleObj(roleKey) {
             return ROLES[roleKey] || ROLES.player;
         }
 
         function getUserLevel() {
-            if (!state.currentUserProfile) return 0;
-            if (state.currentUserProfile.isBanned) return 0;
+            if (!state.currentUserProfile || state.currentUserProfile.isBanned) return 0;
             return getRoleObj(state.currentUserProfile.role).level;
         }
 
+        function getAvatarColor(uid) {
+            const colors = ['bg-rose-500', 'bg-amber-500', 'bg-emerald-500', 'bg-sky-500', 'bg-purple-500', 'bg-pink-500'];
+            if (!uid) return colors[0];
+            let sum = 0;
+            for (let i = 0; i < uid.length; i++) sum += uid.charCodeAt(i);
+            return colors[sum % colors.length];
+        }
+
         // =========================================================================
-        // 6. АВТОРИЗАЦИЯ И СИНХРОНИЗАЦИЯ С FIRESTORE
+        // 7. АВТОРИЗАЦИЯ И СИНХРОНИЗАЦИЯ С FIRESTORE
         // =========================================================================
         window.switchAuthTab = (mode) => {
             state.authMode = mode;
@@ -613,13 +685,9 @@
             try {
                 if (state.authMode === 'register') {
                     const nick = document.getElementById('auth-nickname').value.trim();
-                    if (nick.length < 4) {
-                        throw new Error('Никнейм должен содержать минимум 4 символа.');
-                    }
+                    if (nick.length < 4) throw new Error('Никнейм должен содержать минимум 4 символа.');
                     const nickTaken = Object.values(state.users).some(u => u.nickname?.toLowerCase() === nick.toLowerCase());
-                    if (nickTaken) {
-                        throw new Error('Этот никнейм уже занят другим игроком.');
-                    }
+                    if (nickTaken) throw new Error('Этот никнейм уже занят другим игроком.');
                     const cred = await createUserWithEmailAndPassword(auth, email, password);
                     await ensureUserProfile(cred.user, nick);
                     closeModal('auth-modal');
@@ -642,28 +710,22 @@
             renderAll();
         };
 
-        // Проверка роли из кода или коллекции приглашений в базе данных (без авто-админки первому вошедшему)
         async function resolveInitialRole(user) {
             const emailLower = (user.email || '').toLowerCase();
             if (OWNER_UIDS.includes(user.uid) || OWNER_EMAILS.map(e => e.toLowerCase()).includes(emailLower)) {
                 return 'tech_admin';
             }
-            // Проверка в коллекции staff_invites в Firestore (можно создать документ в консоли Firebase по UID или Email)
             try {
                 const byUid = await getDoc(doc(invitesCol, user.uid));
-                if (byUid.exists() && ROLES[byUid.data().role]) {
-                    return byUid.data().role;
-                }
+                if (byUid.exists() && ROLES[byUid.data().role]) return byUid.data().role;
                 if (emailLower) {
                     const byEmail = await getDoc(doc(invitesCol, emailLower));
-                    if (byEmail.exists() && ROLES[byEmail.data().role]) {
-                        return byEmail.data().role;
-                    }
+                    if (byEmail.exists() && ROLES[byEmail.data().role]) return byEmail.data().role;
                 }
             } catch (e) {
                 console.warn('Ошибка проверки staff_invites:', e);
             }
-            return 'player'; // По умолчанию все новые пользователи — обычные игроки
+            return 'player';
         }
 
         async function ensureUserProfile(user, preferredNick = null) {
@@ -675,22 +737,23 @@
                 let baseNick = preferredNick || (user.displayName ? user.displayName.replace(/\s+/g, '_') : `Player_${user.uid.slice(0, 5)}`);
                 if (baseNick.length < 4) baseNick = baseNick + '_VH';
 
-                // Если ник занят — добавим суффикс
                 const existsNick = Object.values(state.users).some(u => u.nickname?.toLowerCase() === baseNick.toLowerCase());
-                if (existsNick) {
-                    baseNick = `${baseNick}_${Math.floor(100 + Math.random() * 900)}`;
-                }
+                if (existsNick) baseNick = `${baseNick}_${Math.floor(100 + Math.random() * 900)}`;
 
                 const newProfile = {
                     uid: user.uid,
                     email: user.email || '',
                     nickname: baseNick,
                     avatar: user.photoURL || '',
+                    bannerTheme: 'default',
                     role: initialRole,
                     rating: 0,
+                    repVoters: {},
                     postsCount: 0,
                     createdAt: Date.now(),
+                    lastSeen: Date.now(),
                     lastNickChange: 0,
+                    recentVisitors: [],
                     isBanned: false,
                     banReason: ''
                 };
@@ -698,47 +761,39 @@
                 state.currentUserProfile = newProfile;
             } else {
                 const existing = snap.data();
-                // Если в базе или списке владельцев была выдана роль tech_admin/admin, а у пользователя ещё player — обновим
+                const updates = { lastSeen: Date.now() };
                 if (existing.role === 'player') {
                     const invitedRole = await resolveInitialRole(user);
                     if (invitedRole !== 'player') {
-                        await updateDoc(userRef, { role: invitedRole });
+                        updates.role = invitedRole;
                         existing.role = invitedRole;
                     }
                 }
-                state.currentUserProfile = existing;
+                await updateDoc(userRef, updates);
+                state.currentUserProfile = { ...existing, ...updates };
             }
         }
 
         onAuthStateChanged(auth, async (user) => {
             state.authUser = user;
-            if (user) {
-                await ensureUserProfile(user);
-            } else {
-                state.currentUserProfile = null;
-            }
+            if (user) await ensureUserProfile(user);
+            else state.currentUserProfile = null;
             renderAll();
         });
 
-        // Подписка на коллекции Firestore в реальном времени
         onSnapshot(usersCol, (snapshot) => {
             const map = {};
-            snapshot.forEach(d => {
-                map[d.id] = d.data();
-            });
+            snapshot.forEach(d => { map[d.id] = d.data(); });
             state.users = map;
             if (state.authUser && map[state.authUser.uid]) {
                 state.currentUserProfile = map[state.authUser.uid];
             }
             renderAll();
-        }, (err) => console.error('Firestore users error:', err));
+        });
 
         onSnapshot(threadsCol, (snapshot) => {
             const list = [];
-            snapshot.forEach(d => {
-                list.push({ id: d.id, ...d.data() });
-            });
-            // Сортировка: сначала закреплённые, затем по дате создания (новые сверху)
+            snapshot.forEach(d => { list.push({ id: d.id, ...d.data() }); });
             list.sort((a, b) => {
                 if ((b.isPinned ? 1 : 0) !== (a.isPinned ? 1 : 0)) {
                     return (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0);
@@ -747,25 +802,24 @@
             });
             state.threads = list;
             renderAll();
-        }, (err) => console.error('Firestore threads error:', err));
+        });
 
         onSnapshot(postsCol, (snapshot) => {
             const list = [];
-            snapshot.forEach(d => {
-                list.push({ id: d.id, ...d.data() });
-            });
+            snapshot.forEach(d => { list.push({ id: d.id, ...d.data() }); });
             list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
             state.posts = list;
             renderAll();
-        }, (err) => console.error('Firestore posts error:', err));
+        });
 
         // =========================================================================
-        // 7. НАВИГАЦИЯ ПО ФОРУМУ
+        // 8. НАВИГАЦИЯ ПО ФОРУМУ И СТРАНИЦАМ ПРОФИЛЯ
         // =========================================================================
         window.navigate = (view) => {
             state.view = view;
             state.activeCategoryId = null;
             state.activeThreadId = null;
+            state.profileUid = null;
             updateNavHighlight();
             renderAll();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -775,6 +829,7 @@
             state.view = 'category';
             state.activeCategoryId = catId;
             state.activeThreadId = null;
+            state.profileUid = null;
             updateNavHighlight();
             renderAll();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -786,26 +841,69 @@
             state.view = 'thread';
             state.activeCategoryId = t.categoryId;
             state.activeThreadId = threadId;
+            state.profileUid = null;
             updateNavHighlight();
             renderAll();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
+        // Открытие полноценной страницы профиля (как на скриншотах)
+        window.openUserProfile = async (uid, mode = 'overview') => {
+            const target = state.users[uid];
+            if (!target) return;
+            state.view = 'profile';
+            state.profileUid = uid;
+            state.profileMode = mode;
+            state.profileContentTab = 'activity';
+            state.profileSettingsOpen = false;
+            updateNavHighlight();
+            renderAll();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Запись посетителя профиля (если смотрит другой авторизованный пользователь)
+            const viewer = state.currentUserProfile;
+            if (viewer && viewer.uid !== uid) {
+                try {
+                    const visitors = Array.isArray(target.recentVisitors) ? [...target.recentVisitors] : [];
+                    const filtered = visitors.filter(v => v.uid !== viewer.uid);
+                    filtered.unshift({ uid: viewer.uid, visitedAt: Date.now() });
+                    await updateDoc(doc(usersCol, uid), {
+                        recentVisitors: filtered.slice(0, 6)
+                    });
+                } catch (e) { /* ignore */ }
+            }
+        };
+
+        window.switchProfileMode = (mode) => {
+            state.profileMode = mode;
+            renderAll();
+        };
+
+        window.switchProfileContentTab = (tab) => {
+            state.profileContentTab = tab;
+            renderAll();
+        };
+
+        window.toggleProfileSettings = () => {
+            state.profileSettingsOpen = !state.profileSettingsOpen;
+            renderAll();
+        };
+
         function updateNavHighlight() {
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.className = 'nav-btn px-4 py-2 rounded-lg text-sm font-semibold text-vh-muted hover:text-white transition-all';
+                btn.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold text-vh-muted hover:text-white transition-all';
             });
             if (state.view === 'home') {
                 const el = document.getElementById('nav-home');
-                if (el) el.className = 'nav-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black';
+                if (el) el.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black';
             } else if (state.activeCategoryId) {
                 const el = document.getElementById(`nav-${state.activeCategoryId}`);
-                if (el) el.className = 'nav-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black';
+                if (el) el.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black';
             }
         }
 
         // =========================================================================
-        // 8. УМНЫЕ ФОРМЫ СОЗДАНИЯ АНКЕТ, ЖАЛОБ, ИДЕЙ И ТЕМ
+        // 9. УМНЫЕ ФОРМЫ СОЗДАНИЯ ТЕМ, АНКЕТ, ЖАЛОБ И ИДЕЙ
         // =========================================================================
         window.openCreateThreadModal = (catId) => {
             if (!state.currentUserProfile) {
@@ -822,7 +920,7 @@
             if (!cat) return;
 
             if (getUserLevel() < cat.minCreateLevel) {
-                showToast('У вас недостаточно прав для создания тем в этом разделе.', 'error');
+                showToast('У вас недостаточно прав для создания публикаций в этом разделе.', 'error');
                 return;
             }
 
@@ -834,7 +932,6 @@
             const submitBtn = document.getElementById('submit-thread-btn');
 
             if (cat.formType === 'application') {
-                // Проверка на повторную заявку в течение 7 дней без ответа
                 const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
                 const activePendingApp = state.threads.find(t => 
                     t.categoryId === 'applications' &&
@@ -866,30 +963,30 @@
                         <div>
                             <label class="block text-xs font-bold text-gray-300 mb-1">Желаемая должность *</label>
                             <select id="app-position" required class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
-                                <option value="Хелпер">Хелпер (Helper)</option>
-                                <option value="Модератор">Модератор (Moderator)</option>
+                                <option value="Хелпер">Хелпер</option>
+                                <option value="Модератор">Модератор</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1">1. Ваше реальное имя *</label>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">1. Имя: Ваше реальное имя *</label>
                             <input type="text" id="app-name" required placeholder="Например: Дмитрий" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1">2. Ваш возраст (не меньше 14) *</label>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">2. Возраст (не меньше 14) *</label>
                             <input type="number" id="app-age" required min="14" max="99" placeholder="14+" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1">3. Контактные данные (VK или Telegram) *</label>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">3. Контактные данные (ВК или Telegram) *</label>
                             <input type="text" id="app-contacts" required placeholder="@username или vk.com/id..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1">4. Ваш игровой ник в VelHamster *</label>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">4. Игровой никнейм *</label>
                             <input type="text" id="app-ign" required value="${escapeHtml(state.currentUserProfile.nickname)}" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
                         </div>
                         <div>
@@ -900,41 +997,41 @@
 
                     <div>
                         <label class="block text-xs font-bold text-gray-300 mb-1">6. С какой целью подаёте заявку и что хотите получить от участия в составе? *</label>
-                        <textarea id="app-goal" required rows="3" placeholder="Опишите вашу мотивацию и цели на посту..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
+                        <textarea id="app-goal" required rows="3" placeholder="Опишите вашу мотивацию и цели..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-gray-300 mb-1">7. Есть ли у вас опыт в данной работе? *</label>
-                        <p class="text-[11px] text-vh-muted mb-1.5">Какая была должность, по какой причине вы ушли, как долго были на должности? Опишите подробнее (если опыта нет — напишите «Нет опыта»).</p>
+                        <p class="text-[11px] text-vh-muted mb-1.5">Какая была должность, по какой причине вы ушли, как долго вы были на своей должности? Опишите подробнее.</p>
                         <textarea id="app-experience" required rows="3" placeholder="Подробно распишите ваш прошлый опыт..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-gray-300 mb-1">8. Расскажите немного о себе *</label>
-                        <textarea id="app-about" required rows="3" placeholder="Ваши качества, увлечения, характер, почему мы должны выбрать именно вас..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
+                        <textarea id="app-about" required rows="3" placeholder="Опишите себя, свой характер и сильные стороны..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
                     </div>
                 `;
             } else if (cat.formType === 'complaint') {
-                heading.textContent = 'Подача жалобы на игрока / модератора';
+                heading.textContent = 'Подача жалобы';
                 submitBtn.textContent = 'Отправить жалобу';
 
                 container.innerHTML = `
                     <div class="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-200">
-                        После отправки жалобе присваивается статус <strong>«На рассмотрении»</strong>. Старайтесь прикреплять чёткие доказательства (скриншоты / видео).
+                        После отправки жалобе присваивается статус <strong>«На рассмотрении»</strong>. Модератор рассмотрит её и вынесет вердикт.
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1">Ваш никнейм *</label>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">Ваш игровой ник *</label>
                             <input type="text" id="comp-author" required value="${escapeHtml(state.currentUserProfile.nickname)}" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1">Никнейм нарушителя *</label>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">Ник нарушителя *</label>
                             <input type="text" id="comp-target" required placeholder="Введите ник нарушителя" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-300 mb-1">Суть нарушения *</label>
-                        <textarea id="comp-reason" required rows="3" placeholder="Подробно опишите, что нарушил игрок..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
+                        <textarea id="comp-reason" required rows="3" placeholder="Подробно опишите нарушение..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-300 mb-1">Доказательства (ссылки на скриншоты/видео) *</label>
@@ -942,38 +1039,38 @@
                     </div>
                 `;
             } else if (cat.formType === 'idea') {
-                heading.textContent = 'Предложить идею для проекта VelHamster';
+                heading.textContent = 'Предложить идею для проекта';
                 submitBtn.textContent = 'Отправить идею';
 
                 container.innerHTML = `
                     <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-200">
-                        Ваша идея получит статус <strong>«На рассмотрении»</strong> и будет изучена администрацией проекта.
+                        Ваша идея получит статус <strong>«На рассмотрении»</strong>.
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">Краткое название идеи *</label>
-                        <input type="text" id="idea-title" required placeholder="Например: Система кланов и сезонных турниров" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                        <label class="block text-xs font-bold text-gray-300 mb-1">Название идеи *</label>
+                        <input type="text" id="idea-title" required placeholder="Краткое название предложения" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">Подробное описание предложения *</label>
-                        <textarea id="idea-desc" required rows="4" placeholder="Как это должно работать? Опишите в деталях..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">Подробное описание *</label>
+                        <textarea id="idea-desc" required rows="4" placeholder="Опишите вашу идею в деталях..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">Чем это будет полезно проекту VelHamster? *</label>
-                        <textarea id="idea-benefit" required rows="2" placeholder="Повысит интерес игроков, улучшит баланс и т.д." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">Чем это поможет проекту VelHamster? *</label>
+                        <textarea id="idea-benefit" required rows="2" placeholder="Польза для игроков и сервера..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
                     </div>
                 `;
             } else {
-                heading.textContent = 'Создать новую тему';
-                submitBtn.textContent = 'Опубликовать тему';
+                heading.textContent = 'Создать публикацию';
+                submitBtn.textContent = 'Опубликовать';
 
                 container.innerHTML = `
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">Заголовок темы *</label>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">Заголовок *</label>
                         <input type="text" id="std-title" required placeholder="Введите заголовок..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">Содержание темы *</label>
-                        <textarea id="std-content" required rows="6" placeholder="Напишите текст вашей темы..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">Текст публикации *</label>
+                        <textarea id="std-content" required rows="6" placeholder="Напишите текст..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
                     </div>
                 `;
             }
@@ -1010,7 +1107,6 @@
                     return;
                 }
 
-                // Проверка на дубликат заявки в течение 7 дней без ответа -> автоматический отказ
                 const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
                 const hasPending = state.threads.some(t =>
                     t.categoryId === 'applications' &&
@@ -1024,17 +1120,17 @@
                     { label: 'Желаемая должность', value: position },
                     { label: '1. Реальное имя', value: name },
                     { label: '2. Возраст', value: `${age} лет` },
-                    { label: '3. Контактные данные (VK / Telegram)', value: contacts },
-                    { label: '4. Игровой ник в VelHamster', value: ign },
-                    { label: '5. Часовой пояс и суточный онлайн', value: online },
+                    { label: '3. Контактные данные (ВК / Telegram)', value: contacts },
+                    { label: '4. Игровой никнейм', value: ign },
+                    { label: '5. Часовой пояс и онлайн в день', value: online },
                     { label: '6. Цель подачи заявки и ожидания от состава', value: goal },
-                    { label: '7. Опыт работы на должностях', value: experience },
+                    { label: '7. Опыт в данной работе', value: experience },
                     { label: '8. О себе', value: about }
                 ];
 
                 if (hasPending) {
                     status = 'rejected';
-                    rawContent = 'Автоматический отказ системы: повторная подача заявки до истечения 7 дней при наличии активной анкеты на рассмотрении.';
+                    rawContent = 'Автоматический отказ: повторная отправка заявки до истечения 7 дней без ответа на предыдущую анкету.';
                 } else {
                     status = 'pending';
                 }
@@ -1044,10 +1140,10 @@
                 const reason = document.getElementById('comp-reason').value.trim();
                 const proof = document.getElementById('comp-proof').value.trim();
 
-                title = `Жалоба на игрока ${target} (от ${author})`;
+                title = `Жалоба на игрока ${target}`;
                 status = 'pending';
                 structuredFields = [
-                    { label: 'Ваш никнейм', value: author },
+                    { label: 'Ваш игровой никнейм', value: author },
                     { label: 'Никнейм нарушителя', value: target },
                     { label: 'Суть нарушения', value: reason },
                     { label: 'Доказательства', value: proof }
@@ -1057,10 +1153,10 @@
                 const ideaDesc = document.getElementById('idea-desc').value.trim();
                 const ideaBenefit = document.getElementById('idea-benefit').value.trim();
 
-                title = `Идея: ${ideaTitle}`;
+                title = ideaTitle;
                 status = 'pending';
                 structuredFields = [
-                    { label: 'Суть предложения', value: ideaDesc },
+                    { label: 'Описание идеи', value: ideaDesc },
                     { label: 'Польза для проекта VelHamster', value: ideaBenefit }
                 ];
             } else {
@@ -1078,24 +1174,22 @@
                     status,
                     isPinned: false,
                     isLocked: status === 'rejected',
+                    views: 1,
                     createdAt: Date.now(),
                     likes: []
                 });
 
-                // Обновляем счётчик сообщений/активности пользователя
-                const userRef = doc(usersCol, state.currentUserProfile.uid);
-                await updateDoc(userRef, {
-                    postsCount: (state.currentUserProfile.postsCount || 0) + 1,
-                    rating: (state.currentUserProfile.rating || 0) + 2
+                await updateDoc(doc(usersCol, state.currentUserProfile.uid), {
+                    postsCount: (state.currentUserProfile.postsCount || 0) + 1
                 });
 
                 closeModal('create-thread-modal');
                 if (status === 'rejected') {
-                    showToast('Заявка отклонена автоматически: у вас уже есть активная анкета на рассмотрении (не прошло 7 дней).', 'error');
+                    showToast('Заявка отклонена автоматически: вы не дождались ответа на прошлую анкету (7 дней).', 'error');
                 } else if (status === 'pending') {
-                    showToast('Отправлено! Статус: «На рассмотрении». Ожидайте решения администрации.', 'success');
+                    showToast('Отправлено! Статус: «На рассмотрении».', 'success');
                 } else {
-                    showToast('Тема успешно опубликована!', 'success');
+                    showToast('Публикация успешно создана!', 'success');
                 }
                 openThread(docRef.id);
             } catch (err) {
@@ -1104,18 +1198,28 @@
         };
 
         // =========================================================================
-        // 9. ДЕЙСТВИЯ МОДЕРАЦИИ (ОДОБРИТЬ, ОТКЛОНИТЬ, ЗАКРЕПИТЬ, ОТВЕТИТЬ)
+        // 10. ДЕЙСТВИЯ МОДЕРАЦИИ (С УЧЁТОМ УРОВНЯ РОЛИ)
         // =========================================================================
+        function canReviewThread(thread) {
+            const level = getUserLevel();
+            if (level < 3) return false;
+            const cat = CATEGORIES.find(c => c.id === thread.categoryId);
+            const requiredLevel = cat ? cat.minReviewLevel : 3;
+            return level >= requiredLevel;
+        }
+
         window.moderateThread = async (threadId, action) => {
-            if (getUserLevel() < 3) {
-                showToast('Доступно только Модераторам и Администрации.', 'error');
-                return;
-            }
             const t = state.threads.find(item => item.id === threadId);
             if (!t) return;
 
+            if (!canReviewThread(t)) {
+                showToast('Для проверки заявок в состав требуется должность Старшего модератора или выше.', 'error');
+                return;
+            }
+
             const tRef = doc(threadsCol, threadId);
             const reviewerName = state.currentUserProfile.nickname;
+            const reviewerRole = getRoleObj(state.currentUserProfile.role).name;
 
             try {
                 if (action === 'approve') {
@@ -1128,13 +1232,13 @@
                     await addDoc(postsCol, {
                         threadId,
                         authorUid: state.currentUserProfile.uid,
-                        content: `✅ Статус изменён на «Одобрено». Проверил: ${reviewerName}.`,
+                        content: `✅ Одобрено. Проверил: ${reviewerName} (${reviewerRole}).`,
                         isSystemVerdict: true,
                         verdictType: 'approved',
                         createdAt: Date.now(),
                         likes: []
                     });
-                    showToast('Тема / Анкета одобрена!', 'success');
+                    showToast('Статус изменён на «Одобрено»!', 'success');
                 } else if (action === 'reject') {
                     await updateDoc(tRef, {
                         status: 'rejected',
@@ -1145,43 +1249,43 @@
                     await addDoc(postsCol, {
                         threadId,
                         authorUid: state.currentUserProfile.uid,
-                        content: `❌ Статус изменён на «Отклонено». Проверил: ${reviewerName}.`,
+                        content: `❌ Отказано. Проверил: ${reviewerName} (${reviewerRole}).`,
                         isSystemVerdict: true,
                         verdictType: 'rejected',
                         createdAt: Date.now(),
                         likes: []
                     });
-                    showToast('Тема / Анкета отклонена.', 'warning');
+                    showToast('Статус изменён на «Отказано».', 'warning');
                 } else if (action === 'pending') {
-                    await updateDoc(tRef, {
-                        status: 'pending',
-                        isLocked: false
-                    });
+                    await updateDoc(tRef, { status: 'pending', isLocked: false });
                     showToast('Возвращено на рассмотрение.', 'info');
                 } else if (action === 'pin') {
+                    if (getUserLevel() < 4) {
+                        showToast('Закреплять темы могут Старший модератор и Администрация.', 'warning');
+                        return;
+                    }
                     const nextPin = !t.isPinned;
                     await updateDoc(tRef, { isPinned: nextPin });
-                    showToast(nextPin ? 'Тема закреплена вверху списка!' : 'Тема откреплена.', 'success');
+                    showToast(nextPin ? 'Закреплено вверху раздела!' : 'Откреплено.', 'success');
                 } else if (action === 'delete') {
+                    if (getUserLevel() < 4) {
+                        showToast('Удалять темы могут Старший модератор и Администрация.', 'warning');
+                        return;
+                    }
                     await deleteDoc(tRef);
                     showToast('Тема удалена.', 'info');
                     openCategory(t.categoryId);
                 }
             } catch (err) {
-                showToast('Ошибка модерации: ' + err.message, 'error');
+                showToast('Ошибка: ' + err.message, 'error');
             }
         };
 
         window.submitReply = async (e, threadId) => {
             e.preventDefault();
-            if (!state.currentUserProfile) {
-                openModal('auth-modal');
-                return;
-            }
-            if (state.currentUserProfile.isBanned) {
-                showToast('Ваш аккаунт заблокирован.', 'error');
-                return;
-            }
+            if (!state.currentUserProfile) { openModal('auth-modal'); return; }
+            if (state.currentUserProfile.isBanned) { showToast('Ваш аккаунт заблокирован.', 'error'); return; }
+
             const t = state.threads.find(item => item.id === threadId);
             if (!t) return;
             if (t.isLocked && getUserLevel() < 3) {
@@ -1201,23 +1305,18 @@
                     createdAt: Date.now(),
                     likes: []
                 });
-                const userRef = doc(usersCol, state.currentUserProfile.uid);
-                await updateDoc(userRef, {
-                    postsCount: (state.currentUserProfile.postsCount || 0) + 1,
-                    rating: (state.currentUserProfile.rating || 0) + 1
+                await updateDoc(doc(usersCol, state.currentUserProfile.uid), {
+                    postsCount: (state.currentUserProfile.postsCount || 0) + 1
                 });
                 input.value = '';
-                showToast('Ответ добавлен!', 'success');
+                showToast('Сообщение отправлено!', 'success');
             } catch (err) {
                 showToast('Ошибка отправки: ' + err.message, 'error');
             }
         };
 
         window.toggleThreadLike = async (threadId) => {
-            if (!state.currentUserProfile) {
-                openModal('auth-modal');
-                return;
-            }
+            if (!state.currentUserProfile) { openModal('auth-modal'); return; }
             const t = state.threads.find(item => item.id === threadId);
             if (!t) return;
             const uid = state.currentUserProfile.uid;
@@ -1225,134 +1324,37 @@
             const idx = likes.indexOf(uid);
             if (idx === -1) likes.push(uid);
             else likes.splice(idx, 1);
-
             await updateDoc(doc(threadsCol, threadId), { likes });
         };
 
         // =========================================================================
-        // 10. ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ, СМЕНА НИКА (14 ДНЕЙ КУЛДАУН), РОЛИ И БАНЫ
+        // 11. ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ: РЕПУТАЦИЯ, НИК, БАННЕР, РОЛИ И БАН
         // =========================================================================
-        window.openUserProfile = (uid) => {
-            const target = state.users[uid];
+        window.voteUserReputation = async (targetUid, delta) => {
+            const me = state.currentUserProfile;
+            if (!me) { openModal('auth-modal'); return; }
+            if (me.uid === targetUid) { showToast('Нельзя менять репутацию самому себе.', 'warning'); return; }
+            if (me.isBanned) { showToast('Ваш аккаунт заблокирован.', 'error'); return; }
+
+            const target = state.users[targetUid];
             if (!target) return;
 
-            const viewer = state.currentUserProfile;
-            const viewerLevel = getUserLevel();
-            const isSelf = viewer && viewer.uid === target.uid;
-            const targetRole = getRoleObj(target.role);
+            const voters = { ...(target.repVoters || {}) };
+            const prevVote = voters[me.uid] || 0;
+            const nextVote = prevVote === delta ? 0 : delta;
+            voters[me.uid] = nextVote;
 
-            // Расчёт доступности смены ника (14 дней для игроков, без задержки для персонала level >= 2)
-            const cooldownMs = 14 * 24 * 60 * 60 * 1000;
-            const timeSinceChange = Date.now() - (target.lastNickChange || 0);
-            const isStaffUser = targetRole.level >= 2;
-            const canChangeNickNow = isStaffUser || timeSinceChange >= cooldownMs;
-            const daysLeft = Math.ceil((cooldownMs - timeSinceChange) / (24 * 60 * 60 * 1000));
+            const totalRep = Object.values(voters).reduce((sum, v) => sum + (Number(v) || 0), 0);
 
-            // Права на управление ролями и блокировку (Модератор+ может банить игроков ниже по рангу; Тех.Админ/Админ может выдавать роли)
-            const canManageRole = viewer && viewerLevel >= 4 && (!isSelf || viewerLevel >= 5) && (viewerLevel > targetRole.level || viewerLevel === 5);
-            const canManageBan = viewer && viewerLevel >= 3 && !isSelf && viewerLevel > targetRole.level;
-
-            const modalBody = document.getElementById('profile-modal-content');
-            modalBody.innerHTML = `
-                <div class="flex items-center gap-4 pb-5 border-b border-vh-border">
-                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-2xl font-extrabold text-black overflow-hidden shrink-0 border-2 border-amber-400/50">
-                        ${target.avatar ? `<img src="${escapeHtml(target.avatar)}" class="w-full h-full object-cover">` : escapeHtml(target.nickname.slice(0, 2).toUpperCase())}
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <h3 class="text-xl font-extrabold text-white truncate">${escapeHtml(target.nickname)}</h3>
-                            ${target.isBanned ? `<span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-red-500/20 text-red-400 border border-red-500/40">Заблокирован</span>` : ''}
-                        </div>
-                        <span class="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-0.5 rounded-lg text-xs font-bold border ${targetRole.badge}">
-                            <i class="fa-solid ${targetRole.icon}"></i> ${targetRole.name}
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Статистика аккаунта -->
-                <div class="grid grid-cols-3 gap-3 my-4">
-                    <div class="bg-vh-bg border border-vh-border rounded-xl p-3 text-center">
-                        <div class="text-lg font-extrabold text-amber-400">${target.rating || 0}</div>
-                        <div class="text-[11px] text-vh-muted">Рейтинг</div>
-                    </div>
-                    <div class="bg-vh-bg border border-vh-border rounded-xl p-3 text-center">
-                        <div class="text-lg font-extrabold text-white">${target.postsCount || 0}</div>
-                        <div class="text-[11px] text-vh-muted">Публикаций</div>
-                    </div>
-                    <div class="bg-vh-bg border border-vh-border rounded-xl p-3 text-center">
-                        <div class="text-xs font-bold text-gray-200 mt-1">${new Date(target.createdAt || Date.now()).toLocaleDateString('ru-RU')}</div>
-                        <div class="text-[11px] text-vh-muted mt-0.5">Регистрация</div>
-                    </div>
-                </div>
-
-                ${target.isBanned ? `
-                    <div class="mb-4 p-3 rounded-xl bg-red-500/15 border border-red-500/40 text-xs text-red-200">
-                        <strong>Причина блокировки:</strong> ${escapeHtml(target.banReason || 'Нарушение правил форума VelHamster')}
-                    </div>
-                ` : ''}
-
-                <!-- Смена никнейма (для владельца профиля) -->
-                ${isSelf ? `
-                    <div class="mt-4 pt-4 border-t border-vh-border">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">Смена игрового никнейма</h4>
-                        <p class="text-[11px] text-vh-muted mb-2.5">
-                            ${isStaffUser 
-                                ? 'Для администрации смена никнейма доступна без ограничений по времени.' 
-                                : 'Обычные игроки могут менять никнейм 1 раз в 14 дней. Минимум 4 символа.'}
-                        </p>
-                        <div class="flex gap-2">
-                            <input type="text" id="new-nickname-input" value="${escapeHtml(target.nickname)}" ${!canChangeNickNow ? 'disabled' : ''} placeholder="Новый никнейм" class="flex-1 px-3 py-2 rounded-xl bg-vh-bg border border-vh-border text-sm text-white disabled:opacity-50 focus:border-amber-500 focus:outline-none">
-                            <button onclick="changeNickname()" ${!canChangeNickNow ? 'disabled' : ''} class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:bg-gray-700 disabled:text-gray-400 text-black font-bold text-xs transition">
-                                ${canChangeNickNow ? 'Сохранить' : `Через ${daysLeft} дн.`}
-                            </button>
-                        </div>
-                    </div>
-                ` : ''}
-
-                <!-- Управление ролью (для Главного Тех. Админа и Администратора) -->
-                ${canManageRole ? `
-                    <div class="mt-4 pt-4 border-t border-vh-border">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-purple-400 mb-2">
-                            <i class="fa-solid fa-user-gear mr-1"></i> Выдача должности / роли
-                        </h4>
-                        <div class="flex gap-2">
-                            <select id="assign-role-select" class="flex-1 px-3 py-2 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
-                                <option value="player" ${target.role === 'player' ? 'selected' : ''}>Игрок</option>
-                                <option value="helper" ${target.role === 'helper' ? 'selected' : ''}>Хелпер</option>
-                                <option value="moderator" ${target.role === 'moderator' ? 'selected' : ''}>Модератор</option>
-                                ${viewerLevel >= 4 ? `<option value="tech_admin" ${target.role === 'tech_admin' ? 'selected' : ''}>Главный Тех. Админ</option>` : ''}
-                                ${viewerLevel >= 5 ? `<option value="admin" ${target.role === 'admin' ? 'selected' : ''}>Администратор</option>` : ''}
-                            </select>
-                            <button onclick="assignUserRole('${target.uid}')" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition">
-                                Выдать роль
-                            </button>
-                        </div>
-                    </div>
-                ` : ''}
-
-                <!-- Блокировка / Разблокировка аккаунта -->
-                ${canManageBan ? `
-                    <div class="mt-4 pt-4 border-t border-vh-border">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-red-400 mb-2">
-                            <i class="fa-solid fa-ban mr-1"></i> Блокировка аккаунта
-                        </h4>
-                        ${!target.isBanned ? `
-                            <div class="flex gap-2">
-                                <input type="text" id="ban-reason-input" placeholder="Причина блокировки (например: спам, оскорбления)" class="flex-1 px-3 py-2 rounded-xl bg-vh-bg border border-vh-border text-xs text-white focus:border-red-500 focus:outline-none">
-                                <button onclick="toggleBanUser('${target.uid}', true)" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition shrink-0">
-                                    Заблокировать
-                                </button>
-                            </div>
-                        ` : `
-                            <button onclick="toggleBanUser('${target.uid}', false)" class="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition">
-                                Снять блокировку с аккаунта
-                            </button>
-                        `}
-                    </div>
-                ` : ''}
-            `;
-
-            openModal('profile-modal');
+            try {
+                await updateDoc(doc(usersCol, targetUid), {
+                    repVoters: voters,
+                    rating: totalRep
+                });
+                showToast(nextVote === 0 ? 'Оценка репутации снята.' : (nextVote > 0 ? 'Вы повысили репутацию!' : 'Вы понизили репутацию.'), 'info');
+            } catch (err) {
+                showToast('Ошибка: ' + err.message, 'error');
+            }
         };
 
         window.changeNickname = async () => {
@@ -1360,17 +1362,11 @@
             if (!me) return;
             const newNick = document.getElementById('new-nickname-input').value.trim();
 
-            if (newNick.length < 4) {
-                showToast('Никнейм должен состоять минимум из 4 символов.', 'error');
-                return;
-            }
+            if (newNick.length < 4) { showToast('Никнейм должен состоять минимум из 4 символов.', 'error'); return; }
             if (newNick === me.nickname) return;
 
             const isTaken = Object.values(state.users).some(u => u.uid !== me.uid && u.nickname?.toLowerCase() === newNick.toLowerCase());
-            if (isTaken) {
-                showToast('Этот никнейм уже занят!', 'error');
-                return;
-            }
+            if (isTaken) { showToast('Этот никнейм уже занят!', 'error'); return; }
 
             const isStaff = getRoleObj(me.role).level >= 2;
             const cooldownMs = 14 * 24 * 60 * 60 * 1000;
@@ -1385,19 +1381,39 @@
                     lastNickChange: Date.now()
                 });
                 showToast(`Никнейм успешно изменён на ${newNick}!`, 'success');
-                closeModal('profile-modal');
             } catch (err) {
                 showToast('Ошибка смены ника: ' + err.message, 'error');
             }
         };
 
+        window.changeBannerTheme = async (themeKey) => {
+            const me = state.currentUserProfile;
+            if (!me) return;
+            try {
+                await updateDoc(doc(usersCol, me.uid), { bannerTheme: themeKey });
+                showToast('Фон шапки профиля обновлён!', 'success');
+            } catch (err) {
+                showToast('Ошибка: ' + err.message, 'error');
+            }
+        };
+
         window.assignUserRole = async (targetUid) => {
-            if (getUserLevel() < 4) return;
+            const viewerLevel = getUserLevel();
+            if (viewerLevel < 5) {
+                showToast('Выдавать должности могут только Администратор и Главный Тех. Админ.', 'error');
+                return;
+            }
             const newRole = document.getElementById('assign-role-select').value;
+            const newRoleLevel = getRoleObj(newRole).level;
+
+            if (viewerLevel === 5 && newRoleLevel >= 5 && targetUid !== state.currentUserProfile.uid) {
+                showToast('Администратор может выдавать должности до Старшего модератора включительно.', 'warning');
+                return;
+            }
+
             try {
                 await updateDoc(doc(usersCol, targetUid), { role: newRole });
-                showToast(`Роль успешно обновлена на «${getRoleObj(newRole).name}»!`, 'success');
-                openUserProfile(targetUid);
+                showToast(`Должность обновлена на «${getRoleObj(newRole).name}»!`, 'success');
             } catch (err) {
                 showToast('Ошибка выдачи роли: ' + err.message, 'error');
             }
@@ -1406,21 +1422,478 @@
         window.toggleBanUser = async (targetUid, banState) => {
             if (getUserLevel() < 3) return;
             const reasonInput = document.getElementById('ban-reason-input');
-            const reason = banState ? (reasonInput?.value.trim() || 'Многократные нарушения правил форума') : '';
+            const reason = banState ? (reasonInput?.value.trim() || 'Нарушение правил форума VelHamster') : '';
             try {
                 await updateDoc(doc(usersCol, targetUid), {
                     isBanned: banState,
                     banReason: reason
                 });
                 showToast(banState ? 'Пользователь заблокирован.' : 'Блокировка снята.', banState ? 'warning' : 'success');
-                openUserProfile(targetUid);
             } catch (err) {
                 showToast('Ошибка: ' + err.message, 'error');
             }
         };
 
         // =========================================================================
-        // 11. РЕНДЕРИНГ ИНТЕРФЕЙСА
+        // 12. РЕНДЕРИНГ СТРАНИЦЫ ПРОФИЛЯ И «ОБЗОРА КОНТЕНТА» (КАК НА СКРИНШОТАХ)
+        // =========================================================================
+        function renderProfilePage() {
+            const container = document.getElementById('profile-page-container');
+            const target = state.users[state.profileUid];
+
+            if (!target) {
+                container.innerHTML = `<div class="bg-vh-card border border-vh-border rounded-2xl p-8 text-center">Пользователь не найден.</div>`;
+                return;
+            }
+
+            const viewer = state.currentUserProfile;
+            const viewerLevel = getUserLevel();
+            const isSelf = viewer && viewer.uid === target.uid;
+            const targetRole = getRoleObj(target.role);
+            const bannerClass = BANNER_THEMES[target.bannerTheme] || BANNER_THEMES.default;
+
+            // Все темы и ответы этого пользователя
+            const userThreads = state.threads.filter(t => t.authorUid === target.uid);
+            const userPosts = state.posts.filter(p => p.authorUid === target.uid && !p.isSystemVerdict);
+            const totalContentCount = userThreads.length + userPosts.length;
+
+            // Репутация
+            const repScore = target.rating || 0;
+            const repLabel = repScore > 0 ? 'Positive' : (repScore < 0 ? 'Negative' : 'Neutral');
+            const repBadgeBg = repScore > 0 ? 'bg-emerald-600' : (repScore < 0 ? 'bg-red-600' : 'bg-[#2a303d]');
+            const myVote = viewer && target.repVoters ? (target.repVoters[viewer.uid] || 0) : 0;
+
+            // Права управления
+            const cooldownMs = 14 * 24 * 60 * 60 * 1000;
+            const timeSinceChange = Date.now() - (target.lastNickChange || 0);
+            const canChangeNickNow = targetRole.level >= 2 || timeSinceChange >= cooldownMs;
+            const daysLeft = Math.ceil((cooldownMs - timeSinceChange) / (24 * 60 * 60 * 1000));
+
+            const canManageRole = viewer && viewerLevel >= 5 && (viewerLevel > targetRole.level || viewerLevel === 6);
+            const canManageBan = viewer && viewerLevel >= 3 && !isSelf && viewerLevel > targetRole.level;
+            const hasSettingsAccess = isSelf || canManageRole || canManageBan;
+
+            // Формируем объединённую ленту активности (Темы + Сообщения)
+            const combinedActivity = [
+                ...userThreads.map(t => ({ type: 'thread', createdAt: t.createdAt || 0, data: t })),
+                ...userPosts.map(p => ({ type: 'post', createdAt: p.createdAt || 0, data: p }))
+            ].sort((a, b) => b.createdAt - a.createdAt);
+
+            container.innerHTML = `
+                <!-- ВЕРХНЯЯ КАРТОЧКА ПРОФИЛЯ С БАННЕРОМ (КАК НА СКРИНШОТАХ) -->
+                <div class="bg-vh-card border border-vh-border rounded-2xl overflow-hidden shadow-xl">
+                    <!-- Баннер -->
+                    <div class="h-36 sm:h-48 w-full ${bannerClass} relative">
+                        ${target.isBanned ? `
+                            <div class="absolute top-4 right-4 px-3 py-1.5 rounded-xl bg-red-600/90 text-white text-xs font-extrabold uppercase tracking-wider shadow-lg">
+                                <i class="fa-solid fa-ban mr-1"></i> Аккаунт заблокирован
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Нижняя панель шапки профиля -->
+                    <div class="px-5 sm:px-7 pb-5 pt-3 flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative">
+                        <div class="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-5">
+                            <!-- Крупный круглый аватар с нахлёстом на баннер -->
+                            <div class="-mt-16 sm:-mt-20 w-24 h-24 sm:w-28 sm:h-28 rounded-full ${getAvatarColor(target.uid)} border-4 border-[#181b23] flex items-center justify-center text-3xl sm:text-4xl font-extrabold text-white shadow-xl overflow-hidden shrink-0">
+                                ${target.avatar 
+                                    ? `<img src="${escapeHtml(target.avatar)}" class="w-full h-full object-cover">` 
+                                    : escapeHtml(target.nickname.slice(0, 1).toUpperCase())}
+                            </div>
+
+                            <!-- Никнейм, роль и метаданные -->
+                            <div class="flex flex-wrap items-center gap-y-3 divide-x divide-vh-border">
+                                <div class="pr-5">
+                                    <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">${escapeHtml(target.nickname)}</h1>
+                                    <div class="mt-1">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-bold border ${targetRole.badge}">
+                                            <i class="fa-solid ${targetRole.icon}"></i> ${targetRole.name}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="px-5">
+                                    <div class="text-xs font-bold text-gray-300">Зарегистрирован</div>
+                                    <div class="text-xs sm:text-sm text-vh-muted mt-0.5">${formatFullDate(target.createdAt)}</div>
+                                </div>
+
+                                <div class="pl-5">
+                                    <div class="text-xs font-bold text-gray-300">Посещение</div>
+                                    <div class="text-xs sm:text-sm text-vh-muted mt-0.5">${formatDate(target.lastSeen || target.createdAt)}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Кнопки справа: Обзор контента / Профиль / Настройки -->
+                        <div class="flex items-center gap-2.5 self-start lg:self-center">
+                            ${state.profileMode === 'overview' ? `
+                                <button onclick="switchProfileMode('content')" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs sm:text-sm transition shadow-lg shadow-amber-500/20 flex items-center gap-2">
+                                    <i class="fa-regular fa-file-lines"></i>
+                                    <span>Обзор контента</span>
+                                </button>
+                            ` : `
+                                <button onclick="switchProfileMode('overview')" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs sm:text-sm transition shadow-lg shadow-amber-500/20 flex items-center gap-2">
+                                    <i class="fa-regular fa-user"></i>
+                                    <span>Профиль</span>
+                                </button>
+                            `}
+
+                            ${hasSettingsAccess ? `
+                                <button onclick="toggleProfileSettings()" class="px-3.5 py-2.5 rounded-xl bg-vh-bg hover:bg-vh-cardHover border border-vh-border text-gray-200 font-semibold text-xs sm:text-sm transition flex items-center gap-2">
+                                    <i class="fa-solid fa-gear text-amber-400"></i>
+                                    <span class="hidden sm:inline">Управление</span>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ВЫДВИЖНАЯ ПАНЕЛЬ НАСТРОЕК И УПРАВЛЕНИЯ АККАУНТОМ -->
+                ${state.profileSettingsOpen && hasSettingsAccess ? `
+                    <div class="bg-vh-card border border-amber-500/40 rounded-2xl p-5 sm:p-6 space-y-5 shadow-xl">
+                        <div class="flex items-center justify-between border-b border-vh-border pb-3">
+                            <h3 class="text-sm font-extrabold uppercase tracking-wider text-amber-400">
+                                <i class="fa-solid fa-sliders mr-1.5"></i> Настройки профиля и управление
+                            </h3>
+                            <button onclick="toggleProfileSettings()" class="text-vh-muted hover:text-white text-xs">Скрыть</button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            ${isSelf ? `
+                                <div class="bg-vh-bg border border-vh-border rounded-xl p-4">
+                                    <h4 class="text-xs font-bold text-white mb-1">Смена игрового никнейма</h4>
+                                    <p class="text-[11px] text-vh-muted mb-3">
+                                        ${targetRole.level >= 2 ? 'Для персонала без ограничений по времени.' : 'Доступно 1 раз в 14 дней (минимум 4 символа).'}
+                                    </p>
+                                    <div class="flex gap-2">
+                                        <input type="text" id="new-nickname-input" value="${escapeHtml(target.nickname)}" ${!canChangeNickNow ? 'disabled' : ''} class="flex-1 px-3 py-2 rounded-lg bg-vh-card border border-vh-border text-sm text-white disabled:opacity-50 focus:border-amber-500 focus:outline-none">
+                                        <button onclick="changeNickname()" ${!canChangeNickNow ? 'disabled' : ''} class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 disabled:bg-gray-700 disabled:text-gray-400 text-black font-bold text-xs transition">
+                                            ${canChangeNickNow ? 'Сохранить' : `Через ${daysLeft} дн.`}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="bg-vh-bg border border-vh-border rounded-xl p-4">
+                                    <h4 class="text-xs font-bold text-white mb-1">Цвет фона шапки профиля</h4>
+                                    <p class="text-[11px] text-vh-muted mb-3">Выберите стиль оформления баннера:</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button onclick="changeBannerTheme('default')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#293954] text-white border border-white/20">Синий полигон</button>
+                                        <button onclick="changeBannerTheme('amber')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-800 text-white border border-white/20">Золотой</button>
+                                        <button onclick="changeBannerTheme('purple')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-900 text-white border border-white/20">Фиолетовый</button>
+                                        <button onclick="changeBannerTheme('emerald')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-900 text-white border border-white/20">Изумрудный</button>
+                                        <button onclick="changeBannerTheme('crimson')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-900 text-white border border-white/20">Рубиновый</button>
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            ${canManageRole ? `
+                                <div class="bg-vh-bg border border-vh-border rounded-xl p-4">
+                                    <h4 class="text-xs font-bold text-purple-400 mb-1"><i class="fa-solid fa-user-shield mr-1"></i> Выдача должности на форуме</h4>
+                                    <p class="text-[11px] text-vh-muted mb-3">Выберите должность для пользователя ${escapeHtml(target.nickname)}:</p>
+                                    <div class="flex gap-2">
+                                        <select id="assign-role-select" class="flex-1 px-3 py-2 rounded-lg bg-vh-card border border-vh-border text-xs sm:text-sm text-white focus:border-amber-500 focus:outline-none">
+                                            <option value="player" ${target.role === 'player' ? 'selected' : ''}>Игрок</option>
+                                            <option value="helper" ${target.role === 'helper' ? 'selected' : ''}>Хелпер</option>
+                                            <option value="moderator" ${target.role === 'moderator' ? 'selected' : ''}>Модератор</option>
+                                            <option value="sr_moderator" ${target.role === 'sr_moderator' ? 'selected' : ''}>Старший модератор</option>
+                                            ${viewerLevel >= 6 ? `<option value="admin" ${target.role === 'admin' ? 'selected' : ''}>Администратор</option>` : ''}
+                                            ${viewerLevel >= 6 ? `<option value="tech_admin" ${target.role === 'tech_admin' ? 'selected' : ''}>Главный Тех. Админ</option>` : ''}
+                                        </select>
+                                        <button onclick="assignUserRole('${target.uid}')" class="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition">
+                                            Назначить
+                                        </button>
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            ${canManageBan ? `
+                                <div class="bg-vh-bg border border-vh-border rounded-xl p-4">
+                                    <h4 class="text-xs font-bold text-red-400 mb-1"><i class="fa-solid fa-ban mr-1"></i> Блокировка аккаунта</h4>
+                                    ${!target.isBanned ? `
+                                        <p class="text-[11px] text-vh-muted mb-2.5">Ограничить доступ пользователя к форуму:</p>
+                                        <div class="flex gap-2">
+                                            <input type="text" id="ban-reason-input" placeholder="Причина блокировки..." class="flex-1 px-3 py-2 rounded-lg bg-vh-card border border-vh-border text-xs text-white focus:border-red-500 focus:outline-none">
+                                            <button onclick="toggleBanUser('${target.uid}', true)" class="px-3.5 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition">
+                                                Забанить
+                                            </button>
+                                        </div>
+                                    ` : `
+                                        <p class="text-xs text-red-300 mb-2.5">Заблокирован: ${escapeHtml(target.banReason || 'Нарушение правил')}</p>
+                                        <button onclick="toggleBanUser('${target.uid}', false)" class="w-full py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition">
+                                            Снять блокировку
+                                        </button>
+                                    `}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                ` : ''}
+
+                <!-- РЕЖИМ 1: ГЛАВНАЯ СТРАНИЦА ПРОФИЛЯ (КАК НА ПЕРВЫХ ДВУХ СКРИНШОТАХ) -->
+                ${state.profileMode === 'overview' ? `
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        <!-- Левая колонка профиля (Посты, Репутация, Посетители) -->
+                        <div class="lg:col-span-4 space-y-5">
+                            <!-- Виджет Постов и Репутации -->
+                            <div class="bg-vh-card border border-vh-border rounded-2xl divide-y divide-vh-border overflow-hidden">
+                                <div onclick="switchProfileMode('content')" class="p-4 sm:p-5 flex items-center justify-between hover:bg-vh-cardHover cursor-pointer transition">
+                                    <div class="flex items-center gap-3.5">
+                                        <div class="w-10 h-10 rounded-xl bg-vh-bg text-vh-muted flex items-center justify-center text-lg">
+                                            <i class="fa-solid fa-comment"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-bold text-white">Постов</div>
+                                            <div class="text-xs text-vh-muted">Обзор контента</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-xl font-extrabold text-gray-200">${totalContentCount}</div>
+                                </div>
+
+                                <div class="p-4 sm:p-5 flex items-center justify-between">
+                                    <div class="flex items-center gap-3.5">
+                                        <div class="w-10 h-10 rounded-xl bg-vh-bg text-vh-muted flex items-center justify-center text-lg">
+                                            <i class="fa-solid fa-thumbs-up"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-bold text-white">Репутация</div>
+                                            <div class="text-xs text-vh-muted">${repLabel}</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        ${viewer && !isSelf ? `
+                                            <button onclick="voteUserReputation('${target.uid}', -1)" title="Понизить репутацию" class="w-7 h-7 rounded-lg border text-xs font-bold transition ${myVote === -1 ? 'bg-red-600 border-red-500 text-white' : 'bg-vh-bg border-vh-border text-vh-muted hover:text-red-400'}">
+                                                -
+                                            </button>
+                                        ` : ''}
+                                        <span class="px-3 py-1 rounded-lg ${repBadgeBg} text-sm font-extrabold text-white min-w-[36px] text-center">
+                                            ${repScore}
+                                        </span>
+                                        ${viewer && !isSelf ? `
+                                            <button onclick="voteUserReputation('${target.uid}', 1)" title="Повысить репутацию" class="w-7 h-7 rounded-lg border text-xs font-bold transition ${myVote === 1 ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-vh-bg border-vh-border text-vh-muted hover:text-emerald-400'}">
+                                                +
+                                            </button>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Виджет Посетители профиля -->
+                            <div class="bg-vh-card border border-vh-border rounded-2xl p-5">
+                                <h3 class="text-sm font-bold text-white pb-3 border-b border-vh-border mb-3">Посетители профиля</h3>
+                                ${Array.isArray(target.recentVisitors) && target.recentVisitors.length > 0 ? `
+                                    <div class="space-y-2.5">
+                                        ${target.recentVisitors.map(v => {
+                                            const visUser = state.users[v.uid];
+                                            if (!visUser) return '';
+                                            return `
+                                                <div onclick="openUserProfile('${visUser.uid}')" class="flex items-center justify-between text-xs hover:bg-vh-bg p-1.5 rounded-lg cursor-pointer transition">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="w-6 h-6 rounded-full ${getAvatarColor(visUser.uid)} text-white font-bold flex items-center justify-center text-[10px]">
+                                                            ${escapeHtml(visUser.nickname.slice(0, 1).toUpperCase())}
+                                                        </span>
+                                                        <span class="font-semibold text-gray-200">${escapeHtml(visUser.nickname)}</span>
+                                                    </div>
+                                                    <span class="text-[10px] text-vh-muted">${formatDate(v.visitedAt)}</span>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                ` : `
+                                    <p class="text-xs text-vh-muted">Пока нет недавних посетителей профиля.</p>
+                                `}
+                            </div>
+                        </div>
+
+                        <!-- Правая колонка профиля: Лента последних публикаций -->
+                        <div class="lg:col-span-8 space-y-4">
+                            ${combinedActivity.length === 0 ? `
+                                <div class="bg-vh-card border border-vh-border rounded-2xl p-10 text-center">
+                                    <p class="text-sm font-bold text-white">У пользователя ${escapeHtml(target.nickname)} пока нет публикаций</p>
+                                    <p class="text-xs text-vh-muted mt-1">Здесь будут отображаться созданные темы, жалобы, заявки и ответы.</p>
+                                </div>
+                            ` : combinedActivity.map(item => renderProfileActivityCard(item, target)).join('')}
+                        </div>
+                    </div>
+                ` : `
+                    <!-- РЕЖИМ 2: ОБЗОР КОНТЕНТА (КАК НА СКРИНШОТАХ С ВКЛАДКАМИ АКТИВНОСТЬ / ТЕМЫ / СООБЩЕНИЯ) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        <!-- Левое меню навигации по контенту -->
+                        <div class="lg:col-span-3 bg-vh-card border border-vh-border rounded-2xl p-3 space-y-3">
+                            <button onclick="switchProfileContentTab('activity')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition ${state.profileContentTab === 'activity' ? 'bg-amber-500 text-black shadow-md' : 'text-gray-300 hover:bg-vh-cardHover'}">
+                                Активность
+                            </button>
+
+                            <div class="pt-2 border-t border-vh-border">
+                                <div class="px-3 pb-2 text-xs font-extrabold uppercase tracking-wider text-white">Форумы</div>
+                                <div class="space-y-1">
+                                    <button onclick="switchProfileContentTab('threads')" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-between ${state.profileContentTab === 'threads' ? 'bg-amber-500 text-black shadow-md' : 'text-vh-muted hover:text-white hover:bg-vh-cardHover'}">
+                                        <span>Темы</span>
+                                        <span class="text-xs opacity-80">${userThreads.length}</span>
+                                    </button>
+                                    <button onclick="switchProfileContentTab('posts')" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-between ${state.profileContentTab === 'posts' ? 'bg-amber-500 text-black shadow-md' : 'text-vh-muted hover:text-white hover:bg-vh-cardHover'}">
+                                        <span>Сообщения</span>
+                                        <span class="text-xs opacity-80">${userPosts.length}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Правая область контента -->
+                        <div class="lg:col-span-9 bg-vh-card border border-vh-border rounded-2xl overflow-hidden">
+                            <div class="px-6 py-4 bg-[#1d212b] border-b border-vh-border">
+                                <h2 class="text-base sm:text-lg font-extrabold text-white">
+                                    ${state.profileContentTab === 'activity' ? `Весь контент ${escapeHtml(target.nickname)}` : 
+                                      (state.profileContentTab === 'threads' ? `Темы, опубликованные ${escapeHtml(target.nickname)}` : 
+                                      `Сообщения, опубликованные ${escapeHtml(target.nickname)}`)}
+                                </h2>
+                            </div>
+
+                            ${state.profileContentTab === 'activity' ? `
+                                <div class="divide-y divide-vh-border">
+                                    ${combinedActivity.length === 0 
+                                        ? `<div class="p-8 text-center text-xs text-vh-muted">Активность отсутствует.</div>` 
+                                        : combinedActivity.map(item => renderProfileActivityCard(item, target, true)).join('')}
+                                </div>
+                            ` : ''}
+
+                            ${state.profileContentTab === 'threads' ? `
+                                <div class="divide-y divide-vh-border">
+                                    ${userThreads.length === 0 
+                                        ? `<div class="p-8 text-center text-xs text-vh-muted">Пользователь ещё не создавал тем.</div>` 
+                                        : userThreads.map(t => {
+                                            const st = STATUS_BADGES[t.status] || STATUS_BADGES.open;
+                                            const cat = CATEGORIES.find(c => c.id === t.categoryId);
+                                            const repliesCount = state.posts.filter(p => p.threadId === t.id).length;
+                                            return `
+                                                <div onclick="openThread('${t.id}')" class="p-4 sm:px-6 hover:bg-vh-cardHover transition cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                    <div class="flex items-start gap-3.5 min-w-0">
+                                                        <div class="w-10 h-10 rounded-full ${getAvatarColor(target.uid)} text-white font-bold flex items-center justify-center text-sm shrink-0 overflow-hidden">
+                                                            ${target.avatar ? `<img src="${escapeHtml(target.avatar)}" class="w-full h-full object-cover">` : escapeHtml(target.nickname.slice(0, 1).toUpperCase())}
+                                                        </div>
+                                                        <div class="min-w-0">
+                                                            <div class="flex items-center gap-2 flex-wrap">
+                                                                <span class="px-2 py-0.5 rounded text-[11px] font-bold border ${st.cls}">${st.label}</span>
+                                                                <span class="text-sm sm:text-base font-bold text-white hover:text-amber-400 truncate">${escapeHtml(t.title)}</span>
+                                                                ${t.isLocked ? `<i class="fa-solid fa-lock text-xs text-vh-muted"></i>` : ''}
+                                                            </div>
+                                                            <div class="text-xs text-vh-muted mt-1">
+                                                                ${escapeHtml(target.nickname)} • ${formatDate(t.createdAt)} в <strong class="text-gray-300">${cat ? cat.title : 'Форум'}</strong>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-right shrink-0 text-xs text-vh-muted pl-13 sm:pl-0">
+                                                        <div class="font-bold text-gray-200">${repliesCount} ответов</div>
+                                                        <div>${t.views || 1} просмотров</div>
+                                                    </div>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                </div>
+                            ` : ''}
+
+                            ${state.profileContentTab === 'posts' ? `
+                                <div class="divide-y divide-vh-border">
+                                    ${userPosts.length === 0 
+                                        ? `<div class="p-8 text-center text-xs text-vh-muted">Пользователь ещё не оставлял сообщений в темах.</div>` 
+                                        : userPosts.map(p => {
+                                            const parentThread = state.threads.find(t => t.id === p.threadId);
+                                            const cat = CATEGORIES.find(c => c.id === parentThread?.categoryId);
+                                            return `
+                                                <div onclick="${parentThread ? `openThread('${parentThread.id}')` : ''}" class="p-5 sm:px-6 hover:bg-vh-cardHover transition cursor-pointer">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                                        <h4 class="text-base font-bold text-white hover:text-amber-400">
+                                                            ${parentThread ? escapeHtml(parentThread.title) : 'Удалённая тема'}
+                                                        </h4>
+                                                    </div>
+                                                    <div class="text-xs text-vh-muted mt-0.5">в ${cat ? cat.title : 'Форум'}</div>
+                                                    <div class="text-xs text-vh-muted mt-2 mb-3">Опубликовано ${formatDate(p.createdAt)}</div>
+                                                    <div class="text-sm text-gray-200 whitespace-pre-line bg-vh-bg/60 p-3.5 rounded-xl border border-vh-border">
+                                                        ${escapeHtml(p.content)}
+                                                    </div>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `}
+            `;
+        }
+
+        function renderProfileActivityCard(item, target, compact = false) {
+            if (item.type === 'thread') {
+                const t = item.data;
+                const st = STATUS_BADGES[t.status] || STATUS_BADGES.open;
+                const cat = CATEGORIES.find(c => c.id === t.categoryId);
+                const repliesCount = state.posts.filter(p => p.threadId === t.id).length;
+
+                const previewText = Array.isArray(t.structuredFields)
+                    ? t.structuredFields.map(f => `${f.label}: ${f.value}`).join(' | ')
+                    : (t.content || '');
+
+                return `
+                    <div onclick="openThread('${t.id}')" class="${compact ? 'p-5 sm:p-6' : 'bg-vh-card border border-vh-border rounded-2xl p-5 sm:p-6'} hover:bg-vh-cardHover transition cursor-pointer">
+                        <div class="flex items-start gap-3.5">
+                            <div class="w-10 h-10 rounded-full ${getAvatarColor(target.uid)} text-white font-bold flex items-center justify-center text-sm shrink-0 overflow-hidden">
+                                ${target.avatar ? `<img src="${escapeHtml(target.avatar)}" class="w-full h-full object-cover">` : escapeHtml(target.nickname.slice(0, 1).toUpperCase())}
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="px-2 py-0.5 rounded text-[11px] font-bold border ${st.cls}">${st.label}</span>
+                                    <h3 class="text-base font-bold text-white hover:text-amber-400 transition">${escapeHtml(t.title)}</h3>
+                                </div>
+                                <div class="text-xs text-vh-muted mt-1">
+                                    <i class="fa-solid fa-comment-dots mr-1"></i>
+                                    <strong class="text-gray-300">${escapeHtml(target.nickname)}</strong> опубликовал тему в <strong class="text-gray-200">${cat ? cat.title : 'Форум'}</strong>
+                                </div>
+                                ${previewText ? `
+                                    <p class="text-xs sm:text-sm text-gray-300 mt-3 line-clamp-3 leading-relaxed">
+                                        ${escapeHtml(previewText)}
+                                    </p>
+                                ` : ''}
+                                <div class="flex items-center gap-4 text-xs text-vh-muted mt-3 pt-2 border-t border-vh-border/50">
+                                    <span><i class="fa-regular fa-clock mr-1"></i> ${formatDate(t.createdAt)}</span>
+                                    <span><i class="fa-regular fa-comment mr-1"></i> ${repliesCount} ответ</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const p = item.data;
+                const parentThread = state.threads.find(t => t.id === p.threadId);
+                const cat = CATEGORIES.find(c => c.id === parentThread?.categoryId);
+
+                return `
+                    <div onclick="${parentThread ? `openThread('${parentThread.id}')` : ''}" class="${compact ? 'p-5 sm:p-6' : 'bg-vh-card border border-vh-border rounded-2xl p-5 sm:p-6'} hover:bg-vh-cardHover transition cursor-pointer">
+                        <div class="flex items-start gap-3.5">
+                            <div class="w-10 h-10 rounded-full ${getAvatarColor(target.uid)} text-white font-bold flex items-center justify-center text-sm shrink-0 overflow-hidden">
+                                ${target.avatar ? `<img src="${escapeHtml(target.avatar)}" class="w-full h-full object-cover">` : escapeHtml(target.nickname.slice(0, 1).toUpperCase())}
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <h3 class="text-sm sm:text-base font-bold text-white hover:text-amber-400 transition">
+                                    Ответ в теме: ${parentThread ? escapeHtml(parentThread.title) : 'Удалённая тема'}
+                                </h3>
+                                <div class="text-xs text-vh-muted mt-0.5">
+                                    <strong class="text-gray-300">${escapeHtml(target.nickname)}</strong> ответил в разделе <strong class="text-gray-200">${cat ? cat.title : 'Форум'}</strong>
+                                </div>
+                                <p class="text-xs sm:text-sm text-gray-300 mt-2.5 line-clamp-3 leading-relaxed">
+                                    ${escapeHtml(p.content)}
+                                </p>
+                                <div class="text-xs text-vh-muted mt-3">
+                                    <i class="fa-regular fa-clock mr-1"></i> ${formatDate(p.createdAt)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // =========================================================================
+        // 13. РЕНДЕРИНГ ШАПКИ, САЙДБАРА И ОСНОВНЫХ РАЗДЕЛОВ ФОРУМА
         // =========================================================================
         function renderHeaderAndSidebar() {
             const headerArea = document.getElementById('auth-header-area');
@@ -1440,7 +1913,7 @@
                             <i class="fa-solid fa-user-astronaut"></i>
                         </div>
                         <h3 class="text-base font-bold text-white">Вы вошли как Гость</h3>
-                        <p class="text-xs text-vh-muted mt-1 mb-4">Авторизуйтесь через Google или Email, чтобы подавать заявки в команду и создавать темы.</p>
+                        <p class="text-xs text-vh-muted mt-1 mb-4">Авторизуйтесь через Google или Email, чтобы подавать заявки и создавать темы.</p>
                         <button onclick="openModal('auth-modal')" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs transition">
                             Войти на VelHamster
                         </button>
@@ -1450,8 +1923,8 @@
                 const roleObj = getRoleObj(me.role);
                 headerArea.innerHTML = `
                     <button onclick="openUserProfile('${me.uid}')" class="flex items-center gap-2.5 bg-vh-card hover:bg-vh-cardHover border border-vh-border px-3 py-1.5 rounded-xl transition">
-                        <div class="w-8 h-8 rounded-lg bg-amber-500 text-black font-bold flex items-center justify-center text-xs overflow-hidden">
-                            ${me.avatar ? `<img src="${escapeHtml(me.avatar)}" class="w-full h-full object-cover">` : escapeHtml(me.nickname.slice(0, 2).toUpperCase())}
+                        <div class="w-8 h-8 rounded-full ${getAvatarColor(me.uid)} text-white font-bold flex items-center justify-center text-xs overflow-hidden">
+                            ${me.avatar ? `<img src="${escapeHtml(me.avatar)}" class="w-full h-full object-cover">` : escapeHtml(me.nickname.slice(0, 1).toUpperCase())}
                         </div>
                         <div class="text-left hidden sm:block">
                             <div class="text-xs font-bold text-white leading-tight">${escapeHtml(me.nickname)}</div>
@@ -1465,8 +1938,8 @@
 
                 sidebarUser.innerHTML = `
                     <div class="flex items-center gap-3 mb-4">
-                        <div onclick="openUserProfile('${me.uid}')" class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-black font-extrabold flex items-center justify-center text-lg cursor-pointer overflow-hidden shrink-0">
-                            ${me.avatar ? `<img src="${escapeHtml(me.avatar)}" class="w-full h-full object-cover">` : escapeHtml(me.nickname.slice(0, 2).toUpperCase())}
+                        <div onclick="openUserProfile('${me.uid}')" class="w-12 h-12 rounded-full ${getAvatarColor(me.uid)} text-white font-extrabold flex items-center justify-center text-lg cursor-pointer overflow-hidden shrink-0">
+                            ${me.avatar ? `<img src="${escapeHtml(me.avatar)}" class="w-full h-full object-cover">` : escapeHtml(me.nickname.slice(0, 1).toUpperCase())}
                         </div>
                         <div class="min-w-0">
                             <div onclick="openUserProfile('${me.uid}')" class="text-sm font-bold text-white hover:text-amber-400 cursor-pointer truncate">${escapeHtml(me.nickname)}</div>
@@ -1478,7 +1951,7 @@
                     <div class="grid grid-cols-2 gap-2 text-center bg-vh-bg/80 p-2.5 rounded-xl border border-vh-border mb-3">
                         <div>
                             <div class="text-sm font-extrabold text-amber-400">${me.rating || 0}</div>
-                            <div class="text-[10px] text-vh-muted">Рейтинг</div>
+                            <div class="text-[10px] text-vh-muted">Репутация</div>
                         </div>
                         <div>
                             <div class="text-sm font-extrabold text-white">${me.postsCount || 0}</div>
@@ -1486,23 +1959,23 @@
                         </div>
                     </div>
                     <button onclick="openUserProfile('${me.uid}')" class="w-full py-2 rounded-xl bg-vh-bg hover:bg-vh-cardHover border border-vh-border text-xs font-semibold text-gray-200 transition">
-                        <i class="fa-solid fa-id-card mr-1.5 text-amber-400"></i>Мой профиль и настройки
+                        <i class="fa-solid fa-id-card mr-1.5 text-amber-400"></i>Открыть мой профиль
                     </button>
                 `;
             }
 
-            // Очередь на рассмотрение для персонала (level >= 3: Модератор, Тех.Админ, Админ)
+            // Очередь на рассмотрение (фильтруется по правам текущей должности)
             const pendingBox = document.getElementById('sidebar-pending-box');
             const pendingList = document.getElementById('sidebar-pending-list');
             const pendingCountBadge = document.getElementById('pending-count-badge');
 
             if (getUserLevel() >= 3) {
-                const pendingThreads = state.threads.filter(t => t.status === 'pending');
+                const pendingThreads = state.threads.filter(t => t.status === 'pending' && canReviewThread(t));
                 pendingBox.classList.remove('hidden');
                 pendingCountBadge.textContent = pendingThreads.length;
 
                 if (pendingThreads.length === 0) {
-                    pendingList.innerHTML = `<p class="text-xs text-vh-muted italic">Новых заявок на рассмотрении пока нет.</p>`;
+                    pendingList.innerHTML = `<p class="text-xs text-vh-muted italic">Новых обращений для вашей должности пока нет.</p>`;
                 } else {
                     pendingList.innerHTML = pendingThreads.map(t => {
                         const cat = CATEGORIES.find(c => c.id === t.categoryId);
@@ -1519,7 +1992,7 @@
                 pendingBox.classList.add('hidden');
             }
 
-            // Список команды проекта
+            // Команда проекта
             const staffListEl = document.getElementById('sidebar-staff-list');
             const allUsers = Object.values(state.users);
             const staffMembers = allUsers
@@ -1534,8 +2007,8 @@
                     return `
                         <div onclick="openUserProfile('${u.uid}')" class="flex items-center justify-between gap-2 p-2 rounded-xl hover:bg-vh-bg/80 cursor-pointer transition">
                             <div class="flex items-center gap-2.5 min-w-0">
-                                <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 font-bold text-xs flex items-center justify-center shrink-0 overflow-hidden">
-                                    ${u.avatar ? `<img src="${escapeHtml(u.avatar)}" class="w-full h-full object-cover">` : escapeHtml(u.nickname.slice(0, 2).toUpperCase())}
+                                <div class="w-8 h-8 rounded-full ${getAvatarColor(u.uid)} text-white font-bold text-xs flex items-center justify-center shrink-0 overflow-hidden">
+                                    ${u.avatar ? `<img src="${escapeHtml(u.avatar)}" class="w-full h-full object-cover">` : escapeHtml(u.nickname.slice(0, 1).toUpperCase())}
                                 </div>
                                 <div class="truncate">
                                     <div class="text-xs font-bold text-white truncate">${escapeHtml(u.nickname)}</div>
@@ -1548,7 +2021,7 @@
                 }).join('');
             }
 
-            // Статистика форума
+            // Статистика
             document.getElementById('stat-threads').textContent = state.threads.length;
             document.getElementById('stat-posts').textContent = state.posts.length + state.threads.length;
             document.getElementById('stat-users').textContent = allUsers.length;
@@ -1568,6 +2041,14 @@
 
             if (state.view === 'home') {
                 bc.innerHTML = `<span class="text-white font-semibold"><i class="fa-solid fa-house text-amber-400 mr-1.5"></i>Главная страница форума</span>`;
+            } else if (state.view === 'profile') {
+                const target = state.users[state.profileUid];
+                bc.innerHTML = `
+                    <button onclick="navigate('home')" class="hover:text-amber-400 transition"><i class="fa-solid fa-house mr-1"></i>Главная</button>
+                    <span>/</span>
+                    <button onclick="switchProfileMode('overview')" class="hover:text-amber-400 transition">Профиль: ${target ? escapeHtml(target.nickname) : 'Пользователь'}</button>
+                    ${state.profileMode === 'content' ? `<span>/</span><span class="text-white font-semibold">Обзор контента</span>` : ''}
+                `;
             } else if (state.view === 'category') {
                 const cat = CATEGORIES.find(c => c.id === state.activeCategoryId);
                 bc.innerHTML = `
@@ -1605,16 +2086,28 @@
         }
 
         function renderMainView() {
+            const profileContainer = document.getElementById('profile-page-container');
+            const forumGrid = document.getElementById('forum-grid-container');
             const container = document.getElementById('main-content');
 
-            // 1. ГЛАВНАЯ СТРАНИЦА (СПИСОК КАТЕГОРИЙ)
+            if (state.view === 'profile') {
+                forumGrid.classList.add('hidden');
+                profileContainer.classList.remove('hidden');
+                renderProfilePage();
+                return;
+            } else {
+                profileContainer.classList.add('hidden');
+                forumGrid.classList.remove('hidden');
+            }
+
+            // 1. ГЛАВНАЯ СТРАНИЦА
             if (state.view === 'home') {
                 const groups = [...new Set(CATEGORIES.map(c => c.group))];
                 container.innerHTML = groups.map(groupName => {
                     const groupCats = CATEGORIES.filter(c => c.group === groupName);
                     return `
                         <section class="bg-vh-card border border-vh-border rounded-2xl overflow-hidden shadow-lg">
-                            <div class="px-5 py-3.5 bg-[#1d212d] border-b border-vh-border flex items-center justify-between">
+                            <div class="px-5 py-3.5 bg-[#1d212b] border-b border-vh-border flex items-center justify-between">
                                 <h2 class="text-sm font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-2">
                                     <span class="w-2 h-2 rounded-full bg-amber-400"></span>
                                     ${groupName}
@@ -1635,7 +2128,7 @@
                                                 </div>
                                                 <div>
                                                     <div class="flex items-center gap-2 flex-wrap">
-                                                        <h3 class="text-base font-bold text-white group-hover:text-amber-400">${cat.title}</h3>
+                                                        <h3 class="text-base font-bold text-white">${cat.title}</h3>
                                                         ${pendingInCat > 0 ? `<span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">${pendingInCat} на рассмотрении</span>` : ''}
                                                     </div>
                                                     <p class="text-xs text-vh-muted mt-1 leading-relaxed">${cat.desc}</p>
@@ -1663,7 +2156,7 @@
                 return;
             }
 
-            // 2. ПРОСМОТР РАЗДЕЛА (КАТЕГОРИИ)
+            // 2. РАЗДЕЛ
             if (state.view === 'category') {
                 const cat = CATEGORIES.find(c => c.id === state.activeCategoryId);
                 if (!cat) return;
@@ -1697,7 +2190,7 @@
                                     <i class="fa-regular fa-folder-open"></i>
                                 </div>
                                 <h3 class="text-base font-bold text-white">В этом разделе пока нет тем</h3>
-                                <p class="text-xs text-vh-muted mt-1">Будьте первым, кто создаст публикацию в разделе «${cat.title}».</p>
+                                <p class="text-xs text-vh-muted mt-1">Будьте первым, кто создаст публикацию здесь.</p>
                             </div>
                         ` : `
                             <div class="divide-y divide-vh-border">
@@ -1719,13 +2212,13 @@
                                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${st.cls}">
                                                         <i class="fa-solid ${st.icon}"></i> ${st.label}
                                                     </span>
-                                                    ${t.isLocked ? `<span class="text-xs text-vh-muted" title="Тема закрыта"><i class="fa-solid fa-lock"></i></span>` : ''}
+                                                    ${t.isLocked ? `<span class="text-xs text-vh-muted" title="Закрыто"><i class="fa-solid fa-lock"></i></span>` : ''}
                                                 </div>
                                                 <h3 class="text-sm sm:text-base font-bold text-white hover:text-amber-400 transition line-clamp-1">
                                                     ${escapeHtml(t.title)}
                                                 </h3>
                                                 <div class="flex items-center gap-2 text-xs text-vh-muted mt-1.5 flex-wrap">
-                                                    <span>Автор: <strong class="text-gray-200">${escapeHtml(author?.nickname || 'Игрок')}</strong></span>
+                                                    <span>Автор: <strong onclick="event.stopPropagation(); openUserProfile('${t.authorUid}')" class="text-gray-200 hover:text-amber-400 hover:underline">${escapeHtml(author?.nickname || 'Игрок')}</strong></span>
                                                     <span class="px-1.5 py-0.2 rounded text-[10px] font-bold border ${authorRole.badge}">${authorRole.name}</span>
                                                     <span>•</span>
                                                     <span>${formatDate(t.createdAt)}</span>
@@ -1748,7 +2241,7 @@
                 return;
             }
 
-            // 3. ПРОСМОТР КОНКРЕТНОЙ ТЕМЫ / АНКЕТЫ
+            // 3. ТЕМА / АНКЕТА
             if (state.view === 'thread') {
                 const t = state.threads.find(item => item.id === state.activeThreadId);
                 if (!t) {
@@ -1760,12 +2253,12 @@
                 const authorRole = getRoleObj(author?.role);
                 const st = STATUS_BADGES[t.status] || STATUS_BADGES.open;
                 const replies = state.posts.filter(p => p.threadId === t.id);
-                const isStaffMod = getUserLevel() >= 3;
+                const canReviewThis = canReviewThread(t);
+                const canPinOrDelete = getUserLevel() >= 4;
                 const likesArr = Array.isArray(t.likes) ? t.likes : [];
                 const isLiked = state.currentUserProfile && likesArr.includes(state.currentUserProfile.uid);
 
                 container.innerHTML = `
-                    <!-- Шапка темы и панель модерации -->
                     <div class="bg-vh-card border border-vh-border rounded-2xl p-5 sm:p-6">
                         <div class="flex items-center gap-2 flex-wrap mb-3">
                             ${t.isPinned ? `
@@ -1785,36 +2278,37 @@
 
                         <h1 class="text-xl sm:text-2xl font-extrabold text-white leading-snug">${escapeHtml(t.title)}</h1>
 
-                        <!-- Кнопки модерации (Одобрить / Отклонить / Закрепить) для Модераторов и Админов -->
-                        ${isStaffMod ? `
+                        ${(canReviewThis || canPinOrDelete) ? `
                             <div class="mt-4 pt-4 border-t border-vh-border flex flex-wrap items-center gap-2">
-                                <span class="text-xs font-bold text-vh-muted mr-1"><i class="fa-solid fa-gavel text-amber-400 mr-1"></i>Решение администрации:</span>
-                                <button onclick="moderateThread('${t.id}', 'approve')" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-1.5">
-                                    <i class="fa-solid fa-check"></i> Одобрить
-                                </button>
-                                <button onclick="moderateThread('${t.id}', 'reject')" class="px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition flex items-center gap-1.5">
-                                    <i class="fa-solid fa-xmark"></i> Отклонить
-                                </button>
-                                <button onclick="moderateThread('${t.id}', 'pending')" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-semibold text-xs transition">
-                                    На рассмотрение
-                                </button>
-                                <button onclick="moderateThread('${t.id}', 'pin')" class="px-3 py-1.5 rounded-xl bg-vh-bg hover:bg-vh-cardHover text-gray-200 border border-vh-border font-semibold text-xs transition flex items-center gap-1.5">
-                                    <i class="fa-solid fa-thumbtack text-amber-400"></i> ${t.isPinned ? 'Открепить' : 'Закрепить'}
-                                </button>
-                                <button onclick="moderateThread('${t.id}', 'delete')" class="px-3 py-1.5 rounded-xl bg-vh-bg hover:bg-red-950 text-red-400 border border-vh-border font-semibold text-xs transition ml-auto">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                                <span class="text-xs font-bold text-vh-muted mr-1"><i class="fa-solid fa-gavel text-amber-400 mr-1"></i>Управление темой:</span>
+                                ${canReviewThis ? `
+                                    <button onclick="moderateThread('${t.id}', 'approve')" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-1.5">
+                                        <i class="fa-solid fa-check"></i> Одобрить
+                                    </button>
+                                    <button onclick="moderateThread('${t.id}', 'reject')" class="px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition flex items-center gap-1.5">
+                                        <i class="fa-solid fa-xmark"></i> Отказано
+                                    </button>
+                                    <button onclick="moderateThread('${t.id}', 'pending')" class="px-3.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-semibold text-xs transition">
+                                        На рассмотрение
+                                    </button>
+                                ` : ''}
+                                ${canPinOrDelete ? `
+                                    <button onclick="moderateThread('${t.id}', 'pin')" class="px-3.5 py-1.5 rounded-xl bg-vh-bg hover:bg-vh-cardHover text-gray-200 border border-vh-border font-semibold text-xs transition flex items-center gap-1.5">
+                                        <i class="fa-solid fa-thumbtack text-amber-400"></i> ${t.isPinned ? 'Открепить' : 'Закрепить'}
+                                    </button>
+                                    <button onclick="moderateThread('${t.id}', 'delete')" class="px-3.5 py-1.5 rounded-xl bg-vh-bg hover:bg-red-950 text-red-400 border border-vh-border font-semibold text-xs transition ml-auto">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                ` : ''}
                             </div>
                         ` : ''}
                     </div>
 
-                    <!-- Первый пост (Сама анкета / жалоба / тема) -->
                     <article class="bg-vh-card border border-vh-border rounded-2xl overflow-hidden">
                         <div class="grid grid-cols-1 md:grid-cols-12">
-                            <!-- Карточка автора слева -->
                             <div class="md:col-span-3 bg-[#141720] p-4 sm:p-5 border-b md:border-b-0 md:border-r border-vh-border flex md:flex-col items-center md:text-center gap-3">
-                                <div onclick="openUserProfile('${t.authorUid}')" class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-black font-extrabold flex items-center justify-center text-lg md:text-xl cursor-pointer overflow-hidden shrink-0">
-                                    ${author?.avatar ? `<img src="${escapeHtml(author.avatar)}" class="w-full h-full object-cover">` : escapeHtml((author?.nickname || 'PL').slice(0, 2).toUpperCase())}
+                                <div onclick="openUserProfile('${t.authorUid}')" class="w-12 h-12 md:w-16 md:h-16 rounded-full ${getAvatarColor(t.authorUid)} text-white font-extrabold flex items-center justify-center text-lg md:text-xl cursor-pointer overflow-hidden shrink-0">
+                                    ${author?.avatar ? `<img src="${escapeHtml(author.avatar)}" class="w-full h-full object-cover">` : escapeHtml((author?.nickname || 'P').slice(0, 1).toUpperCase())}
                                 </div>
                                 <div class="min-w-0">
                                     <div onclick="openUserProfile('${t.authorUid}')" class="text-sm font-bold text-white hover:text-amber-400 cursor-pointer truncate">
@@ -1824,13 +2318,12 @@
                                         <i class="fa-solid ${authorRole.icon}"></i> ${authorRole.name}
                                     </span>
                                     <div class="hidden md:block text-[11px] text-vh-muted mt-3 space-y-1">
-                                        <div>Рейтинг: <span class="text-amber-400 font-bold">${author?.rating || 0}</span></div>
+                                        <div>Репутация: <span class="text-amber-400 font-bold">${author?.rating || 0}</span></div>
                                         <div>Публикаций: <span class="text-white font-semibold">${author?.postsCount || 0}</span></div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Содержимое анкеты или текста -->
                             <div class="md:col-span-9 p-5 sm:p-6 flex flex-col justify-between">
                                 <div>
                                     <div class="text-xs text-vh-muted mb-4 pb-2 border-b border-vh-border/60 flex justify-between">
@@ -1866,7 +2359,6 @@
                         </div>
                     </article>
 
-                    <!-- Ответы в теме -->
                     <div class="space-y-4">
                         ${replies.map((p, index) => {
                             const pAuthor = state.users[p.authorUid];
@@ -1877,8 +2369,8 @@
                                 <div class="border ${verdictBorder} rounded-2xl overflow-hidden">
                                     <div class="grid grid-cols-1 md:grid-cols-12">
                                         <div class="md:col-span-3 bg-[#141720]/80 p-4 border-b md:border-b-0 md:border-r border-vh-border flex md:flex-col items-center md:text-center gap-3">
-                                            <div onclick="openUserProfile('${p.authorUid}')" class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-amber-500/20 text-amber-400 font-bold flex items-center justify-center text-sm cursor-pointer overflow-hidden shrink-0">
-                                                ${pAuthor?.avatar ? `<img src="${escapeHtml(pAuthor.avatar)}" class="w-full h-full object-cover">` : escapeHtml((pAuthor?.nickname || 'PL').slice(0, 2).toUpperCase())}
+                                            <div onclick="openUserProfile('${p.authorUid}')" class="w-10 h-10 md:w-12 md:h-12 rounded-full ${getAvatarColor(p.authorUid)} text-white font-bold flex items-center justify-center text-sm cursor-pointer overflow-hidden shrink-0">
+                                                ${pAuthor?.avatar ? `<img src="${escapeHtml(pAuthor.avatar)}" class="w-full h-full object-cover">` : escapeHtml((pAuthor?.nickname || 'P').slice(0, 1).toUpperCase())}
                                             </div>
                                             <div>
                                                 <div onclick="openUserProfile('${p.authorUid}')" class="text-xs sm:text-sm font-bold text-white hover:text-amber-400 cursor-pointer">
@@ -1902,14 +2394,13 @@
                         }).join('')}
                     </div>
 
-                    <!-- Форма ответа -->
                     <div class="bg-vh-card border border-vh-border rounded-2xl p-5">
                         ${!state.currentUserProfile ? `
                             <div class="text-center py-3">
                                 <p class="text-xs text-vh-muted mb-3">Войдите в аккаунт, чтобы оставлять ответы в этой теме.</p>
                                 <button onclick="openModal('auth-modal')" class="px-5 py-2 rounded-xl bg-amber-500 text-black font-bold text-xs">Войти / Регистрация</button>
                             </div>
-                        ` : (t.isLocked && !isStaffMod ? `
+                        ` : (t.isLocked && getUserLevel() < 3 ? `
                             <div class="text-center py-2 text-xs text-vh-muted">
                                 <i class="fa-solid fa-lock text-amber-400 mr-1.5"></i> Тема закрыта для дальнейших ответов.
                             </div>
@@ -1935,7 +2426,6 @@
             renderMainView();
         }
 
-        // Начальный рендер
         renderAll();
     </script>
 </body>
