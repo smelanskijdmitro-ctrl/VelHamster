@@ -371,7 +371,7 @@
                     <input type="password" id="auth-password" required minlength="6" placeholder="Минимум 6 символов" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
 
-                <!-- Чекбоксы согласия с правилами и рассылкой (как на скриншотах) -->
+                <!-- Чекбоксы согласия с правилами и рассылкой -->
                 <div id="register-agreements" class="hidden space-y-2.5 pt-2">
                     <label class="flex items-start gap-2.5 cursor-pointer select-none">
                         <input type="checkbox" id="auth-agree-rules" class="mt-0.5 w-4 h-4 rounded accent-amber-500 bg-vh-bg border-vh-border">
@@ -413,7 +413,7 @@
                 <input type="hidden" id="editing-thread-id">
                 <div id="dynamic-thread-fields" class="space-y-4"></div>
 
-                <!-- Блок прикрепления изображений / скриншотов (как на скриншоте) -->
+                <!-- Блок прикрепления изображений / скриншотов -->
                 <div id="thread-attachments-wrapper" class="pt-2">
                     <label class="block text-xs font-bold text-gray-300 mb-1.5">Прикрепить скриншоты или изображения (необязательно)</label>
                     <div onclick="document.getElementById('thread-file-input').click()" ondragover="event.preventDefault()" ondrop="handleFileDrop(event, 'thread')" class="border border-dashed border-vh-border hover:border-amber-500/60 bg-vh-bg/70 rounded-xl p-4 cursor-pointer transition flex items-center justify-between gap-3">
@@ -442,7 +442,7 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО: ОТПРАВКА ЛИЧНОГО СООБЩЕНИЯ (КАК НА СКРИНШОТАХ) -->
+    <!-- МОДАЛЬНОЕ ОКНО: ОТПРАВКА ЛИЧНОГО СООБЩЕНИЯ -->
     <div id="compose-dm-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
         <div class="bg-vh-card border border-vh-border rounded-2xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl relative my-4 sm:my-8 max-h-[92vh] overflow-y-auto">
             <button onclick="closeModal('compose-dm-modal')" class="absolute top-3.5 right-3.5 text-vh-muted hover:text-white p-2">
@@ -489,14 +489,19 @@
                         <button type="button" onclick="execDmFormat('underline')" class="w-8 h-8 rounded-lg bg-vh-card hover:bg-amber-500 hover:text-black text-gray-200 text-xs font-bold transition"><i class="fa-solid fa-underline"></i></button>
                         <button type="button" onclick="execDmFormat('insertUnorderedList')" class="w-8 h-8 rounded-lg bg-vh-card hover:bg-amber-500 hover:text-black text-gray-200 text-xs font-bold transition"><i class="fa-solid fa-list-ul"></i></button>
                         <div class="h-5 w-px bg-vh-border mx-1"></div>
-                        ${['👋', '🔥', '✅', '❓', '📸', '🙏', '👑', '⚡'].map(em => `
-                            <button type="button" onclick="insertDmEmoji('${em}')" class="w-7 h-7 rounded-lg hover:bg-vh-cardHover flex items-center justify-center text-sm transition">${em}</button>
-                        `).join('')}
+                        <button type="button" onclick="insertDmEmoji('👋')" class="w-7 h-7 rounded-lg hover:bg-vh-cardHover flex items-center justify-center text-sm transition">👋</button>
+                        <button type="button" onclick="insertDmEmoji('🔥')" class="w-7 h-7 rounded-lg hover:bg-vh-cardHover flex items-center justify-center text-sm transition">🔥</button>
+                        <button type="button" onclick="insertDmEmoji('✅')" class="w-7 h-7 rounded-lg hover:bg-vh-cardHover flex items-center justify-center text-sm transition">✅</button>
+                        <button type="button" onclick="insertDmEmoji('❓')" class="w-7 h-7 rounded-lg hover:bg-vh-cardHover flex items-center justify-center text-sm transition">❓</button>
+                        <button type="button" onclick="insertDmEmoji('📸')" class="w-7 h-7 rounded-lg hover:bg-vh-cardHover flex items-center justify-center text-sm transition">📸</button>
+                        <button type="button" onclick="insertDmEmoji('🙏')" class="w-7 h-7 rounded-lg hover:bg-vh-cardHover flex items-center justify-center text-sm transition">🙏</button>
+                        <button type="button" onclick="insertDmEmoji('👑')" class="w-7 h-7 rounded-lg hover:bg-vh-cardHover flex items-center justify-center text-sm transition">👑</button>
+                        <button type="button" onclick="insertDmEmoji('⚡')" class="w-7 h-7 rounded-lg hover:bg-vh-cardHover flex items-center justify-center text-sm transition">⚡</button>
                     </div>
                     <div id="dm-rich-editor" contenteditable="true" class="min-h-[150px] max-h-[280px] overflow-y-auto w-full px-4 py-3 rounded-b-xl bg-vh-bg border-x border-b border-vh-border text-sm text-gray-200 focus:border-amber-500 focus:outline-none release-rich-content"></div>
                 </div>
 
-                <!-- Прикрепление фото в ЛС (как на скриншоте) -->
+                <!-- Прикрепление фото в ЛС -->
                 <div>
                     <div onclick="document.getElementById('dm-file-input').click()" ondragover="event.preventDefault()" ondrop="handleFileDrop(event, 'dm')" class="border border-dashed border-vh-border hover:border-amber-500/60 bg-vh-bg/70 rounded-xl p-4 cursor-pointer transition flex items-center justify-between gap-3">
                         <div class="flex items-center gap-3">
@@ -1255,7 +1260,7 @@
                     rating: 0,
                     repVoters: {},
                     followers: [], // Подписчики (для Главного Ютубера и Администрации)
-                    followEvents: [], // Лог подписок (как на скриншоте)
+                    followEvents: [], // Лог подписок
                     rulesAccepted: extraFlags.rulesAccepted || false,
                     rulesAcceptedAt: extraFlags.rulesAccepted ? Date.now() : 0,
                     subscribeNews: extraFlags.subscribeNews !== undefined ? extraFlags.subscribeNews : true,
@@ -2459,7 +2464,7 @@
             const canDeleteUser = viewer && viewerLevel === 7 && !isSelf;
             const hasSettingsAccess = isSelf || canManageRole || canManageBan || canDeleteUser;
 
-            // Лента профиля (включая события подписок для Ютубера и Администрации, как на скриншоте)
+            // Лента профиля (включая события подписок для Ютубера и Администрации)
             const combinedActivity = [
                 ...(isMediaOrAdminProfile ? followEvents.map(fe => ({ type: 'follow', createdAt: fe.createdAt || 0, data: fe })) : []),
                 ...userThreads.map(t => ({ type: 'thread', createdAt: t.createdAt || 0, data: t })),
@@ -2646,7 +2651,7 @@
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                         <div class="lg:col-span-4 space-y-5">
                             ${isMediaOrAdminProfile ? `
-                                <!-- Плашка достижения (как на скриншоте Ютубера) -->
+                                <!-- Плашка достижения -->
                                 <div class="bg-vh-card border border-vh-border rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-3">
                                     <div>
                                         <div class="text-sm font-extrabold text-white">${targetRole.name} VelHamster</div>
@@ -2694,7 +2699,7 @@
                                 </div>
 
                                 ${isMediaOrAdminProfile ? `
-                                    <!-- Блок подписчиков (как на скриншоте Ютубера) -->
+                                    <!-- Блок подписчиков -->
                                     <div class="p-4 sm:p-5 flex items-center justify-between gap-2">
                                         <div class="flex items-center gap-3.5">
                                             <div class="w-10 h-10 rounded-xl bg-vh-bg text-vh-muted flex items-center justify-center text-lg">
