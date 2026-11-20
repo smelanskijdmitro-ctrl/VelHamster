@@ -565,6 +565,55 @@
         </div>
     </div>
 
+    <!-- МОДАЛЬНОЕ ОКНО: СОЗДАНИЕ НОВОГО РАЗДЕЛА / ТЕМЫ ФОРУМА (ДЛЯ ГЛАВНОГО ТЕХ. АДМИНА) -->
+    <div id="create-section-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-vh-card border border-vh-border rounded-2xl max-w-xl w-full p-5 sm:p-6 shadow-2xl relative my-6">
+            <button onclick="closeModal('create-section-modal')" class="absolute top-4 right-4 text-vh-muted hover:text-white p-2">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="mb-4">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/40 mb-2">
+                    Панель Главного Тех. Админа
+                </span>
+                <h2 class="text-lg sm:text-xl font-extrabold text-white">Создать новый раздел / тему на форуме</h2>
+                <p class="text-xs text-vh-muted mt-1">Выберите блок и назначение темы (подача заявок, идей, жалоб или свободные посты).</p>
+            </div>
+            <form onsubmit="submitNewCustomSection(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 mb-1">Блок на главной странице</label>
+                    <select id="sec-group-select" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                        <option value="Основной раздел">Основной раздел</option>
+                        <option value="Игра VelHamster">Игра VelHamster</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 mb-1">Название раздела / темы</label>
+                    <input type="text" id="sec-title-input" required minlength="3" placeholder="Например: Подать заявку на идеи" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 mb-1">Описание</label>
+                    <input type="text" id="sec-desc-input" required placeholder="Краткое описание, для чего предназначен этот раздел..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 mb-1">Для чего предназначен (форма создания публикаций)</label>
+                    <select id="sec-type-select" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                        <option value="idea">Для подачи идей и предложений (статус «На рассмотрении»)</option>
+                        <option value="application">Для подачи заявок / анкет (форма анкеты)</option>
+                        <option value="complaint">Для подачи жалоб (форма жалобы с доказательствами)</option>
+                        <option value="standard">Обычные посты и обсуждения</option>
+                        <option value="release">Новости / Релизы (только администрация)</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2.5 pt-3 border-t border-vh-border">
+                    <button type="button" onclick="closeModal('create-section-modal')" class="px-4 py-2.5 rounded-xl bg-vh-bg text-xs font-bold text-gray-300 border border-vh-border">Отмена</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs sm:text-sm transition shadow-lg shadow-amber-500/20">
+                        Создать раздел
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- FIREBASE ЛОГИКА И ДВИЖОК ФОРУМА -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -572,6 +621,8 @@
             getAuth, 
             GoogleAuthProvider, 
             OAuthProvider,
+            EmailAuthProvider,
+            reauthenticateWithCredential,
             signInWithPopup, 
             signInWithEmailAndPassword, 
             createUserWithEmailAndPassword,
@@ -631,84 +682,185 @@
         const postsCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'posts');
         const messagesCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'direct_messages');
         const invitesCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'staff_invites');
+        const customSectionsCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'custom_sections');
 
         // =========================================================================
         // 2. ОБНОВЛЁННАЯ ИЕРАРХИЯ ДОЛЖНОСТЕЙ (Включая Главный Ютубер и Основатель)
         // =========================================================================
         const ROLES = {
-            guest: {
-                name: 'Гость',
-                plural: 'Гости',
-                level: 0,
-                badge: 'bg-gray-700/60 text-gray-300 border-gray-600',
-                nameColor: 'text-gray-300',
-                icon: 'fa-user'
-            },
-            player: {
-                name: 'Игрок',
-                plural: 'Игроки',
-                level: 1,
-                badge: 'bg-slate-700/70 text-slate-200 border-slate-600',
-                nameColor: 'text-slate-200',
-                icon: 'fa-gamepad'
-            },
-            helper: {
-                name: 'Хелпер',
-                plural: 'Хелперы',
-                level: 2,
-                badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-                nameColor: 'text-emerald-400',
-                icon: 'fa-life-ring'
-            },
-            youtuber: {
-                name: 'Главный Ютубер',
-                plural: 'Медиа и Ютуберы',
-                level: 2.5,
-                badge: 'bg-pink-500/20 text-pink-300 border-pink-500/45 badge-shine',
-                nameColor: 'text-pink-400',
-                icon: 'fa-video'
-            },
-            moderator: {
-                name: 'Модератор',
-                plural: 'Модераторы',
-                level: 3,
-                badge: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
-                nameColor: 'text-blue-400',
-                icon: 'fa-shield-halved'
-            },
-            sr_moderator: {
-                name: 'Старший модератор',
-                plural: 'Старшие модераторы',
-                level: 4,
-                badge: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 badge-shine',
-                nameColor: 'text-cyan-400',
-                icon: 'fa-user-shield'
-            },
-            admin: {
-                name: 'Администратор',
-                plural: 'Администраторы',
-                level: 5,
-                badge: 'bg-red-500/25 text-red-300 border-red-500/50 badge-shine',
-                nameColor: 'text-red-400',
-                icon: 'fa-crown'
-            },
-            founder: {
-                name: 'Основатель',
-                plural: 'Основатели',
-                level: 6,
-                badge: 'bg-gradient-to-r from-red-500/35 to-orange-500/35 text-orange-300 border-red-400/60 badge-shine',
-                nameColor: 'text-red-500',
-                icon: 'fa-gem'
-            },
-            tech_admin: {
-                name: 'Главный Тех. Админ',
-                plural: 'Главные Тех. Администраторы',
-                level: 7,
-                badge: 'bg-gradient-to-r from-purple-500/35 to-amber-500/35 text-amber-300 border-purple-400/60 badge-shine',
-                nameColor: 'text-purple-400',
-                icon: 'fa-screwdriver-wrench'
-            }
+            guest: { name: 'Гость', plural: 'Гости', level: 0, icon: 'fa-user', badge: 'bg-gray-700/40 text-gray-300 border-gray-600', nameColor: 'text-gray-300' },
+            player: { name: 'Игрок', plural: 'Игроки', level: 1, icon: 'fa-gamepad', badge: 'bg-sky-500/15 text-sky-300 border-sky-500/30', nameColor: 'text-sky-300' },
+            helper: { name: 'Хелпер', plural: 'Хелперы', level: 2, icon: 'fa-headset', badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30', nameColor: 'text-emerald-400' },
+            youtuber: { name: 'Главный Ютубер', plural: 'Главные Ютуберы', level: 2.5, icon: 'fa-video', badge: 'bg-pink-500/20 text-pink-300 border-pink-500/40', nameColor: 'text-pink-400' },
+            moderator: { name: 'Модератор', plural: 'Модераторы', level: 3, icon: 'fa-shield', badge: 'bg-blue-500/20 text-blue-300 border-blue-500/40', nameColor: 'text-blue-400' },
+            sr_moderator: { name: 'Старший модератор', plural: 'Старшие модераторы', level: 4, icon: 'fa-shield-halved', badge: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40', nameColor: 'text-indigo-400' },
+            admin: { name: 'Администратор', plural: 'Администраторы', level: 5, icon: 'fa-crown', badge: 'bg-red-500/20 text-red-300 border-red-500/40', nameColor: 'text-red-400' },
+            founder: { name: 'Основатель', plural: 'Основатели', level: 6, icon: 'fa-gem', badge: 'bg-amber-500/20 text-amber-300 border-amber-500/40', nameColor: 'text-amber-400' },
+            tech_admin: { name: 'Главный Тех. Админ', plural: 'Главные Тех. Админы', level: 7, icon: 'fa-terminal', badge: 'bg-purple-500/25 text-purple-300 border-purple-500/50', nameColor: 'text-purple-400' }
         };
+
+        // 4. РАЗДЕЛЫ ФОРУМА (ОСНОВНОЙ РАЗДЕЛ И ИГРА VELHAMSTER)
+        // =========================================================================
+        const DEFAULT_CATEGORIES = [
+            // --- БЛОК 1: ОСНОВНОЙ РАЗДЕЛ ---
+            {
+                id: 'tech_section',
+                group: 'Основной раздел',
+                title: 'Технический раздел',
+                desc: 'Нашли баг, ошибки или у вас есть идея для проекта? Вам сюда!',
+                icon: 'fa-screwdriver-wrench',
+                iconBg: 'bg-amber-500/20 text-amber-400',
+                minCreateLevel: 1,
+                minReviewLevel: 3,
+                formType: 'idea',
+                defaultStatus: 'pending',
+                slaNotice: 'Опишите найденный баг, ошибку или вашу идею по улучшению проекта VelHamster. Команда рассмотрит обращение.'
+            },
+            {
+                id: 'rules_staff',
+                group: 'Основной раздел',
+                title: 'Правила Персонала',
+                desc: 'Официальный внутренний регламент и кодекс поведения для команды проекта.',
+                icon: 'fa-user-shield',
+                iconBg: 'bg-purple-500/20 text-purple-400',
+                minCreateLevel: 5,
+                minReviewLevel: 5,
+                formType: 'rules',
+                ruleKey: 'staff',
+                defaultStatus: 'important'
+            },
+            {
+                id: 'rules_forum',
+                group: 'Основной раздел',
+                title: 'Правила Форума',
+                desc: 'Обязательный свод правил поведения, регистрации и публикаций на форуме VelHamster.',
+                icon: 'fa-book-open',
+                iconBg: 'bg-red-500/20 text-red-400',
+                minCreateLevel: 5,
+                minReviewLevel: 5,
+                formType: 'rules',
+                ruleKey: 'forum',
+                defaultStatus: 'important'
+            },
+            {
+                id: 'forum_admin_complaints',
+                group: 'Основной раздел',
+                title: 'Жалобы на Администрацию ФОРУМА',
+                desc: 'Подача жалоб на действия и решения Администрации ФОРУМА.',
+                icon: 'fa-gavel',
+                iconBg: 'bg-rose-500/20 text-rose-400',
+                minCreateLevel: 1,
+                minReviewLevel: 5,
+                formType: 'forum_admin_complaint',
+                defaultStatus: 'pending',
+                pinnedGuideHtml: `
+                    <div class="bg-[#181b23] border border-amber-500/40 rounded-2xl p-5 sm:p-6 space-y-4 shadow-xl">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="px-2.5 py-0.5 rounded text-[11px] font-extrabold uppercase bg-rose-600 text-white">важно</span>
+                            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40"><i class="fa-solid fa-thumbtack mr-1"></i>Закреплено</span>
+                            <h3 class="text-base sm:text-lg font-extrabold text-white">Форма для подачи Жалобы на Администрацию ФОРУМА</h3>
+                        </div>
+                        <div class="bg-vh-bg/90 border border-vh-border rounded-xl p-4 text-xs sm:text-sm text-gray-200 space-y-1.5 font-medium">
+                            <div class="text-center font-extrabold text-white pb-2">Форма подачи Жалобы на Администрацию Форума.</div>
+                            <p>1. Ваш ник:</p>
+                            <p>2. Ник нарушителя (представителя форума):</p>
+                            <p>3. Суть нарушения / ошибки администратора:</p>
+                            <p>4. Когда это произошло / происходит:</p>
+                            <p>5. Что должен был сделать? (Администрация форума):</p>
+                            <p>6. Доказательства о нарушении (фото/видео):</p>
+                            <p>7. Дополнительный комментарий, ссылка на жалобу (если есть):</p>
+                        </div>
+                        <div class="space-y-2 text-xs text-gray-300">
+                            <div class="font-extrabold text-amber-400">Важно:</div>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li><span class="text-red-400 font-bold">Запрещено</span> флудить жалобами (Вам заблокируют доступ к форуму).</li>
+                                <li><span class="text-red-400 font-bold">Запрещено</span> делать фейк/ненастоящие доказательства против администрации, попытка слива/снятия таким путём.</li>
+                                <li>Администрация имеет право не говорить причину отказа.</li>
+                                <li>Вашу жалобу могут рассматривать от <span class="text-red-400 font-bold">1</span> часа до 30 <span class="text-red-400 font-bold">дней</span>.</li>
+                                <li>Жалобы не по теме данного раздела могут быть удалены и владелец жалобы наказан на рассмотрение администратора.</li>
+                                <li>Если вашу жалобу удалили в данном разделе вердикт - «Отказано».</li>
+                                <li class="text-emerald-400 font-semibold">Жалобы на высшую администрацию принимаются к рассмотрению в том случае: Вашу жалобу долго рассматривают и превысили сроки назначенного времени по правилам.</li>
+                            </ul>
+                        </div>
+                        <div class="text-center pt-2 border-t border-vh-border text-xs space-y-1">
+                            <div class="font-extrabold text-amber-400">Дополнительная информация:</div>
+                            <p class="text-red-400 font-semibold">Если вашу жалобу удалили, хотя вы её заполнили корректно и забанили вас неправильно. Вы можете подать жалобу в данный раздел, указав ссылку на жалобу, дату подачи и название темы.</p>
+                        </div>
+                    </div>
+                `
+            },
+
+            // --- БЛОК 2: ИГРА VELHAMSTER ---
+            {
+                id: 'rules_game',
+                group: 'Игра VelHamster',
+                title: 'Правила проекта VelHamster',
+                desc: 'Основные правила честной игры и поведения на серверах и в проектах VelHamster.',
+                icon: 'fa-gamepad',
+                iconBg: 'bg-sky-500/20 text-sky-400',
+                minCreateLevel: 5,
+                minReviewLevel: 5,
+                formType: 'rules',
+                ruleKey: 'game',
+                defaultStatus: 'important'
+            },
+            {
+                id: 'applications',
+                group: 'Игра VelHamster',
+                title: 'Набор в состав проекта',
+                desc: 'Создавайте анкеты, чтобы попасть в состав Хелперов или Модераторов проекта VelHamster.',
+                icon: 'fa-file-signature',
+                iconBg: 'bg-emerald-500/20 text-emerald-400',
+                minCreateLevel: 1,
+                minReviewLevel: 4,
+                formType: 'application',
+                defaultStatus: 'pending',
+                slaNotice: 'Срок рассмотрения анкеты составляет от 1 часа до 7 дней. Повторная отправка анкеты до ответа приводит к отказу.'
+            },
+            {
+                id: 'complaints_hub',
+                group: 'Игра VelHamster',
+                title: 'Жалобы на администрацию или игроков',
+                desc: 'Вас забанили нечестно, или вы выдали наказание другому игроку? Обязательно зайдите в данный раздел!',
+                icon: 'fa-gavel',
+                iconBg: 'bg-orange-500/20 text-orange-400',
+                isHub: true,
+                subcategories: ['game_player_complaints', 'game_admin_complaints']
+            },
+            // Подразделы внутри «Жалобы на администрацию или игроков» (по скриншоту)
+            {
+                id: 'game_player_complaints',
+                parentId: 'complaints_hub',
+                group: 'Игра VelHamster',
+                title: 'Жалобы на игроков.',
+                desc: 'Вас забанил донатер, или вы успели заснять игрока, использующего читы? Тогда оставляйте жалобу здесь.',
+                icon: 'fa-gavel',
+                iconBg: 'bg-orange-500/20 text-orange-400',
+                minCreateLevel: 1,
+                minReviewLevel: 3,
+                formType: 'complaint',
+                defaultStatus: 'pending',
+                slaNotice: 'Прикрепите никнейм нарушителя, суть нарушения и видео/скриншоты доказательств.'
+            },
+            {
+                id: 'game_admin_complaints',
+                parentId: 'complaints_hub',
+                group: 'Игра VelHamster',
+                title: 'Жалобы на Администрацию.',
+                desc: 'Жалобы на состав проекта, а именно, модераторов, хелперов.',
+                icon: 'fa-gavel',
+                iconBg: 'bg-orange-500/20 text-orange-400',
+                minCreateLevel: 1,
+                minReviewLevel: 4,
+                formType: 'admin_complaint',
+                defaultStatus: 'pending',
+                slaNotice: 'Жалобы на модераторов и хелперов рассматриваются Старшей модерацией и Администрацией проекта.'
+            }
+        ];
+
+        function getAllCategories() {
+            return [...DEFAULT_CATEGORIES, ...(state.customCategories || [])];
+        }
 
         // =========================================================================
         // 3. ВСТРОЕННЫЕ СВОДЫ ПРАВИЛ (ФОРУМА, ИГРЫ, ПЕРСОНАЛА)
@@ -993,6 +1145,7 @@
             threads: [],
             posts: [],
             messages: [],
+            customCategories: [],
             view: 'home', // 'home' | 'category' | 'thread' | 'profile' | 'activity' | 'moderators' | 'messages' | 'settings' | 'followed' | 'ignored' | 'attachments'
             activeCategoryId: null,
             activeRuleSubpage: 'forum',
@@ -1490,16 +1643,17 @@
             renderAll();
         });
 
-        // =========================================================================
-        // 8. ПОДТВЕРЖДЕНИЕ ПРОЧТЕНИЯ ПРАВИЛ И РАССЫЛКА
-        // =========================================================================
+        onSnapshot(customSectionsCol, (snapshot) => {
+            const list = [];
+            snapshot.forEach(d => { list.push({ id: d.id, ...d.data() }); });
+            list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+            state.customCategories = list;
+            renderAll();
+        });
+
         window.acceptForumRules = async () => {
             const me = state.currentUserProfile;
-            if (!me) {
-                openModal('auth-modal');
-                showToast('Войдите в аккаунт, чтобы подтвердить ознакомление с правилами.', 'warning');
-                return;
-            }
+            if (!me) { openModal('auth-modal'); return; }
             try {
                 await updateDoc(doc(usersCol, me.uid), {
                     rulesAccepted: true,
@@ -1794,6 +1948,10 @@
             if (dmDrop && !e.target.closest('#dm-recipients-box') && !e.target.closest('#dm-autocomplete-dropdown')) {
                 dmDrop.classList.add('hidden');
             }
+            const ignoreDrop = document.getElementById('ignore-autocomplete-dropdown');
+            if (ignoreDrop && !e.target.closest('#ignore-user-picker-wrapper')) {
+                ignoreDrop.classList.add('hidden');
+            }
         });
 
         window.toggleUserDropdown = (e) => {
@@ -1938,24 +2096,41 @@
 
         window.changeAccountPassword = async (e) => {
             e.preventDefault();
+            const currentPass = document.getElementById('settings-current-pass')?.value || '';
             const p1 = document.getElementById('settings-new-pass')?.value || '';
             const p2 = document.getElementById('settings-confirm-pass')?.value || '';
+
+            if (!currentPass) {
+                showToast('Введите ваш текущий пароль для подтверждения!', 'error');
+                return;
+            }
             if (p1.length < 6) {
-                showToast('Пароль должен содержать минимум 6 символов.', 'error');
+                showToast('Новый пароль должен содержать минимум 6 символов.', 'error');
                 return;
             }
             if (p1 !== p2) {
-                showToast('Новые пароли не совпадают!', 'error');
+                showToast('Новые пароли не совпадают! Повторите новый пароль точно.', 'error');
                 return;
             }
-            if (!state.authUser) return;
+            if (!state.authUser || !state.authUser.email) {
+                showToast('Смена пароля недоступна для текущего способа входа.', 'error');
+                return;
+            }
+
             try {
+                const credential = EmailAuthProvider.credential(state.authUser.email, currentPass);
+                await reauthenticateWithCredential(state.authUser, credential);
                 await updatePassword(state.authUser, p1);
+                document.getElementById('settings-current-pass').value = '';
                 document.getElementById('settings-new-pass').value = '';
                 document.getElementById('settings-confirm-pass').value = '';
                 showToast('Пароль аккаунта успешно изменён!', 'success');
             } catch (err) {
-                showToast('Ошибка смены пароля (попробуйте перезайти в аккаунт): ' + err.message, 'error');
+                if (err?.code === 'auth/wrong-password' || err?.code === 'auth/invalid-credential') {
+                    showToast('Неверный текущий пароль! Проверьте правильность ввода.', 'error');
+                } else {
+                    showToast('Ошибка смены пароля: ' + err.message, 'error');
+                }
             }
         };
 
@@ -2000,6 +2175,14 @@
                 showToast('Пользователь с таким никнеймом не найден.', 'error');
                 return;
             }
+            await addIgnoredUserByUid(found.uid);
+        };
+
+        window.addIgnoredUserByUid = async (targetUid) => {
+            const me = state.currentUserProfile;
+            if (!me) return;
+            const found = state.users[targetUid];
+            if (!found) return;
             if (found.uid === me.uid) {
                 showToast('Нельзя добавить самого себя в список игнорируемых.', 'warning');
                 return;
@@ -2012,11 +2195,59 @@
             ignored.push(found.uid);
             try {
                 await updateDoc(doc(usersCol, me.uid), { ignoredUsers: ignored });
-                document.getElementById('ignore-nick-input').value = '';
+                const inp = document.getElementById('ignore-nick-input');
+                if (inp) inp.value = '';
+                const drop = document.getElementById('ignore-autocomplete-dropdown');
+                if (drop) drop.classList.add('hidden');
                 showToast(`Пользователь ${found.nickname} добавлен в список игнорируемых.`, 'success');
             } catch (err) {
                 showToast('Ошибка: ' + err.message, 'error');
             }
+        };
+
+        window.handleIgnoreUserSearch = (query = '') => {
+            const dropdown = document.getElementById('ignore-autocomplete-dropdown');
+            if (!dropdown) return;
+            const q = (query || '').trim().toLowerCase();
+            const me = state.currentUserProfile;
+            const alreadyIgnored = Array.isArray(me?.ignoredUsers) ? me.ignoredUsers : [];
+
+            const candidates = Object.values(state.users).filter(u =>
+                u.uid !== me?.uid &&
+                !alreadyIgnored.includes(u.uid) &&
+                (!q || (u.nickname || '').toLowerCase().includes(q))
+            );
+
+            candidates.sort((a, b) => {
+                const aStarts = q && (a.nickname || '').toLowerCase().startsWith(q) ? 0 : 1;
+                const bStarts = q && (b.nickname || '').toLowerCase().startsWith(q) ? 0 : 1;
+                return aStarts - bStarts || (a.nickname || '').localeCompare(b.nickname || '');
+            });
+
+            if (candidates.length === 0) {
+                dropdown.innerHTML = `<div class="p-3.5 text-xs text-vh-muted">Нет доступных пользователей для добавления</div>`;
+                dropdown.classList.remove('hidden');
+                return;
+            }
+
+            dropdown.innerHTML = candidates.map(u => {
+                const r = getRoleObj(u.role);
+                return `
+                    <div onclick="addIgnoredUserByUid('${u.uid}')" class="px-4 py-2.5 hover:bg-vh-cardHover cursor-pointer flex items-center justify-between gap-3 transition">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-8 h-8 rounded-full ${getAvatarColor(u.uid)} text-white font-bold text-xs flex items-center justify-center shrink-0 overflow-hidden">
+                                ${u.avatar ? `<img src="${escapeHtml(u.avatar)}" class="w-full h-full object-cover">` : escapeHtml((u.nickname || 'U').slice(0, 1).toUpperCase())}
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-sm font-bold text-white truncate">${escapeHtml(u.nickname)}</div>
+                                <div class="text-[11px] font-semibold ${r.nameColor}">${r.name}</div>
+                            </div>
+                        </div>
+                        <span class="text-[11px] font-bold text-amber-400 shrink-0">+ Выбрать</span>
+                    </div>
+                `;
+            }).join('');
+            dropdown.classList.remove('hidden');
         };
 
         window.removeIgnoredUser = async (targetUid) => {
@@ -3111,13 +3342,22 @@
 
             if (state.view === 'home') {
                 bc.innerHTML = `<span class="text-white font-semibold"><i class="fa-solid fa-house text-amber-400 mr-1.5"></i>Главная страница форума</span>`;
+                const btns = [];
+                if (getUserLevel() >= 7) {
+                    btns.push(`
+                        <button onclick="openModal('create-section-modal')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-xs font-extrabold transition flex items-center gap-1.5 shadow-lg shadow-amber-500/20">
+                            <i class="fa-solid fa-folder-plus"></i> Создать тему / раздел
+                        </button>
+                    `);
+                }
                 if (state.currentUserProfile && !state.currentUserProfile.isBanned) {
-                    actions.innerHTML = `
+                    btns.push(`
                         <button onclick="openComposeDmModal()" class="px-3.5 py-2 rounded-xl bg-vh-card hover:bg-vh-cardHover text-gray-200 border border-vh-border text-xs font-bold transition flex items-center gap-1.5">
                             <i class="fa-solid fa-envelope text-amber-400"></i> Написать администратору
                         </button>
-                    `;
+                    `);
                 }
+                actions.innerHTML = btns.join('');
             } else if (state.view === 'messages') {
                 bc.innerHTML = `
                     <button onclick="navigate('home')" class="hover:text-amber-400 transition"><i class="fa-solid fa-house mr-1"></i>Главная</button>
@@ -3189,37 +3429,52 @@
                     ${state.profileMode === 'content' ? `<span>/</span><span class="text-white font-semibold">Обзор контента</span>` : ''}
                 `;
             } else if (state.view === 'category') {
-                const cat = CATEGORIES.find(c => c.id === state.activeCategoryId);
-                const subMeta = state.activeCategoryId === 'rules' && state.activeRuleSubpage ? BUILTIN_RULES[state.activeRuleSubpage] : null;
+                const allCats = getAllCategories();
+                const cat = allCats.find(c => c.id === state.activeCategoryId);
+                const parentCat = cat?.parentId ? allCats.find(c => c.id === cat.parentId) : null;
                 bc.innerHTML = `
                     <button onclick="navigate('home')" class="hover:text-amber-400 transition"><i class="fa-solid fa-house mr-1"></i>Главная</button>
+                    ${parentCat ? `<span>/</span><button onclick="openCategory('${parentCat.id}')" class="hover:text-amber-400 transition">${escapeHtml(parentCat.title)}</button>` : ''}
                     <span>/</span>
-                    <button onclick="openCategory('${cat?.id}')" class="hover:text-amber-400 transition ${!subMeta ? 'text-white font-semibold' : ''}">${cat ? cat.title : 'Раздел'}</button>
-                    ${subMeta ? `<span>/</span><span class="text-white font-semibold">${subMeta.title}</span>` : ''}
+                    <span class="text-white font-semibold">${cat ? escapeHtml(cat.title) : 'Раздел'}</span>
                 `;
-                if (cat) {
+                if (cat && !cat.isHub) {
+                    const isSubCat = state.currentUserProfile && (state.currentUserProfile.followedCategories || []).includes(cat.id);
+                    const subBtnHtml = state.currentUserProfile ? `
+                        <button onclick="toggleFollowCategory('${cat.id}')" class="px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm font-bold transition flex items-center gap-1.5 ${isSubCat ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' : 'bg-vh-card hover:bg-vh-cardHover border-vh-border text-gray-200'}">
+                            <i class="fa-solid ${isSubCat ? 'fa-bell-slash' : 'fa-bell'} text-amber-400"></i>
+                            <span>${isSubCat ? 'Вы подписаны' : 'Подписаться'}</span>
+                        </button>
+                    ` : '';
+
                     if (!state.currentUserProfile) {
                         actions.innerHTML = `
                             <button onclick="openModal('auth-modal')" class="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/40 text-xs font-bold transition">
                                 <i class="fa-solid fa-lock mr-1.5"></i>Войдите, чтобы создать тему
                             </button>
                         `;
-                    } else if (getUserLevel() >= cat.minCreateLevel) {
-                        const btnLabel = cat.formType === 'release' ? 'Опубликовать релиз' : (cat.formType === 'application' ? 'Подать анкету' : (cat.formType === 'complaint' || cat.formType === 'admin_complaint' ? 'Подать жалобу' : (cat.formType === 'idea' ? 'Предложить идею' : 'Создать тему')));
+                    } else if (getUserLevel() >= (cat.minCreateLevel || 1)) {
+                        const btnLabel = cat.formType === 'release' ? 'Опубликовать релиз' : (cat.formType === 'application' ? 'Подать анкету' : (cat.formType === 'complaint' || cat.formType === 'admin_complaint' || cat.formType === 'forum_admin_complaint' ? 'Подать жалобу' : (cat.formType === 'idea' ? 'Предложить идею' : 'Создать новую тему')));
                         actions.innerHTML = `
+                            ${subBtnHtml}
                             <button onclick="openCreateThreadModal('${cat.id}')" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs sm:text-sm transition shadow-lg shadow-amber-500/20 flex items-center gap-2">
                                 <i class="fa-solid fa-plus"></i><span>${btnLabel}</span>
                             </button>
                         `;
+                    } else {
+                        actions.innerHTML = subBtnHtml;
                     }
                 }
             } else if (state.view === 'thread') {
                 const t = state.threads.find(item => item.id === state.activeThreadId);
-                const cat = CATEGORIES.find(c => c.id === t?.categoryId);
+                const allCats = getAllCategories();
+                const cat = allCats.find(c => c.id === t?.categoryId);
+                const parentCat = cat?.parentId ? allCats.find(c => c.id === cat.parentId) : null;
                 bc.innerHTML = `
                     <button onclick="navigate('home')" class="hover:text-amber-400 transition"><i class="fa-solid fa-house mr-1"></i>Главная</button>
+                    ${parentCat ? `<span>/</span><button onclick="openCategory('${parentCat.id}')" class="hover:text-amber-400 transition">${escapeHtml(parentCat.title)}</button>` : ''}
                     <span>/</span>
-                    <button onclick="openCategory('${cat?.id}')" class="hover:text-amber-400 transition">${cat ? cat.title : 'Раздел'}</button>
+                    <button onclick="openCategory('${cat?.id}')" class="hover:text-amber-400 transition">${cat ? escapeHtml(cat.title) : 'Раздел'}</button>
                     <span>/</span>
                     <span class="text-white font-semibold truncate max-w-[200px] sm:max-w-xs">${t ? escapeHtml(t.title) : 'Тема'}</span>
                 `;
@@ -3277,39 +3532,43 @@
             }
 
             if (state.view === 'home') {
-                const groups = [...new Set(CATEGORIES.map(c => c.group))];
+                const allCats = getAllCategories().filter(c => !c.parentId);
+                const groups = [...new Set(allCats.map(c => c.group))];
                 container.innerHTML = groups.map(groupName => {
-                    const groupCats = CATEGORIES.filter(c => c.group === groupName);
+                    const groupCats = allCats.filter(c => c.group === groupName);
                     return `
                         <section class="bg-vh-card border border-vh-border rounded-2xl overflow-hidden shadow-lg">
                             <div class="px-5 py-3.5 bg-[#1d212b] border-b border-vh-border flex items-center justify-between">
                                 <h2 class="text-sm font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-2">
                                     <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                                    ${groupName}
+                                    ${escapeHtml(groupName)}
                                 </h2>
                             </div>
                             <div class="divide-y divide-vh-border">
                                 ${groupCats.map(cat => {
-                                    const catThreads = state.threads.filter(t => t.categoryId === cat.id);
+                                    const targetCatIds = cat.isHub && Array.isArray(cat.subcategories) ? cat.subcategories : [cat.id];
+                                    const catThreads = state.threads.filter(t => targetCatIds.includes(t.categoryId));
                                     const pendingInCat = catThreads.filter(t => t.status === 'pending').length;
                                     const lastThread = catThreads[0];
                                     const lastAuthor = lastThread ? state.users[lastThread.authorUid] : null;
+                                    const canDeleteCustom = cat.isCustom && getUserLevel() >= 7;
 
                                     return `
                                         <div onclick="openCategory('${cat.id}')" class="p-4 sm:p-5 hover:bg-vh-cardHover transition cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                             <div class="flex items-start sm:items-center gap-4">
-                                                <div class="w-12 h-12 rounded-2xl ${cat.iconBg} flex items-center justify-center text-xl shrink-0">
-                                                    <i class="fa-solid ${cat.icon}"></i>
+                                                <div class="w-12 h-12 rounded-2xl ${cat.iconBg || 'bg-amber-500/20 text-amber-400'} flex items-center justify-center text-xl shrink-0">
+                                                    <i class="fa-solid ${cat.icon || 'fa-comments'}"></i>
                                                 </div>
                                                 <div>
                                                     <div class="flex items-center gap-2 flex-wrap">
-                                                        <h3 class="text-base font-bold text-white">${cat.title}</h3>
+                                                        <h3 class="text-base font-bold text-white">${escapeHtml(cat.title)}</h3>
+                                                        ${cat.isHub ? `<span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/40">2 подраздела</span>` : ''}
                                                         ${pendingInCat > 0 ? `<span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">${pendingInCat} на рассмотрении</span>` : ''}
                                                     </div>
-                                                    <p class="text-xs text-vh-muted mt-1 leading-relaxed">${cat.desc}</p>
+                                                    <p class="text-xs text-vh-muted mt-1 leading-relaxed">${escapeHtml(cat.desc)}</p>
                                                 </div>
                                             </div>
-                                            <div class="flex items-center justify-between sm:justify-end gap-6 shrink-0 pl-16 sm:pl-0">
+                                            <div class="flex items-center justify-between sm:justify-end gap-5 shrink-0 pl-16 sm:pl-0">
                                                 <div class="text-center">
                                                     <div class="text-sm font-extrabold text-white">${catThreads.length}</div>
                                                     <div class="text-[11px] text-vh-muted">Тем</div>
@@ -3318,8 +3577,13 @@
                                                     ${lastThread ? `
                                                         <div class="text-xs font-semibold text-gray-200 truncate">${escapeHtml(lastThread.title)}</div>
                                                         <div class="text-[11px] text-vh-muted mt-0.5">от <span class="text-amber-400">${escapeHtml(lastAuthor?.nickname || 'Игрок')}</span></div>
-                                                    ` : `<span class="text-xs text-vh-muted italic">${cat.id === 'rules' ? 'Официальный свод' : 'Нет тем'}</span>`}
+                                                    ` : `<span class="text-xs text-vh-muted italic">${cat.formType === 'rules' ? 'Официальный свод' : 'Нет тем'}</span>`}
                                                 </div>
+                                                ${canDeleteCustom ? `
+                                                    <button type="button" onclick="event.stopPropagation(); deleteCustomSection('${cat.id}')" title="Удалить раздел" class="p-2 rounded-lg text-vh-muted hover:text-red-400 hover:bg-red-950/30 transition">
+                                                        <i class="fa-solid fa-trash text-xs"></i>
+                                                    </button>
+                                                ` : ''}
                                             </div>
                                         </div>
                                     `;
@@ -3332,16 +3596,72 @@
             }
 
             if (state.view === 'category') {
-                const cat = CATEGORIES.find(c => c.id === state.activeCategoryId);
+                const allCats = getAllCategories();
+                const cat = allCats.find(c => c.id === state.activeCategoryId);
                 if (!cat) return;
 
-                let catThreads = state.threads.filter(t => t.categoryId === cat.id);
-                const subKey = cat.id === 'rules' ? (state.activeRuleSubpage || 'forum') : null;
-                const builtinRule = subKey ? BUILTIN_RULES[subKey] : null;
+                // Если это раздел-хаб «Жалобы на администрацию или игроков» (как на первом скриншоте)
+                if (cat.isHub && Array.isArray(cat.subcategories)) {
+                    const subCats = cat.subcategories.map(id => allCats.find(c => c.id === id)).filter(Boolean);
+                    container.innerHTML = `
+                        <div class="bg-vh-card border border-vh-border rounded-2xl p-6 sm:p-7 shadow-lg">
+                            <h1 class="text-2xl sm:text-3xl font-extrabold text-white">${escapeHtml(cat.title)}</h1>
+                            <p class="text-xs sm:text-sm text-vh-muted mt-2">${escapeHtml(cat.desc)}</p>
+                        </div>
 
-                if (cat.id === 'rules' && subKey) {
-                    catThreads = catThreads.filter(t => (t.ruleSubcategory || 'forum') === subKey);
+                        <div class="bg-vh-card border border-vh-border rounded-2xl overflow-hidden shadow-xl">
+                            <div class="px-5 sm:px-6 py-4 bg-[#1d212b] border-b border-vh-border">
+                                <h2 class="text-sm sm:text-base font-extrabold text-white">Форумы</h2>
+                            </div>
+                            <div class="divide-y divide-vh-border">
+                                ${subCats.map(sub => {
+                                    const subThreads = state.threads.filter(t => t.categoryId === sub.id);
+                                    const subPostsCount = state.posts.filter(p => subThreads.some(t => t.id === p.threadId)).length + subThreads.length;
+                                    const lastThread = subThreads[0];
+                                    const lastAuthor = lastThread ? state.users[lastThread.authorUid] : null;
+                                    return `
+                                        <div onclick="openCategory('${sub.id}')" class="p-5 sm:px-6 hover:bg-vh-cardHover transition cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                            <div class="flex items-start sm:items-center gap-4">
+                                                <div class="w-11 h-11 rounded-xl ${sub.iconBg} flex items-center justify-center text-xl shrink-0">
+                                                    <i class="fa-solid ${sub.icon}"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
+                                                        <h3 class="text-base sm:text-lg font-extrabold text-white hover:text-amber-400 transition">${escapeHtml(sub.title)}</h3>
+                                                    </div>
+                                                    <p class="text-xs sm:text-sm text-vh-muted mt-1 leading-relaxed">${escapeHtml(sub.desc)}</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center justify-between sm:justify-end gap-6 pl-15 sm:pl-0 shrink-0">
+                                                <div class="text-right">
+                                                    <div class="text-sm font-extrabold text-white">${subPostsCount}</div>
+                                                    <div class="text-[11px] text-vh-muted">постов</div>
+                                                </div>
+                                                <div class="hidden md:flex items-center gap-3 w-52">
+                                                    ${lastThread ? `
+                                                        <div class="w-9 h-9 rounded-full ${getAvatarColor(lastThread.authorUid)} text-white font-bold text-xs flex items-center justify-center shrink-0 overflow-hidden">
+                                                            ${lastAuthor?.avatar ? `<img src="${escapeHtml(lastAuthor.avatar)}" class="w-full h-full object-cover">` : escapeHtml((lastAuthor?.nickname || 'И').slice(0, 1).toUpperCase())}
+                                                        </div>
+                                                        <div class="min-w-0">
+                                                            <div class="text-xs font-bold text-white truncate">${escapeHtml(lastThread.title)}</div>
+                                                            <div class="text-[11px] text-vh-muted truncate">Автор <span class="text-sky-400">${escapeHtml(lastAuthor?.nickname || 'Игрок')}</span></div>
+                                                        </div>
+                                                    ` : `<span class="text-xs text-vh-muted italic">Тем пока нет</span>`}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                    return;
                 }
+
+                let catThreads = state.threads.filter(t => t.categoryId === cat.id);
+                const subKey = cat.formType === 'rules' ? (cat.ruleKey || state.activeRuleSubpage || 'forum') : null;
+                const builtinRule = subKey ? BUILTIN_RULES[subKey] : null;
 
                 const me = state.currentUserProfile;
                 const hasAcceptedRules = me && me.rulesAccepted;
@@ -3349,12 +3669,191 @@
                 container.innerHTML = `
                     <div class="bg-vh-card border border-vh-border rounded-2xl p-5 sm:p-6">
                         <div class="flex items-start gap-4">
-                            <div class="w-12 h-12 rounded-2xl ${cat.iconBg} flex items-center justify-center text-xl shrink-0">
-                                <i class="fa-solid ${builtinRule ? builtinRule.icon : cat.icon}"></i>
+                            <div class="w-12 h-12 rounded-2xl ${cat.iconBg || 'bg-amber-500/20 text-amber-400'} flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-solid ${builtinRule ? builtinRule.icon : (cat.icon || 'fa-comments')}"></i>
                             </div>
                             <div>
-                                <h1 class="text-xl sm:text-2xl font-extrabold text-white">${builtinRule ? builtinRule.title : cat.title}</h1>
-                                <p class="text-xs sm:text-sm text-vh-muted mt-1">${builtinRule ? builtinRule.desc : cat.desc}</p>
+                                <h1 class="text-xl sm:text-2xl font-extrabold text-white">${escapeHtml(builtinRule ? builtinRule.title : cat.title)}</h1>
+                                <p class="text-xs sm:text-sm text-vh-muted mt-1">${escapeHtml(builtinRule ? builtinRule.desc : cat.desc)}</p>
+                            </div>
+                        </div>
+
+                        ${cat.slaNotice ? `
+                            <div class="mt-4 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200 flex items-start gap-2.5">
+                                <i class="fa-solid fa-circle-info text-amber-400 text-base mt-0.5"></i>
+                                <div>${escapeHtml(cat.slaNotice)}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    ${cat.pinnedGuideHtml ? cat.pinnedGuideHtml : ''}
+
+                    ${builtinRule ? `
+                        <div class="bg-vh-card border border-vh-border rounded-2xl p-5 sm:p-7 space-y-6 shadow-xl">
+                            ${builtinRule.sections.map(sec => `
+                                <div class="space-y-2.5">
+                                    <h2 class="text-base sm:text-lg font-extrabold text-amber-400 border-b border-vh-border pb-2">${escapeHtml(sec.heading)}</h2>
+                                    <div class="space-y-1.5 text-xs sm:text-sm text-gray-200 leading-relaxed">
+                                        ${sec.items.map(line => {
+                                            const isSub = line.startsWith('   ');
+                                            return `<p class="${isSub ? 'pl-5 text-gray-300' : ''}">${escapeHtml(line.trim())}</p>`;
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+
+                            ${subKey === 'forum' ? `
+                                <div class="pt-5 border-t border-vh-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-vh-bg/70 p-4 rounded-xl">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl ${hasAcceptedRules ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'} flex items-center justify-center text-base shrink-0">
+                                            <i class="fa-solid ${hasAcceptedRules ? 'fa-circle-check' : 'fa-file-signature'}"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs sm:text-sm font-bold text-white">
+                                                ${hasAcceptedRules ? 'Вы подтвердили ознакомление с правилами форума' : 'Подтверждение ознакомления с правилами'}
+                                            </div>
+                                            <div class="text-[11px] text-vh-muted">
+                                                ${hasAcceptedRules && me.rulesAcceptedAt ? `Подтверждено: ${formatDate(me.rulesAcceptedAt)}` : 'Нажмите кнопку справа, чтобы подтвердить, что вы прочитали правила.'}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    ${!hasAcceptedRules ? `
+                                        <button onclick="acceptForumRules()" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs sm:text-sm transition shrink-0 shadow-lg shadow-amber-500/20">
+                                            <i class="fa-solid fa-check mr-1.5"></i>Я прочитал(а) правила форума
+                                        </button>
+                                    ` : `
+                                        <span class="px-4 py-2 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 font-bold text-xs shrink-0">
+                                            <i class="fa-solid fa-check-double mr-1"></i>Принято
+                                        </span>
+                                    `}
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+
+                    ${(cat.formType !== 'rules' || catThreads.length > 0) ? `
+                        <div class="bg-vh-card border border-vh-border rounded-2xl overflow-hidden">
+                            <div class="px-5 py-3 bg-[#1d212b] border-b border-vh-border flex items-center justify-between text-xs text-vh-muted">
+                                <span>Публикации в разделе (${catThreads.length})</span>
+                                <button onclick="openModal('mark-read-modal')" class="hover:text-amber-400 font-bold transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-check"></i> ОТМЕТИТЬ ФОРУМ ПРОЧИТАННЫМ
+                                </button>
+                            </div>
+                            ${catThreads.length === 0 ? `
+                                <div class="p-10 text-center">
+                                    <div class="w-14 h-14 rounded-2xl bg-vh-bg text-vh-muted flex items-center justify-center mx-auto mb-3 text-2xl">
+                                        <i class="fa-regular fa-folder-open"></i>
+                                    </div>
+                                    <h3 class="text-base font-bold text-white">В этом разделе пока нет тем</h3>
+                                    <p class="text-xs text-vh-muted mt-1">Нажмите кнопку «Создать новую тему» выше, чтобы оставить публикацию.</p>
+                                </div>
+                            ` : `
+                                <div class="divide-y divide-vh-border">
+                                    ${catThreads.map(t => {
+                                        const author = state.users[t.authorUid];
+                                        const authorRole = getRoleObj(author?.role);
+                                        const st = STATUS_BADGES[t.status] || STATUS_BADGES.open;
+                                        const repliesCount = state.posts.filter(p => p.threadId === t.id).length;
+
+                                        return `
+                                            <div onclick="openThread('${t.id}')" class="p-4 sm:p-5 hover:bg-vh-cardHover transition cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${t.isPinned ? 'bg-amber-500/[0.04]' : ''}">
+                                                <div class="min-w-0 flex-1">
+                                                    <div class="flex items-center gap-2 flex-wrap mb-1.5">
+                                                        ${t.isPinned ? `
+                                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-amber-500 text-black">
+                                                                <i class="fa-solid fa-thumbtack"></i> Закреплено
+                                                            </span>
+                                                        ` : ''}
+                                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${st.cls}">
+                                                            <i class="fa-solid ${st.icon}"></i> ${st.label}
+                                                        </span>
+                                                        ${Array.isArray(t.attachments) && t.attachments.length > 0 ? `
+                                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-vh-bg text-amber-400 border border-vh-border">
+                                                                <i class="fa-regular fa-image mr-1"></i>${t.attachments.length} фото
+                                                            </span>
+                                                        ` : ''}
+                                                        ${t.isLocked ? `<span class="text-xs text-vh-muted" title="Закрыто"><i class="fa-solid fa-lock"></i></span>` : ''}
+                                                    </div>
+                                                    <h3 class="text-sm sm:text-base font-bold text-white hover:text-amber-400 transition line-clamp-1">
+                                                        ${escapeHtml(t.title)}
+                                                    </h3>
+                                                    <div class="flex items-center gap-2 text-xs text-vh-muted mt-1.5 flex-wrap">
+                                                        <span>Автор: <strong onclick="event.stopPropagation(); openUserProfile('${t.authorUid}')" class="text-gray-200 hover:text-amber-400 hover:underline">${escapeHtml(author?.nickname || 'Игрок')}</strong></span>
+                                                        <span class="px-1.5 py-0.2 rounded text-[10px] font-bold border ${authorRole.badge}">${authorRole.name}</span>
+                                                        <span>•</span>
+                                                        <span>${formatDate(t.createdAt)}</span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="flex items-center gap-4 shrink-0 text-xs text-vh-muted">
+                                                    <div class="flex items-center gap-1.5 bg-vh-bg px-3 py-1.5 rounded-lg border border-vh-border">
+                                                        <i class="fa-regular fa-comment-dots text-amber-400"></i>
+                                                        <span class="font-bold text-white">${repliesCount}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            `}
+                        </div>
+                    ` : ''}
+                `;
+                return;
+            }
+
+            if (state.view === 'thread') {
+                const t = state.threads.find(item => item.id === state.activeThreadId);
+                if (!t) {
+                    container.innerHTML = `<div class="p-8 text-center bg-vh-card rounded-2xl border border-vh-border">Тема не найдена или была удалена.</div>`;
+                    return;
+                }
+
+                const author = state.users[t.authorUid];
+                const authorRole = getRoleObj(author?.role);
+                const st = STATUS_BADGES[t.status] || STATUS_BADGES.open;
+                const replies = state.posts.filter(p => p.threadId === t.id);
+                const canReviewThis = !t.isRelease && canReviewThread(t);
+                const canPinOrDelete = getUserLevel() >= 4;
+                const canEditRelease = t.isRelease && getUserLevel() >= 5;
+                const likesArr = Array.isArray(t.likes) ? t.likes : [];
+                const isLiked = state.currentUserProfile && likesArr.includes(state.currentUserProfile.uid);
+                const attachments = Array.isArray(t.attachments) ? t.attachments : [];
+                const subscribersCount = Object.values(state.users).filter(u => Array.isArray(u.followedThreads) && u.followedThreads.includes(t.id)).length;
+                const isSubscribed = state.currentUserProfile && (state.currentUserProfile.followedThreads || []).includes(t.id);
+
+                container.innerHTML = `
+                    <div class="bg-vh-card border border-vh-border rounded-2xl p-5 sm:p-6">
+                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap mb-2.5">
+                                    ${t.isPinned ? `
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-extrabold uppercase bg-amber-500 text-black">
+                                            <i class="fa-solid fa-thumbtack"></i> Закреплено
+                                        </span>
+                                    ` : ''}
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold border ${st.cls}">
+                                        <i class="fa-solid ${st.icon}"></i> ${st.label}
+                                    </span>
+                                    ${t.isLocked ? `
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-gray-800 text-gray-300 border border-gray-700">
+                                            <i class="fa-solid fa-lock"></i> Закрыто
+                                        </span>
+                                    ` : ''}
+                                </div>
+                                <h1 class="text-xl sm:text-2xl font-extrabold text-white leading-snug">${escapeHtml(t.title)}</h1>
+                            </div>
+
+                            <!-- Кнопка Подписаться (как на скриншоте) -->
+                            <div class="inline-flex items-center rounded-xl overflow-hidden border border-vh-border shrink-0 self-start">
+                                <button onclick="toggleFollowThread('${t.id}')" class="px-4 py-2 text-xs sm:text-sm font-bold transition flex items-center gap-2 ${isSubscribed ? 'bg-emerald-600/25 text-emerald-300' : 'bg-[#252a37] hover:bg-[#303748] text-gray-200'}">
+                                    <i class="fa-solid ${isSubscribed ? 'fa-bell-slash' : 'fa-bell'} text-amber-400"></i>
+                                    <span>${isSubscribed ? 'Вы подписаны' : 'Подписаться'}</span>
+                                </button>
+                                <span class="px-3 py-2 bg-[#1c202b] text-xs sm:text-sm font-extrabold text-gray-300 border-l border-vh-border" title="Подписчиков темы">
+                                    ${subscribersCount}
+                                </span>
                             </div>
                         </div>
 
@@ -3775,8 +4274,8 @@
         }
 
         function canReviewThread(thread) {
-            const cat = CATEGORIES.find(c => c.id === thread.categoryId);
-            const minLvl = cat ? cat.minReviewLevel : 3;
+            const cat = getAllCategories().find(c => c.id === thread.categoryId);
+            const minLvl = cat ? (cat.minReviewLevel || 3) : 3;
             return getUserLevel() >= minLvl;
         }
 
@@ -3792,9 +4291,9 @@
             if (state.view === 'home') {
                 const el = document.getElementById('nav-home');
                 if (el) el.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black';
-            } else if (state.view === 'category' && state.activeCategoryId === 'rules') {
+            } else if (state.view === 'category' && (state.activeCategoryId === 'rules' || state.activeCategoryId?.startsWith('rules_'))) {
                 if (rulesBtn) rulesBtn.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black flex items-center gap-1.5';
-            } else if (state.view === 'category' && state.activeCategoryId === 'admin_complaints') {
+            } else if (state.view === 'category' && (state.activeCategoryId === 'complaints_hub' || state.activeCategoryId === 'forum_admin_complaints' || state.activeCategoryId?.startsWith('game_'))) {
                 const el = document.getElementById('nav-admin_complaints');
                 if (el) el.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black';
             } else if (state.view === 'activity') {
@@ -3818,20 +4317,9 @@
         };
 
         window.openCategory = (catId) => {
+            if (catId === 'admin_complaints') catId = 'complaints_hub';
             state.view = 'category';
             state.activeCategoryId = catId;
-            state.activeThreadId = null;
-            updateNavHighlight();
-            renderAll();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-
-        window.openRuleSubpage = (subKey) => {
-            const menu = document.getElementById('rules-dropdown-menu');
-            if (menu) menu.classList.add('hidden');
-            state.view = 'category';
-            state.activeCategoryId = 'rules';
-            state.activeRuleSubpage = subKey;
             state.activeThreadId = null;
             updateNavHighlight();
             renderAll();
@@ -3855,15 +4343,77 @@
             renderAll();
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            const viewer = state.currentUserProfile;
+            const me = state.currentUserProfile;
             const target = state.users[uid];
-            if (viewer && target && viewer.uid !== uid) {
+            if (me && target && me.uid !== uid && !me.isBanned) {
                 try {
-                    const visitors = Array.isArray(target.recentVisitors) ? [...target.recentVisitors] : [];
-                    const filtered = visitors.filter(v => v.uid !== viewer.uid);
-                    filtered.unshift({ uid: viewer.uid, visitedAt: Date.now() });
-                    await updateDoc(doc(usersCol, uid), { recentVisitors: filtered.slice(0, 8) });
+                    const prev = Array.isArray(target.recentVisitors) ? target.recentVisitors.filter(v => v.uid !== me.uid) : [];
+                    prev.unshift({ uid: me.uid, visitedAt: Date.now() });
+                    await updateDoc(doc(usersCol, uid), { recentVisitors: prev.slice(0, 8) });
                 } catch (e) { /* ignore */ }
+            }
+        };
+
+        window.openRuleSubpage = (subKey) => {
+            const menu = document.getElementById('rules-dropdown-menu');
+            if (menu) menu.classList.add('hidden');
+            const map = { forum: 'rules_forum', game: 'rules_game', staff: 'rules_staff' };
+            state.view = 'category';
+            state.activeCategoryId = map[subKey] || 'rules_forum';
+            state.activeRuleSubpage = subKey;
+            state.activeThreadId = null;
+            updateNavHighlight();
+            renderAll();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.submitNewCustomSection = async (e) => {
+            e.preventDefault();
+            if (getUserLevel() < 7) return;
+            const group = document.getElementById('sec-group-select').value;
+            const title = document.getElementById('sec-title-input').value.trim();
+            const desc = document.getElementById('sec-desc-input').value.trim();
+            const formType = document.getElementById('sec-type-select').value;
+
+            const iconMap = {
+                idea: 'fa-lightbulb',
+                application: 'fa-file-signature',
+                complaint: 'fa-gavel',
+                standard: 'fa-comments',
+                release: 'fa-rocket'
+            };
+
+            try {
+                const ref = await addDoc(customSectionsCol, {
+                    group,
+                    title,
+                    desc,
+                    formType,
+                    icon: iconMap[formType] || 'fa-comments',
+                    iconBg: 'bg-amber-500/20 text-amber-400',
+                    minCreateLevel: formType === 'release' ? 5 : 1,
+                    minReviewLevel: 3,
+                    defaultStatus: (formType === 'idea' || formType === 'application' || formType === 'complaint') ? 'pending' : 'open',
+                    isCustom: true,
+                    createdAt: Date.now()
+                });
+                closeModal('create-section-modal');
+                document.getElementById('sec-title-input').value = '';
+                document.getElementById('sec-desc-input').value = '';
+                showToast(`Раздел «${title}» успешно создан!`, 'success');
+                openCategory(ref.id);
+            } catch (err) {
+                showToast('Ошибка создания раздела: ' + err.message, 'error');
+            }
+        };
+
+        window.deleteCustomSection = async (secId) => {
+            if (getUserLevel() < 7) return;
+            try {
+                await deleteDoc(doc(customSectionsCol, secId));
+                showToast('Пользовательский раздел удалён.', 'warning');
+            } catch (err) {
+                showToast('Ошибка удаления: ' + err.message, 'error');
             }
         };
 
@@ -3892,7 +4442,7 @@
             if (!me) { openModal('auth-modal'); return; }
             if (me.isBanned) { showToast('Ваш аккаунт заблокирован (ЧС).', 'error'); return; }
 
-            const cat = CATEGORIES.find(c => c.id === catId);
+            const cat = getAllCategories().find(c => c.id === catId);
             if (!cat) return;
 
             document.getElementById('thread-category-id').value = cat.id;
@@ -3904,12 +4454,44 @@
             const fieldsBox = document.getElementById('dynamic-thread-fields');
             const heading = document.getElementById('modal-thread-heading');
 
-            if (cat.formType === 'application') {
-                heading.textContent = 'Анкета на должность (Хелпер / Модератор)';
+            if (cat.formType === 'forum_admin_complaint') {
+                heading.textContent = 'Жалоба на Администрацию ФОРУМА';
                 fieldsBox.innerHTML = `
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">1. Ваш игровой никнейм и возраст</label>
-                        <input type="text" id="field-app-nick" required value="${escapeHtml(me.nickname)}${me.age ? ', ' + me.age + ' лет' : ''}" placeholder="Ник, возраст (например: VelHero, 16 лет)" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                        <label class="block text-xs font-bold text-gray-300 mb-1">1. Ваш ник</label>
+                        <input type="text" id="field-fac-my-nick" required value="${escapeHtml(me.nickname)}" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">2. Ник нарушителя (представителя форума)</label>
+                        <input type="text" id="field-fac-target" required placeholder="Ник администратора / модератора форума..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">3. Суть нарушения / ошибки администратора</label>
+                        <textarea id="field-fac-desc" required rows="3" placeholder="Опишите нарушение или ошибку..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">4. Когда это произошло / происходит</label>
+                        <input type="text" id="field-fac-when" required placeholder="Дата и время события..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">5. Что должен был сделать? (Администрация форума)</label>
+                        <input type="text" id="field-fac-expected" required placeholder="Как должен был поступить администратор по правилам..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">6. Доказательства о нарушении (фото/видео)</label>
+                        <input type="text" id="field-fac-proof" placeholder="Ссылка на видео / скриншоты (или прикрепите файлы ниже)..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">7. Дополнительный комментарий, ссылка на жалобу (если есть)</label>
+                        <textarea id="field-fac-extra" rows="2" placeholder="Дополнительные сведения..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
+                    </div>
+                `;
+            } else if (cat.formType === 'application') {
+                heading.textContent = 'Подача анкеты в состав проекта VelHamster';
+                fieldsBox.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">1. Ваш игровой никнейм</label>
+                        <input type="text" id="field-app-nick" required value="${escapeHtml(me.nickname)}" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-300 mb-1">2. Желаемая должность</label>
@@ -3919,24 +4501,27 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">3. Ваш Discord / Telegram для связи</label>
-                        <input type="text" id="field-app-contact" required placeholder="@username или Discord тег" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                        <label class="block text-xs font-bold text-gray-300 mb-1">3. Ваш реальный возраст</label>
+                        <input type="number" id="field-app-age" required min="12" max="99" placeholder="Например: 16" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">4. Опыт модерации и рассказ о себе</label>
-                        <textarea id="field-app-about" required rows="4" placeholder="Расскажите о своём опыте, онлайне и почему хотите попасть в команду VelHamster..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">4. Ваш Discord / Telegram для связи</label>
+                        <input type="text" id="field-app-contact" required placeholder="@username или discord#0000" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">5. Расскажите о себе, опыте модерирования и почему выбрали нас</label>
+                        <textarea id="field-app-about" required rows="4" placeholder="Подробно опишите ваш опыт и сколько часов готовы уделять проекту..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
                     </div>
                 `;
             } else if (cat.formType === 'complaint' || cat.formType === 'admin_complaint') {
-                const isAdminComp = cat.formType === 'admin_complaint';
-                heading.textContent = isAdminComp ? 'Жалоба на администрацию' : 'Жалоба на игрока';
+                heading.textContent = cat.formType === 'admin_complaint' ? 'Жалоба на Администрацию проекта' : 'Жалоба на игрока';
                 fieldsBox.innerHTML = `
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">${isAdminComp ? '1. Никнейм администратора / модератора' : '1. Никнейм нарушителя'}</label>
-                        <input type="text" id="field-comp-target" required placeholder="Введите точный никнейм..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                        <label class="block text-xs font-bold text-gray-300 mb-1">1. Никнейм нарушителя</label>
+                        <input type="text" id="field-comp-target" required placeholder="Введите точный ник нарушителя..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">2. Суть нарушения и пункт правил</label>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">2. Суть нарушения</label>
                         <textarea id="field-comp-desc" required rows="4" placeholder="Подробно опишите ситуацию, дату и время..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
                     </div>
                     <div>
@@ -4000,7 +4585,7 @@
 
             const catId = document.getElementById('thread-category-id').value;
             const editingId = document.getElementById('editing-thread-id').value;
-            const cat = CATEGORIES.find(c => c.id === catId);
+            const cat = getAllCategories().find(c => c.id === catId);
             if (!cat) return;
 
             let title = '';
@@ -4009,25 +4594,47 @@
             let isRelease = false;
             let releaseVersion = '';
 
-            if (cat.formType === 'application') {
-                const nickInfo = document.getElementById('field-app-nick').value.trim();
-                const roleChoice = document.getElementById('field-app-role').value;
+            if (cat.formType === 'forum_admin_complaint') {
+                const myNick = document.getElementById('field-fac-my-nick').value.trim();
+                const targetNick = document.getElementById('field-fac-target').value.trim();
+                const desc = document.getElementById('field-fac-desc').value.trim();
+                const when = document.getElementById('field-fac-when').value.trim();
+                const expected = document.getElementById('field-fac-expected').value.trim();
+                const proof = document.getElementById('field-fac-proof').value.trim();
+                const extra = document.getElementById('field-fac-extra').value.trim();
+                title = `Жалоба на администратора форума ${targetNick} от ${myNick}`;
+                structuredFields = [
+                    { label: '1. Ваш ник', value: myNick },
+                    { label: '2. Ник нарушителя (представителя форума)', value: targetNick },
+                    { label: '3. Суть нарушения / ошибки администратора', value: desc },
+                    { label: '4. Когда это произошло / происходит', value: when },
+                    { label: '5. Что должен был сделать? (Администрация форума)', value: expected },
+                    ...(proof ? [{ label: '6. Доказательства о нарушении', value: proof }] : []),
+                    ...(extra ? [{ label: '7. Дополнительный комментарий', value: extra }] : [])
+                ];
+            } else if (cat.formType === 'application') {
+                const nick = document.getElementById('field-app-nick').value.trim();
+                const desiredRole = document.getElementById('field-app-role').value;
+                const age = document.getElementById('field-app-age').value.trim();
                 const contact = document.getElementById('field-app-contact').value.trim();
                 const about = document.getElementById('field-app-about').value.trim();
-                title = `Заявка на пост «${roleChoice}» от ${me.nickname}`;
+                title = `Заявка на должность «${desiredRole}» от ${nick}`;
                 structuredFields = [
-                    { label: 'Игровой никнейм и возраст', value: nickInfo },
-                    { label: 'Желаемая должность', value: roleChoice },
-                    { label: 'Контакты для связи', value: contact },
-                    { label: 'Опыт и рассказ о себе', value: about }
+                    { label: '1. Игровой никнейм', value: nick },
+                    { label: '2. Желаемая должность', value: desiredRole },
+                    { label: '3. Возраст', value: `${age} лет` },
+                    { label: '4. Контакт для связи', value: contact },
+                    { label: '5. О себе и опыте', value: about }
                 ];
             } else if (cat.formType === 'complaint' || cat.formType === 'admin_complaint') {
                 const targetNick = document.getElementById('field-comp-target').value.trim();
                 const desc = document.getElementById('field-comp-desc').value.trim();
                 const proof = document.getElementById('field-comp-proof').value.trim();
-                title = `Жалоба на ${targetNick} от ${me.nickname}`;
+                title = cat.formType === 'admin_complaint'
+                    ? `Жалоба на представителя администрации ${targetNick}`
+                    : `Жалоба на игрока ${targetNick}`;
                 structuredFields = [
-                    { label: cat.formType === 'admin_complaint' ? 'Никнейм сотрудника' : 'Никнейм нарушителя', value: targetNick },
+                    { label: 'Никнейм нарушителя', value: targetNick },
                     { label: 'Описание нарушения', value: desc },
                     ...(proof ? [{ label: 'Доказательства', value: proof }] : [])
                 ];
@@ -4258,13 +4865,18 @@
                 rightPanelHtml = `
                     <form onsubmit="changeAccountPassword(event)" class="p-5 sm:p-7 space-y-4 max-w-lg">
                         <h3 class="text-base font-extrabold text-white">Изменение пароля</h3>
+                        <p class="text-xs text-vh-muted">Для безопасности сначала введите ваш текущий пароль, затем новый пароль и его подтверждение.</p>
                         <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1.5">Новый пароль (минимум 6 символов)</label>
-                            <input type="password" id="settings-new-pass" required minlength="6" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                            <label class="block text-xs font-bold text-gray-300 mb-1.5">Текущий пароль</label>
+                            <input type="password" id="settings-current-pass" required placeholder="Введите действующий пароль..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1.5">Подтвердите новый пароль</label>
-                            <input type="password" id="settings-confirm-pass" required minlength="6" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                            <label class="block text-xs font-bold text-gray-300 mb-1.5">Новый пароль (минимум 6 символов)</label>
+                            <input type="password" id="settings-new-pass" required minlength="6" placeholder="Введите новый пароль..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-300 mb-1.5">Подтверждение пароля (повторите новый пароль)</label>
+                            <input type="password" id="settings-confirm-pass" required minlength="6" placeholder="Повторите новый пароль ещё раз..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
                         </div>
                         <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs sm:text-sm transition">
                             Сохранить новый пароль
@@ -4474,9 +5086,12 @@
 
                 <div class="bg-vh-card border border-vh-border rounded-2xl p-6 sm:p-7 shadow-lg space-y-3">
                     <h2 class="text-lg font-extrabold text-white">Добавить нового пользователя в список игнорируемых</h2>
-                    <p class="text-xs text-vh-muted">Введите имя пользователя</p>
+                    <p class="text-xs text-vh-muted">Нажмите на строку ввода, чтобы выбрать из списка всех участников, или введите никнейм</p>
                     <form onsubmit="addIgnoredUserByNick(event)" class="flex flex-col sm:flex-row gap-3">
-                        <input type="text" id="ignore-nick-input" required placeholder="Никнейм пользователя..." class="flex-1 px-4 py-3 rounded-xl bg-[#252a37] border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                        <div id="ignore-user-picker-wrapper" class="relative flex-1">
+                            <input type="text" id="ignore-nick-input" required autocomplete="off" onfocus="handleIgnoreUserSearch(this.value)" oninput="handleIgnoreUserSearch(this.value)" placeholder="Нажмите, чтобы выбрать пользователя или введите ник..." class="w-full px-4 py-3 rounded-xl bg-[#252a37] border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                            <div id="ignore-autocomplete-dropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-[#1e222d] border border-vh-border rounded-xl shadow-2xl max-h-64 overflow-y-auto z-50 divide-y divide-vh-border/60"></div>
+                        </div>
                         <button type="submit" class="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs sm:text-sm transition shrink-0">
                             Добавить
                         </button>
@@ -4485,21 +5100,21 @@
 
                 <div class="bg-vh-card border border-vh-border rounded-2xl overflow-hidden shadow-lg">
                     <div class="px-6 py-4 bg-[#1d212b] border-b border-vh-border">
-                        <h2 class="text-base sm:text-lg font-extrabold text-white">Пользователи в настоящее время игнорируются</h2>
+                        <h2 class="text-sm font-extrabold text-white">Список игнорируемых (${ignoredList.length})</h2>
                     </div>
                     ${ignoredList.length === 0 ? `
-                        <div class="p-10 text-center text-sm text-vh-muted">Без результатов</div>
+                        <div class="p-10 text-center text-sm text-vh-muted">Вы пока никого не игнорируете.</div>
                     ` : `
                         <div class="divide-y divide-vh-border">
                             ${ignoredList.map(u => `
-                                <div class="px-6 py-4 flex items-center justify-between gap-3">
+                                <div class="p-4 sm:px-6 flex items-center justify-between gap-3">
                                     <div onclick="openUserProfile('${u.uid}')" class="flex items-center gap-3 cursor-pointer">
                                         <div class="w-9 h-9 rounded-full ${getAvatarColor(u.uid)} text-white font-bold text-xs flex items-center justify-center overflow-hidden">
-                                            ${u.avatar ? `<img src="${escapeHtml(u.avatar)}" class="w-full h-full object-cover">` : escapeHtml(u.nickname.slice(0, 1).toUpperCase())}
+                                            ${u.avatar ? `<img src="${escapeHtml(u.avatar)}" class="w-full h-full object-cover">` : escapeHtml((u.nickname || 'U').slice(0, 1).toUpperCase())}
                                         </div>
                                         <span class="text-sm font-bold text-white hover:text-amber-400">${escapeHtml(u.nickname)}</span>
                                     </div>
-                                    <button onclick="removeIgnoredUser('${u.uid}')" class="px-3.5 py-1.5 rounded-xl bg-red-600/20 hover:bg-red-600/30 text-red-400 font-bold text-xs transition">
+                                    <button onclick="removeIgnoredUser('${u.uid}')" class="px-3.5 py-1.5 rounded-lg bg-vh-bg hover:bg-red-950/40 border border-vh-border text-xs font-bold text-red-400 transition">
                                         Убрать из списка
                                     </button>
                                 </div>
@@ -4510,12 +5125,54 @@
             `;
         }
 
+        function renderMyAttachmentsPage() {
+            const container = document.getElementById('profile-page-container');
+            const me = state.currentUserProfile;
+            if (!me) return;
+
+            const allImages = [];
+            state.threads.filter(t => t.authorUid === me.uid && Array.isArray(t.attachments)).forEach(t => {
+                t.attachments.forEach(src => allImages.push({ src, title: t.title, threadId: t.id, createdAt: t.createdAt }));
+            });
+            state.posts.filter(p => p.authorUid === me.uid && Array.isArray(p.attachments)).forEach(p => {
+                const parent = state.threads.find(t => t.id === p.threadId);
+                p.attachments.forEach(src => allImages.push({ src, title: parent?.title || 'Ответ в теме', threadId: p.threadId, createdAt: p.createdAt }));
+            });
+
+            container.innerHTML = `
+                <div class="bg-vh-card border border-vh-border rounded-2xl p-6 sm:p-7 shadow-lg">
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white">Мои Вложения (${allImages.length})</h1>
+                    <p class="text-xs sm:text-sm text-vh-muted mt-1">Все скриншоты и изображения, прикреплённые вами в темах и ответах.</p>
+                </div>
+
+                ${allImages.length === 0 ? `
+                    <div class="bg-vh-card border border-vh-border rounded-2xl p-12 text-center text-sm text-vh-muted">
+                        У вас пока нет загруженных вложений.
+                    </div>
+                ` : `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        ${allImages.map(item => `
+                            <div class="bg-vh-card border border-vh-border rounded-2xl overflow-hidden shadow-md flex flex-col">
+                                <img src="${item.src}" onclick="openLightbox('${item.src}')" class="w-full aspect-video object-cover cursor-zoom-in hover:opacity-90 transition">
+                                <div class="p-3.5 flex-1 flex flex-col justify-between">
+                                    <div onclick="openThread('${item.threadId}')" class="text-xs font-bold text-white hover:text-amber-400 cursor-pointer line-clamp-1">${escapeHtml(item.title)}</div>
+                                    <div class="text-[11px] text-vh-muted mt-1">${formatDate(item.createdAt)}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `}
+            `;
+        }
+
         function renderAll() {
             renderHeaderAndSidebar();
             renderBreadcrumbsAndActions();
             renderMainView();
         }
 
+        // Начальный запуск интерфейса
+        updateNavHighlight();
         renderAll();
     </script>
 </body>
