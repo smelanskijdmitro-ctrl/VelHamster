@@ -3202,6 +3202,49 @@
                     !(m.readBy || []).includes(me.uid)
                 ).length;
 
+                const myThreadsCount = state.threads.filter(t => t.authorUid === me.uid && !t.isRelease).length;
+                const myPostsCount = state.posts.filter(p => p.authorUid === me.uid && !p.isSystemVerdict).length + myThreadsCount;
+
+                sidebarUser.innerHTML = `
+                    <div class="space-y-4">
+                        <div onclick="openUserProfile('${me.uid}')" class="flex items-center gap-3.5 cursor-pointer group">
+                            <div class="w-14 h-14 rounded-2xl ${getAvatarColor(me.uid)} text-white font-extrabold text-xl flex items-center justify-center overflow-hidden border-2 border-amber-500/40 group-hover:border-amber-400 transition shrink-0 shadow-md">
+                                ${me.avatar ? `<img src="${escapeHtml(me.avatar)}" class="w-full h-full object-cover">` : escapeHtml(me.nickname.slice(0, 1).toUpperCase())}
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="text-base font-extrabold text-white group-hover:text-amber-400 transition truncate">${escapeHtml(me.nickname)}</div>
+                                <div class="mt-1">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold border ${role.badge}">
+                                        <i class="fa-solid ${role.icon}"></i> ${role.name}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 pt-3 border-t border-vh-border/80">
+                            <div class="bg-vh-bg/80 border border-vh-border rounded-xl p-2.5 text-center">
+                                <div class="text-sm font-extrabold text-amber-400">${me.rating || 0}</div>
+                                <div class="text-[11px] text-vh-muted mt-0.5">Репутация</div>
+                            </div>
+                            <div class="bg-vh-bg/80 border border-vh-border rounded-xl p-2.5 text-center">
+                                <div class="text-sm font-extrabold text-white">${myPostsCount}</div>
+                                <div class="text-[11px] text-vh-muted mt-0.5">Публикаций</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="openUserProfile('${me.uid}')" class="py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs transition flex items-center justify-center gap-1.5">
+                                <i class="fa-regular fa-user"></i>
+                                <span>Мой профиль</span>
+                            </button>
+                            <button onclick="openSettingsPage('about')" class="py-2 px-3 rounded-xl bg-vh-bg hover:bg-vh-cardHover border border-vh-border text-gray-200 font-bold text-xs transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-gear text-amber-400"></i>
+                                <span>Настройки</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
                 headerAuth.innerHTML = `
                     <button onclick="navigate('messages')" title="Личные сообщения" class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-vh-card hover:bg-vh-cardHover border border-vh-border text-gray-200 hover:text-amber-400 flex items-center justify-center transition">
                         <i class="fa-solid fa-envelope text-sm"></i>
@@ -3856,179 +3899,6 @@
                                 </span>
                             </div>
                         </div>
-
-                        ${cat.id === 'rules' ? `
-                            <div class="mt-4 pt-4 border-t border-vh-border flex flex-wrap gap-2">
-                                <button onclick="openRuleSubpage('forum')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition ${subKey === 'forum' ? 'bg-amber-500 text-black' : 'bg-vh-bg text-vh-muted hover:text-white border border-vh-border'}">
-                                    Правила форума
-                                </button>
-                                <button onclick="openRuleSubpage('game')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition ${subKey === 'game' ? 'bg-amber-500 text-black' : 'bg-vh-bg text-vh-muted hover:text-white border border-vh-border'}">
-                                    Правила игры
-                                </button>
-                                <button onclick="openRuleSubpage('staff')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition ${subKey === 'staff' ? 'bg-amber-500 text-black' : 'bg-vh-bg text-vh-muted hover:text-white border border-vh-border'}">
-                                    Правила персонала
-                                </button>
-                            </div>
-                        ` : ''}
-
-                        ${cat.slaNotice ? `
-                            <div class="mt-4 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200 flex items-start gap-2.5">
-                                <i class="fa-solid fa-circle-info text-amber-400 text-base mt-0.5"></i>
-                                <div>${cat.slaNotice}</div>
-                            </div>
-                        ` : ''}
-                    </div>
-
-                    ${builtinRule ? `
-                        <div class="bg-vh-card border border-vh-border rounded-2xl p-5 sm:p-7 space-y-6 shadow-xl">
-                            ${builtinRule.sections.map(sec => `
-                                <div class="space-y-2.5">
-                                    <h2 class="text-base sm:text-lg font-extrabold text-amber-400 border-b border-vh-border pb-2">${escapeHtml(sec.heading)}</h2>
-                                    <div class="space-y-1.5 text-xs sm:text-sm text-gray-200 leading-relaxed">
-                                        ${sec.items.map(line => {
-                                            const isSub = line.startsWith('   ');
-                                            return `<p class="${isSub ? 'pl-5 text-gray-300' : ''}">${escapeHtml(line.trim())}</p>`;
-                                        }).join('')}
-                                    </div>
-                                </div>
-                            `).join('')}
-
-                            <div class="pt-5 border-t border-vh-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-vh-bg/70 p-4 rounded-xl">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-xl ${hasAcceptedRules ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'} flex items-center justify-center text-base shrink-0">
-                                        <i class="fa-solid ${hasAcceptedRules ? 'fa-circle-check' : 'fa-file-signature'}"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-xs sm:text-sm font-bold text-white">
-                                            ${hasAcceptedRules ? 'Вы подтвердили ознакомление с правилами форума' : 'Подтверждение ознакомления с правилами'}
-                                        </div>
-                                        <div class="text-[11px] text-vh-muted">
-                                            ${hasAcceptedRules && me.rulesAcceptedAt ? `Подтверждено: ${formatDate(me.rulesAcceptedAt)}` : 'Нажмите кнопку справа, чтобы подтвердить, что вы прочитали правила.'}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                ${!hasAcceptedRules ? `
-                                    <button onclick="acceptForumRules()" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs sm:text-sm transition shrink-0 shadow-lg shadow-amber-500/20">
-                                        <i class="fa-solid fa-check mr-1.5"></i>Я прочитал(а) правила форума
-                                    </button>
-                                ` : `
-                                    <span class="px-4 py-2 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 font-bold text-xs shrink-0">
-                                        <i class="fa-solid fa-check-double mr-1"></i>Принято
-                                    </span>
-                                `}
-                            </div>
-                        </div>
-                    ` : ''}
-
-                    ${(cat.id !== 'rules' || catThreads.length > 0) ? `
-                        <div class="bg-vh-card border border-vh-border rounded-2xl overflow-hidden">
-                            ${catThreads.length === 0 ? `
-                                <div class="p-10 text-center">
-                                    <div class="w-14 h-14 rounded-2xl bg-vh-bg text-vh-muted flex items-center justify-center mx-auto mb-3 text-2xl">
-                                        <i class="fa-regular fa-folder-open"></i>
-                                    </div>
-                                    <h3 class="text-base font-bold text-white">В этом разделе пока нет тем</h3>
-                                    <p class="text-xs text-vh-muted mt-1">Будьте первым, кто создаст публикацию здесь.</p>
-                                </div>
-                            ` : `
-                                <div class="divide-y divide-vh-border">
-                                    ${catThreads.map(t => {
-                                        const author = state.users[t.authorUid];
-                                        const authorRole = getRoleObj(author?.role);
-                                        const st = STATUS_BADGES[t.status] || STATUS_BADGES.open;
-                                        const repliesCount = state.posts.filter(p => p.threadId === t.id).length;
-
-                                        return `
-                                            <div onclick="openThread('${t.id}')" class="p-4 sm:p-5 hover:bg-vh-cardHover transition cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${t.isPinned ? 'bg-amber-500/[0.04]' : ''}">
-                                                <div class="min-w-0 flex-1">
-                                                    <div class="flex items-center gap-2 flex-wrap mb-1.5">
-                                                        ${t.isPinned ? `
-                                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-amber-500 text-black">
-                                                                <i class="fa-solid fa-thumbtack"></i> Закреплено
-                                                            </span>
-                                                        ` : ''}
-                                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${st.cls}">
-                                                            <i class="fa-solid ${st.icon}"></i> ${st.label}
-                                                        </span>
-                                                        ${Array.isArray(t.attachments) && t.attachments.length > 0 ? `
-                                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-vh-bg text-amber-400 border border-vh-border">
-                                                                <i class="fa-regular fa-image mr-1"></i>${t.attachments.length} фото
-                                                            </span>
-                                                        ` : ''}
-                                                        ${t.isLocked ? `<span class="text-xs text-vh-muted" title="Закрыто"><i class="fa-solid fa-lock"></i></span>` : ''}
-                                                    </div>
-                                                    <h3 class="text-sm sm:text-base font-bold text-white hover:text-amber-400 transition line-clamp-1">
-                                                        ${escapeHtml(t.title)}
-                                                    </h3>
-                                                    <div class="flex items-center gap-2 text-xs text-vh-muted mt-1.5 flex-wrap">
-                                                        ${t.isRelease ? `
-                                                            <span class="text-amber-400 font-bold"><i class="fa-solid fa-crown mr-1"></i>Официальное обновление проекта VelHamster</span>
-                                                            <span>•</span>
-                                                            <span>${formatDate(t.createdAt)}</span>
-                                                        ` : `
-                                                            <span>Автор: <strong onclick="event.stopPropagation(); openUserProfile('${t.authorUid}')" class="text-gray-200 hover:text-amber-400 hover:underline">${escapeHtml(author?.nickname || 'Игрок')}</strong></span>
-                                                            <span class="px-1.5 py-0.2 rounded text-[10px] font-bold border ${authorRole.badge}">${authorRole.name}</span>
-                                                            <span>•</span>
-                                                            <span>${formatDate(t.createdAt)}</span>
-                                                        `}
-                                                    </div>
-                                                </div>
-
-                                                <div class="flex items-center gap-4 shrink-0 text-xs text-vh-muted">
-                                                    <div class="flex items-center gap-1.5 bg-vh-bg px-3 py-1.5 rounded-lg border border-vh-border">
-                                                        <i class="fa-regular fa-comment-dots text-amber-400"></i>
-                                                        <span class="font-bold text-white">${repliesCount}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        `;
-                                    }).join('')}
-                                </div>
-                            `}
-                        </div>
-                    ` : ''}
-                `;
-                return;
-            }
-
-            if (state.view === 'thread') {
-                const t = state.threads.find(item => item.id === state.activeThreadId);
-                if (!t) {
-                    container.innerHTML = `<div class="p-8 text-center bg-vh-card rounded-2xl border border-vh-border">Тема не найдена или была удалена.</div>`;
-                    return;
-                }
-
-                const author = state.users[t.authorUid];
-                const authorRole = getRoleObj(author?.role);
-                const st = STATUS_BADGES[t.status] || STATUS_BADGES.open;
-                const replies = state.posts.filter(p => p.threadId === t.id);
-                const canReviewThis = !t.isRelease && canReviewThread(t);
-                const canPinOrDelete = getUserLevel() >= 4;
-                const canEditRelease = t.isRelease && getUserLevel() >= 5;
-                const likesArr = Array.isArray(t.likes) ? t.likes : [];
-                const isLiked = state.currentUserProfile && likesArr.includes(state.currentUserProfile.uid);
-                const attachments = Array.isArray(t.attachments) ? t.attachments : [];
-
-                container.innerHTML = `
-                    <div class="bg-vh-card border border-vh-border rounded-2xl p-5 sm:p-6">
-                        <div class="flex items-center gap-2 flex-wrap mb-3">
-                            ${t.isPinned ? `
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-extrabold uppercase bg-amber-500 text-black">
-                                    <i class="fa-solid fa-thumbtack"></i> Закреплено
-                                </span>
-                            ` : ''}
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold border ${st.cls}">
-                                <i class="fa-solid ${st.icon}"></i> ${st.label}
-                            </span>
-                            ${t.isLocked ? `
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-gray-800 text-gray-300 border border-gray-700">
-                                    <i class="fa-solid fa-lock"></i> Закрыто
-                                </span>
-                            ` : ''}
-                        </div>
-
-                        <h1 class="text-xl sm:text-2xl font-extrabold text-white leading-snug">${escapeHtml(t.title)}</h1>
 
                         ${(canReviewThis || canPinOrDelete || canEditRelease) ? `
                             <div class="mt-4 pt-4 border-t border-vh-border flex flex-wrap items-center gap-2">
