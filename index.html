@@ -545,6 +545,26 @@
         <img id="lightbox-img" src="" alt="Просмотр" class="max-w-full max-h-[90vh] rounded-xl shadow-2xl border border-white/10">
     </div>
 
+    <!-- МОДАЛЬНОЕ ОКНО: ПОДТВЕРЖДЕНИЕ ОТМЕТКИ ВСЕГО КОНТЕНТА ПРОЧИТАННЫМ -->
+    <div id="mark-read-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="bg-[#1b1f29] border border-vh-border rounded-2xl max-w-md w-full p-6 sm:p-7 shadow-2xl text-center space-y-5">
+            <div class="w-12 h-12 rounded-full bg-white/10 text-gray-300 flex items-center justify-center mx-auto text-xl font-extrabold">
+                <i class="fa-solid fa-question"></i>
+            </div>
+            <h3 class="text-base sm:text-lg font-extrabold text-white leading-snug">
+                Вы уверены, что хотите отметить весь контент сообщества прочитанным?
+            </h3>
+            <div class="grid grid-cols-2 gap-3 pt-1">
+                <button type="button" onclick="confirmMarkAllRead()" class="py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-sm transition shadow-lg shadow-amber-500/20">
+                    OK
+                </button>
+                <button type="button" onclick="closeModal('mark-read-modal')" class="py-2.5 px-4 rounded-xl bg-[#252a37] hover:bg-[#2f3545] text-gray-200 font-bold text-sm transition">
+                    Отмена
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- FIREBASE ЛОГИКА И ДВИЖОК ФОРУМА -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -558,6 +578,8 @@
             sendSignInLinkToEmail,
             isSignInWithEmailLink,
             signInWithEmailLink,
+            updatePassword,
+            updateEmail,
             signOut, 
             onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -971,7 +993,7 @@
             threads: [],
             posts: [],
             messages: [],
-            view: 'home', // 'home' | 'category' | 'thread' | 'profile' | 'activity' | 'moderators' | 'messages'
+            view: 'home', // 'home' | 'category' | 'thread' | 'profile' | 'activity' | 'moderators' | 'messages' | 'settings' | 'followed' | 'ignored' | 'attachments'
             activeCategoryId: null,
             activeRuleSubpage: 'forum',
             activeThreadId: null,
@@ -980,6 +1002,8 @@
             profileMode: 'overview',
             profileContentTab: 'activity',
             profileSettingsOpen: false,
+            settingsTab: 'overview', // 'overview' | 'about' | 'email' | 'password' | 'privacy' | 'devices' | 'content_view' | 'signature'
+            followedTab: 'threads', // 'threads' | 'forums' | 'users' | 'tags'
             activityFilter: 'all',
             authMode: 'login',
             // Временные вложения изображений
@@ -1371,6 +1395,16 @@
                     email: user.email || '',
                     nickname: baseNick,
                     avatar: user.photoURL || '',
+                    age: null,
+                    bio: '',
+                    signature: '',
+                    privacyShowAge: true,
+                    privacyShowOnline: true,
+                    privacyAllowDm: true,
+                    followedThreads: [],
+                    followedCategories: [],
+                    ignoredUsers: [],
+                    lastReadAllAt: 0,
                     bannerTheme: 'default',
                     role: initialRole,
                     rating: 0,
@@ -1752,625 +1786,246 @@
             if (menu && !e.target.closest('.rules-dropdown-wrapper')) {
                 menu.classList.add('hidden');
             }
+            const userMenu = document.getElementById('user-profile-dropdown');
+            if (userMenu && !e.target.closest('.user-dropdown-wrapper')) {
+                userMenu.classList.add('hidden');
+            }
             const dmDrop = document.getElementById('dm-autocomplete-dropdown');
             if (dmDrop && !e.target.closest('#dm-recipients-box') && !e.target.closest('#dm-autocomplete-dropdown')) {
                 dmDrop.classList.add('hidden');
             }
         });
 
-        window.navigate = (view) => {
-            state.view = view;
-            state.activeCategoryId = null;
-            state.activeThreadId = null;
-            state.profileUid = null;
-            updateNavHighlight();
-            renderAll();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.toggleUserDropdown = (e) => {
+            if (e) e.stopPropagation();
+            const menu = document.getElementById('user-profile-dropdown');
+            if (menu) menu.classList.toggle('hidden');
         };
 
-        window.openCategory = (catId) => {
-            state.view = 'category';
-            state.activeCategoryId = catId;
-            if (catId === 'rules' && !state.activeRuleSubpage) {
-                state.activeRuleSubpage = 'forum';
-            }
-            state.activeThreadId = null;
-            state.profileUid = null;
-            updateNavHighlight();
-            renderAll();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-
-        window.openRuleSubpage = (subKey) => {
-            const menu = document.getElementById('rules-dropdown-menu');
+        window.closeUserDropdown = () => {
+            const menu = document.getElementById('user-profile-dropdown');
             if (menu) menu.classList.add('hidden');
-            state.view = 'category';
-            state.activeCategoryId = 'rules';
-            state.activeRuleSubpage = subKey;
-            state.activeThreadId = null;
-            state.profileUid = null;
+        };
+
+        window.openSettingsPage = (tab = 'overview') => {
+            closeUserDropdown();
+            if (!state.currentUserProfile) { openModal('auth-modal'); return; }
+            state.view = 'settings';
+            state.settingsTab = tab;
             updateNavHighlight();
             renderAll();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        window.openThread = (threadId) => {
-            const t = state.threads.find(item => item.id === threadId);
-            if (!t) return;
-            state.view = 'thread';
-            state.activeCategoryId = t.categoryId;
-            state.activeThreadId = threadId;
-            state.profileUid = null;
-            state.replyImages = [];
-            updateNavHighlight();
+        window.switchSettingsTab = (tab) => {
+            state.settingsTab = tab;
             renderAll();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        window.openUserProfile = async (uid, mode = 'overview') => {
-            const target = state.users[uid];
-            if (!target) return;
-            state.view = 'profile';
-            state.profileUid = uid;
-            state.profileMode = mode;
-            state.profileContentTab = 'activity';
-            state.profileSettingsOpen = false;
-            updateNavHighlight();
+        window.switchFollowedTab = (tab) => {
+            state.followedTab = tab;
             renderAll();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            const viewer = state.currentUserProfile;
-            if (viewer && viewer.uid !== uid) {
-                try {
-                    const visitors = Array.isArray(target.recentVisitors) ? [...target.recentVisitors] : [];
-                    const filtered = visitors.filter(v => v.uid !== viewer.uid);
-                    filtered.unshift({ uid: viewer.uid, visitedAt: Date.now() });
-                    await updateDoc(doc(usersCol, uid), {
-                        recentVisitors: filtered.slice(0, 6)
-                    });
-                } catch (e) { /* ignore */ }
-            }
         };
 
-        window.switchProfileMode = (mode) => { state.profileMode = mode; renderAll(); };
-        window.switchProfileContentTab = (tab) => { state.profileContentTab = tab; renderAll(); };
-        window.toggleProfileSettings = () => { state.profileSettingsOpen = !state.profileSettingsOpen; renderAll(); };
-        window.setActivityFilter = (filterKey) => { state.activityFilter = filterKey; renderAll(); };
-
-        function updateNavHighlight() {
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold text-vh-muted hover:text-white transition-all flex items-center gap-1.5';
-            });
-            if (state.view === 'home') {
-                const el = document.getElementById('nav-home');
-                if (el) el.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black flex items-center gap-1.5';
-            } else if (state.view === 'activity') {
-                const el = document.getElementById('nav-activity');
-                if (el) el.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black flex items-center gap-1.5';
-            } else if (state.view === 'moderators') {
-                const el = document.getElementById('nav-moderators');
-                if (el) el.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black flex items-center gap-1.5';
-            } else if (state.activeCategoryId === 'rules') {
-                const el = document.getElementById('nav-rules');
-                if (el) el.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black flex items-center gap-1.5';
-            } else if (state.activeCategoryId === 'admin_complaints') {
-                const el = document.getElementById('nav-admin_complaints');
-                if (el) el.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black flex items-center gap-1.5';
-            }
-        }
-
-        // =========================================================================
-        // 12. УМНЫЕ ФОРМЫ СОЗДАНИЯ ТЕМ, РЕЛИЗОВ, АНКЕТ, ЖАЛОБ И ИДЕЙ
-        // =========================================================================
-        window.execReleaseFormat = (cmd, value = null) => {
-            const editor = document.getElementById('release-rich-editor');
-            if (!editor) return;
-            editor.focus();
-            document.execCommand(cmd, false, value);
-        };
-
-        window.insertReleaseEmoji = (emoji) => {
-            const editor = document.getElementById('release-rich-editor');
-            if (!editor) return;
-            editor.focus();
-            document.execCommand('insertText', false, emoji);
-        };
-
-        window.openEditReleaseModal = (threadId) => {
-            const t = state.threads.find(item => item.id === threadId);
-            if (!t) return;
-            openCreateThreadModal('news', t);
-        };
-
-        window.openCreateThreadModal = (catId, editThread = null) => {
-            if (!state.currentUserProfile) {
-                openModal('auth-modal');
-                showToast('Войдите в аккаунт, чтобы создать публикацию.', 'warning');
+        window.confirmMarkAllRead = async () => {
+            closeModal('mark-read-modal');
+            const me = state.currentUserProfile;
+            if (!me) {
+                showToast('Весь контент сообщества отмечен прочитанным.', 'success');
                 return;
             }
-            if (state.currentUserProfile.isBanned) {
-                showToast('Ваш аккаунт в ЧС (заблокирован). Вы не можете создавать темы.', 'error');
-                return;
-            }
-
-            const cat = CATEGORIES.find(c => c.id === catId);
-            if (!cat) return;
-
-            if (getUserLevel() < cat.minCreateLevel) {
-                showToast('У вас недостаточно прав для создания публикаций в этом разделе.', 'error');
-                return;
-            }
-
-            state.threadImages = editThread && Array.isArray(editThread.attachments) ? [...editThread.attachments] : [];
-            renderAttachmentPreviews('thread');
-
-            document.getElementById('thread-category-id').value = cat.id;
-            document.getElementById('editing-thread-id').value = editThread ? editThread.id : '';
-            document.getElementById('modal-category-badge').textContent = cat.title;
-
-            const container = document.getElementById('dynamic-thread-fields');
-            const heading = document.getElementById('modal-thread-heading');
-            const submitBtn = document.getElementById('submit-thread-btn');
-
-            if (cat.formType === 'release') {
-                heading.textContent = editThread ? 'Редактирование релиза проекта' : 'Публикация обновления (Release)';
-                submitBtn.textContent = editThread ? 'Сохранить изменения' : 'Опубликовать релиз';
-
-                const existingVersion = editThread?.releaseVersion || '';
-                const existingHtml = editThread?.richHtml || '';
-
-                container.innerHTML = `
-                    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-200 flex items-start gap-2.5">
-                        <i class="fa-solid fa-rocket text-emerald-400 text-base mt-0.5"></i>
-                        <div>
-                            Обновление публикуется от имени проекта <strong>VelHamster</strong> с пометкой <strong>Release</strong> и <strong>не засчитывается</strong> в ваш личный счётчик постов.
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">Что за обновление / Сезон / Версия *</label>
-                        <input type="text" id="release-version" required value="${escapeHtml(existingVersion)}" placeholder="Например: Сезон 2 — Новая эра / Обновление v2.4" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1.5">Описание обновления *</label>
-                        <div class="bg-[#13161f] border border-vh-border rounded-t-xl p-2 flex flex-wrap items-center gap-1.5">
-                            <button type="button" onclick="execReleaseFormat('bold')" class="w-8 h-8 rounded-lg bg-vh-card hover:bg-amber-500 hover:text-black text-gray-200 text-xs font-bold transition"><i class="fa-solid fa-bold"></i></button>
-                            <button type="button" onclick="execReleaseFormat('italic')" class="w-8 h-8 rounded-lg bg-vh-card hover:bg-amber-500 hover:text-black text-gray-200 text-xs font-bold transition"><i class="fa-solid fa-italic"></i></button>
-                            <button type="button" onclick="execReleaseFormat('underline')" class="w-8 h-8 rounded-lg bg-vh-card hover:bg-amber-500 hover:text-black text-gray-200 text-xs font-bold transition"><i class="fa-solid fa-underline"></i></button>
-                            <button type="button" onclick="execReleaseFormat('formatBlock', 'H3')" class="px-2.5 h-8 rounded-lg bg-vh-card hover:bg-amber-500 hover:text-black text-gray-200 text-xs font-extrabold transition">H3</button>
-                            <button type="button" onclick="execReleaseFormat('insertUnorderedList')" class="w-8 h-8 rounded-lg bg-vh-card hover:bg-amber-500 hover:text-black text-gray-200 text-xs font-bold transition"><i class="fa-solid fa-list-ul"></i></button>
-                            <button type="button" onclick="execReleaseFormat('formatBlock', 'BLOCKQUOTE')" class="w-8 h-8 rounded-lg bg-vh-card hover:bg-amber-500 hover:text-black text-gray-200 text-xs font-bold transition"><i class="fa-solid fa-quote-right"></i></button>
-                            <div class="h-5 w-px bg-vh-border mx-1"></div>
-                            <div class="flex items-center flex-wrap gap-1">
-                                ${RELEASE_EMOJIS.map(em => `
-                                    <button type="button" onclick="insertReleaseEmoji('${em}')" class="w-7 h-7 rounded-lg hover:bg-vh-cardHover flex items-center justify-center text-sm transition active:scale-90">${em}</button>
-                                `).join('')}
-                            </div>
-                        </div>
-                        <div id="release-rich-editor" contenteditable="true" class="min-h-[180px] max-h-[340px] overflow-y-auto w-full px-4 py-3 rounded-b-xl bg-vh-bg border-x border-b border-vh-border text-sm text-gray-200 focus:border-amber-500 focus:outline-none release-rich-content">${existingHtml}</div>
-                    </div>
-                `;
-            } else if (cat.formType === 'rules') {
-                const defaultSub = state.activeRuleSubpage || 'forum';
-                heading.textContent = 'Добавить дополнительный пункт правил';
-                submitBtn.textContent = 'Опубликовать';
-
-                container.innerHTML = `
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">Раздел правил *</label>
-                        <select id="rule-subcategory" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
-                            <option value="forum" ${defaultSub === 'forum' ? 'selected' : ''}>Правила форума</option>
-                            <option value="game" ${defaultSub === 'game' ? 'selected' : ''}>Правила игры</option>
-                            <option value="staff" ${defaultSub === 'staff' ? 'selected' : ''}>Правила персонала</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">Заголовок *</label>
-                        <input type="text" id="std-title" required placeholder="Например: Дополнение к правилам ивентов" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">Текст *</label>
-                        <textarea id="std-content" required rows="6" placeholder="Опишите пункты правил..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
-                    </div>
-                `;
-            } else if (cat.formType === 'application') {
-                const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
-                const activePendingApp = state.threads.find(t => 
-                    t.categoryId === 'applications' &&
-                    t.authorUid === state.currentUserProfile.uid &&
-                    t.status === 'pending' &&
-                    (Date.now() - (t.createdAt || 0)) < sevenDaysMs
-                );
-
-                heading.textContent = 'Анкета на вступление в состав VelHamster';
-                submitBtn.textContent = 'Отправить анкету на рассмотрение';
-
-                container.innerHTML = `
-                    <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200 space-y-1.5">
-                        <div class="font-bold text-amber-400 flex items-center gap-1.5">
-                            <i class="fa-solid fa-triangle-exclamation"></i> Правила рассмотрения заявок:
-                        </div>
-                        <p>• Анкета рассматривается администрацией <strong>от 1 часа до 7 дней</strong>.</p>
-                        <p>• Если вам ещё не ответили и вы отправите повторную анкету до истечения 7 дней — <strong>вы получите автоматический отказ</strong>.</p>
-                        <p>• Минимальный возраст кандидата: <strong>14 лет</strong>.</p>
-                    </div>
-
-                    ${activePendingApp ? `
-                        <div class="p-3.5 rounded-xl bg-red-500/20 border border-red-500/50 text-xs text-red-200">
-                            <strong>Внимание!</strong> У вас уже есть активная анкета на рассмотрении от ${formatDate(activePendingApp.createdAt)}. Повторная отправка приведёт к отказу!
-                        </div>
-                    ` : ''}
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1">Желаемая должность *</label>
-                            <select id="app-position" required class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
-                                <option value="Хелпер">Хелпер</option>
-                                <option value="Модератор">Модератор</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1">1. Имя: Ваше реальное имя *</label>
-                            <input type="text" id="app-name" required placeholder="Например: Дмитрий" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1">2. Возраст (не меньше 14) *</label>
-                            <input type="number" id="app-age" required min="14" max="99" placeholder="14+" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1">3. Контактные данные (ВК или Telegram) *</label>
-                            <input type="text" id="app-contacts" required placeholder="@username или vk.com/id..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1">4. Игровой никнейм *</label>
-                            <input type="text" id="app-ign" required value="${escapeHtml(state.currentUserProfile.nickname)}" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1">5. Часовой пояс и онлайн в день *</label>
-                            <input type="text" id="app-online" required placeholder="МСК, 3-5 часов в день" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">6. С какой целью подаёте заявку и что хотите получить от участия в составе? *</label>
-                        <textarea id="app-goal" required rows="3" placeholder="Опишите вашу мотивацию и цели..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">7. Есть ли у вас опыт в данной работе? *</label>
-                        <p class="text-[11px] text-vh-muted mb-1.5">Какая была должность, по какой причине вы ушли, как долго вы были на своей должности? Опишите подробнее.</p>
-                        <textarea id="app-experience" required rows="3" placeholder="Подробно распишите ваш прошлый опыт..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">8. Расскажите немного о себе *</label>
-                        <textarea id="app-about" required rows="3" placeholder="Опишите себя, свой характер и сильные стороны..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
-                    </div>
-                `;
-            } else if (cat.formType === 'complaint' || cat.formType === 'admin_complaint') {
-                const isAdminComp = cat.formType === 'admin_complaint';
-                heading.textContent = isAdminComp ? 'Подача жалобы на администрацию' : 'Подача жалобы на игрока';
-                submitBtn.textContent = 'Отправить жалобу';
-
-                container.innerHTML = `
-                    <div class="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-200">
-                        После отправки жалобе присваивается статус <strong>«На рассмотрении»</strong>. Вы можете прикрепить скриншоты доказательств ниже.
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1">Ваш игровой ник *</label>
-                            <input type="text" id="comp-author" required value="${escapeHtml(state.currentUserProfile.nickname)}" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1">${isAdminComp ? 'Ник сотрудника администрации *' : 'Ник нарушителя *'}</label>
-                            <input type="text" id="comp-target" required placeholder="Введите никнейм" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">Суть нарушения *</label>
-                        <textarea id="comp-reason" required rows="3" placeholder="Подробно опишите ситуацию..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">Ссылка на видео / дополнительные доказательства</label>
-                        <input type="text" id="comp-proof" placeholder="https://youtube.com/... или прикрепите скриншоты ниже" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
-                    </div>
-                `;
-            } else if (cat.formType === 'idea') {
-                heading.textContent = 'Предложить идею для проекта';
-                submitBtn.textContent = 'Отправить идею';
-
-                container.innerHTML = `
-                    <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-200">
-                        Ваша идея получит статус <strong>«На рассмотрении»</strong>. При желании прикрепите примеры или скриншоты ниже!
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">Название идеи *</label>
-                        <input type="text" id="idea-title" required placeholder="Краткое название предложения" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">Подробное описание *</label>
-                        <textarea id="idea-desc" required rows="4" placeholder="Опишите вашу идею в деталях..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">Чем это поможет проекту VelHamster? *</label>
-                        <textarea id="idea-benefit" required rows="2" placeholder="Польза для игроков и сервера..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
-                    </div>
-                `;
-            } else {
-                heading.textContent = 'Создать публикацию';
-                submitBtn.textContent = 'Опубликовать';
-
-                container.innerHTML = `
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">Заголовок *</label>
-                        <input type="text" id="std-title" required placeholder="Введите заголовок..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-300 mb-1">Текст публикации *</label>
-                        <textarea id="std-content" required rows="6" placeholder="Напишите текст..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
-                    </div>
-                `;
-            }
-
-            openModal('create-thread-modal');
-        };
-
-        function sanitizeRichHtml(html) {
-            const temp = document.createElement('div');
-            temp.innerHTML = html;
-            temp.querySelectorAll('script, style, iframe, object, embed, link').forEach(el => el.remove());
-            temp.querySelectorAll('*').forEach(el => {
-                [...el.attributes].forEach(attr => {
-                    if (attr.name.startsWith('on') || attr.name === 'style') {
-                        el.removeAttribute(attr.name);
-                    }
-                });
-            });
-            return temp.innerHTML;
-        }
-
-        window.submitNewThread = async (e) => {
-            e.preventDefault();
-            if (!state.currentUserProfile || state.currentUserProfile.isBanned) return;
-
-            const catId = document.getElementById('thread-category-id').value;
-            const editingId = document.getElementById('editing-thread-id').value;
-            const cat = CATEGORIES.find(c => c.id === catId);
-            if (!cat) return;
-
-            let title = '';
-            let structuredFields = null;
-            let rawContent = '';
-            let richHtml = '';
-            let releaseVersion = '';
-            let ruleSubcategory = null;
-            let isRelease = false;
-            let status = cat.defaultStatus || 'open';
-
-            if (cat.formType === 'release') {
-                releaseVersion = document.getElementById('release-version').value.trim();
-                const editorEl = document.getElementById('release-rich-editor');
-                const plainText = editorEl.innerText.trim();
-                if (!releaseVersion || !plainText) {
-                    showToast('Заполните название обновления и его описание!', 'error');
-                    return;
-                }
-                richHtml = sanitizeRichHtml(editorEl.innerHTML);
-                rawContent = plainText;
-                title = releaseVersion;
-                status = 'release';
-                isRelease = true;
-
-                if (editingId) {
-                    try {
-                        await updateDoc(doc(threadsCol, editingId), {
-                            title,
-                            releaseVersion,
-                            richHtml,
-                            content: rawContent,
-                            attachments: [...state.threadImages],
-                            updatedAt: Date.now()
-                        });
-                        closeModal('create-thread-modal');
-                        showToast('Релиз успешно обновлён!', 'success');
-                        openThread(editingId);
-                    } catch (err) {
-                        showToast('Ошибка редактирования: ' + err.message, 'error');
-                    }
-                    return;
-                }
-            } else if (cat.formType === 'rules') {
-                ruleSubcategory = document.getElementById('rule-subcategory').value;
-                title = document.getElementById('std-title').value.trim();
-                rawContent = document.getElementById('std-content').value.trim();
-            } else if (cat.formType === 'application') {
-                const position = document.getElementById('app-position').value;
-                const name = document.getElementById('app-name').value.trim();
-                const age = parseInt(document.getElementById('app-age').value, 10);
-                const contacts = document.getElementById('app-contacts').value.trim();
-                const ign = document.getElementById('app-ign').value.trim();
-                const online = document.getElementById('app-online').value.trim();
-                const goal = document.getElementById('app-goal').value.trim();
-                const experience = document.getElementById('app-experience').value.trim();
-                const about = document.getElementById('app-about').value.trim();
-
-                if (isNaN(age) || age < 14) {
-                    showToast('Возраст кандидата не может быть меньше 14 лет!', 'error');
-                    return;
-                }
-
-                const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
-                const hasPending = state.threads.some(t =>
-                    t.categoryId === 'applications' &&
-                    t.authorUid === state.currentUserProfile.uid &&
-                    t.status === 'pending' &&
-                    (Date.now() - (t.createdAt || 0)) < sevenDaysMs
-                );
-
-                title = `Заявка на пост «${position}» от ${ign} (${name}, ${age} лет)`;
-                structuredFields = [
-                    { label: 'Желаемая должность', value: position },
-                    { label: '1. Реальное имя', value: name },
-                    { label: '2. Возраст', value: `${age} лет` },
-                    { label: '3. Контактные данные (ВК / Telegram)', value: contacts },
-                    { label: '4. Игровой никнейм', value: ign },
-                    { label: '5. Часовой пояс и онлайн в день', value: online },
-                    { label: '6. Цель подачи заявки и ожидания от состава', value: goal },
-                    { label: '7. Опыт в данной работе', value: experience },
-                    { label: '8. О себе', value: about }
-                ];
-
-                if (hasPending) {
-                    status = 'rejected';
-                    rawContent = 'Автоматический отказ: повторная отправка заявки до истечения 7 дней без ответа на предыдущую анкету.';
-                } else {
-                    status = 'pending';
-                }
-            } else if (cat.formType === 'complaint' || cat.formType === 'admin_complaint') {
-                const author = document.getElementById('comp-author').value.trim();
-                const target = document.getElementById('comp-target').value.trim();
-                const reason = document.getElementById('comp-reason').value.trim();
-                const proof = document.getElementById('comp-proof').value.trim() || 'Скриншоты прикреплены ниже';
-
-                title = cat.formType === 'admin_complaint'
-                    ? `Жалоба на администратора ${target}`
-                    : `Жалоба на игрока ${target}`;
-                status = 'pending';
-                structuredFields = [
-                    { label: 'Ваш игровой никнейм', value: author },
-                    { label: cat.formType === 'admin_complaint' ? 'Никнейм администратора' : 'Никнейм нарушителя', value: target },
-                    { label: 'Суть нарушения', value: reason },
-                    { label: 'Доказательства', value: proof }
-                ];
-            } else if (cat.formType === 'idea') {
-                const ideaTitle = document.getElementById('idea-title').value.trim();
-                const ideaDesc = document.getElementById('idea-desc').value.trim();
-                const ideaBenefit = document.getElementById('idea-benefit').value.trim();
-
-                title = ideaTitle;
-                status = 'pending';
-                structuredFields = [
-                    { label: 'Описание идеи', value: ideaDesc },
-                    { label: 'Польза для проекта VelHamster', value: ideaBenefit }
-                ];
-            } else {
-                title = document.getElementById('std-title').value.trim();
-                rawContent = document.getElementById('std-content').value.trim();
-            }
-
             try {
-                const docRef = await addDoc(threadsCol, {
-                    categoryId: catId,
-                    ruleSubcategory,
-                    title,
-                    content: rawContent,
-                    richHtml,
-                    releaseVersion,
-                    isRelease,
-                    structuredFields,
-                    attachments: [...state.threadImages],
-                    authorUid: state.currentUserProfile.uid,
-                    status,
-                    isPinned: false,
-                    isLocked: status === 'rejected',
-                    views: 1,
-                    createdAt: Date.now(),
-                    likes: []
-                });
+                await updateDoc(doc(usersCol, me.uid), { lastReadAllAt: Date.now() });
+                showToast('Весь контент сообщества отмечен прочитанным!', 'success');
+            } catch (e) {
+                showToast('Отмечено прочитанным.', 'success');
+            }
+        };
 
-                if (!isRelease) {
-                    await updateDoc(doc(usersCol, state.currentUserProfile.uid), {
-                        postsCount: (state.currentUserProfile.postsCount || 0) + 1
-                    });
-                }
-
-                state.threadImages = [];
-                closeModal('create-thread-modal');
-                if (status === 'rejected') {
-                    showToast('Заявка отклонена автоматически: вы не дождались ответа на прошлую анкету (7 дней).', 'error');
-                } else if (isRelease) {
-                    showToast('Релиз обновления VelHamster успешно опубликован!', 'success');
-                } else if (status === 'pending') {
-                    showToast('Отправлено! Статус: «На рассмотрении».', 'success');
-                } else {
-                    showToast('Публикация успешно создана!', 'success');
-                }
-                openThread(docRef.id);
+        window.uploadUserAvatar = async (e) => {
+            const me = state.currentUserProfile;
+            if (!me || me.isBanned) return;
+            const file = e.target.files?.[0];
+            if (!file) return;
+            try {
+                showToast('Загрузка и сжатие аватарки...', 'info');
+                const dataUrl = await compressImageFile(file, 320, 0.82);
+                await updateDoc(doc(usersCol, me.uid), { avatar: dataUrl });
+                showToast('Аватарка профиля успешно обновлена!', 'success');
             } catch (err) {
-                showToast('Ошибка при сохранении: ' + err.message, 'error');
+                showToast('Ошибка загрузки аватарки: ' + err.message, 'error');
+            }
+            e.target.value = '';
+        };
+
+        window.removeUserAvatar = async () => {
+            const me = state.currentUserProfile;
+            if (!me || me.isBanned) return;
+            try {
+                await updateDoc(doc(usersCol, me.uid), { avatar: '' });
+                showToast('Аватарка удалена.', 'info');
+            } catch (err) {
+                showToast('Ошибка: ' + err.message, 'error');
             }
         };
 
-        // =========================================================================
-        // 13. МОДЕРАЦИЯ ТЕМ, ЧС ПОЛЬЗОВАТЕЛЕЙ И УДАЛЕНИЕ АККАУНТА (ТЕХ. АДМИН)
-        // =========================================================================
-        function canReviewThread(thread) {
-            const level = getUserLevel();
-            if (level < 3) return false;
-            const cat = CATEGORIES.find(c => c.id === thread.categoryId);
-            const requiredLevel = cat ? cat.minReviewLevel : 3;
-            return level >= requiredLevel;
-        }
+        window.saveAboutAndAgeSettings = async (e) => {
+            e.preventDefault();
+            const me = state.currentUserProfile;
+            if (!me || me.isBanned) return;
+            const ageRaw = document.getElementById('settings-age-input')?.value.trim();
+            const bio = document.getElementById('settings-bio-input')?.value.trim() || '';
+            let ageVal = null;
+            if (ageRaw !== '') {
+                const parsed = parseInt(ageRaw, 10);
+                if (isNaN(parsed) || parsed < 6 || parsed > 99) {
+                    showToast('Укажите корректный возраст (от 6 до 99 лет) или оставьте поле пустым.', 'error');
+                    return;
+                }
+                ageVal = parsed;
+            }
+            try {
+                await updateDoc(doc(usersCol, me.uid), { age: ageVal, bio });
+                showToast('Возраст и информация «О себе» сохранены!', 'success');
+            } catch (err) {
+                showToast('Ошибка сохранения: ' + err.message, 'error');
+            }
+        };
 
-        window.moderateThread = async (threadId, action) => {
-            const t = state.threads.find(item => item.id === threadId);
-            if (!t) return;
+        window.saveSignatureSettings = async (e) => {
+            e.preventDefault();
+            const me = state.currentUserProfile;
+            if (!me || me.isBanned) return;
+            const sig = document.getElementById('settings-signature-input')?.value.trim() || '';
+            try {
+                await updateDoc(doc(usersCol, me.uid), { signature: sig });
+                showToast('Подпись профиля обновлена!', 'success');
+            } catch (err) {
+                showToast('Ошибка: ' + err.message, 'error');
+            }
+        };
 
-            if (!canReviewThread(t)) {
-                showToast('Для проверки этого раздела требуется более высокая должность.', 'error');
+        window.savePrivacySettings = async (e) => {
+            e.preventDefault();
+            const me = state.currentUserProfile;
+            if (!me) return;
+            const privacyShowAge = document.getElementById('priv-show-age')?.checked ?? true;
+            const privacyShowOnline = document.getElementById('priv-show-online')?.checked ?? true;
+            const privacyAllowDm = document.getElementById('priv-allow-dm')?.checked ?? true;
+            try {
+                await updateDoc(doc(usersCol, me.uid), { privacyShowAge, privacyShowOnline, privacyAllowDm });
+                showToast('Настройки приватности сохранены!', 'success');
+            } catch (err) {
+                showToast('Ошибка: ' + err.message, 'error');
+            }
+        };
+
+        window.changeAccountEmail = async (e) => {
+            e.preventDefault();
+            const newEmail = document.getElementById('settings-new-email')?.value.trim();
+            if (!newEmail || !newEmail.includes('@') || !state.authUser) {
+                showToast('Введите корректный Email адрес.', 'error');
                 return;
             }
-
-            const tRef = doc(threadsCol, threadId);
-            const reviewerName = state.currentUserProfile.nickname;
-            const reviewerRole = getRoleObj(state.currentUserProfile.role).name;
-
             try {
-                if (action === 'approve') {
-                    await updateDoc(tRef, { status: 'approved', isLocked: true, reviewedBy: reviewerName, reviewedAt: Date.now() });
-                    await addDoc(postsCol, {
-                        threadId,
-                        authorUid: state.currentUserProfile.uid,
-                        content: `✅ Одобрено. Проверил: ${reviewerName} (${reviewerRole}).`,
-                        isSystemVerdict: true,
-                        verdictType: 'approved',
-                        createdAt: Date.now(),
-                        likes: []
-                    });
-                    showToast('Статус изменён на «Одобрено»!', 'success');
-                } else if (action === 'reject') {
-                    await updateDoc(tRef, { status: 'rejected', isLocked: true, reviewedBy: reviewerName, reviewedAt: Date.now() });
-                    await addDoc(postsCol, {
-                        threadId,
-                        authorUid: state.currentUserProfile.uid,
-                        content: `❌ Отказано. Проверил: ${reviewerName} (${reviewerRole}).`,
-                        isSystemVerdict: true,
-                        verdictType: 'rejected',
-                        createdAt: Date.now(),
-                        likes: []
-                    });
-                    showToast('Статус изменён на «Отказано».', 'warning');
-                } else if (action === 'pending') {
-                    await updateDoc(tRef, { status: 'pending', isLocked: false });
-                    showToast('Возвращено на рассмотрение.', 'info');
-                } else if (action === 'pin') {
-                    if (getUserLevel() < 4) { showToast('Закреплять темы могут Старший модератор и Администрация.', 'warning'); return; }
-                    const nextPin = !t.isPinned;
-                    await updateDoc(tRef, { isPinned: nextPin });
-                    showToast(nextPin ? 'Закреплено вверху раздела!' : 'Откреплено.', 'success');
-                } else if (action === 'delete') {
-                    if (getUserLevel() < 4) { showToast('Удалять темы могут Старший модератор и Администрация.', 'warning'); return; }
-                    await deleteDoc(tRef);
-                    showToast('Тема удалена.', 'info');
-                    openCategory(t.categoryId);
-                }
+                await updateEmail(state.authUser, newEmail);
+                await updateDoc(doc(usersCol, state.authUser.uid), { email: newEmail });
+                showToast('Email адрес успешно изменён!', 'success');
+            } catch (err) {
+                showToast('Для смены Email может потребоваться недавний перезаход в аккаунт: ' + err.message, 'error');
+            }
+        };
+
+        window.changeAccountPassword = async (e) => {
+            e.preventDefault();
+            const p1 = document.getElementById('settings-new-pass')?.value || '';
+            const p2 = document.getElementById('settings-confirm-pass')?.value || '';
+            if (p1.length < 6) {
+                showToast('Пароль должен содержать минимум 6 символов.', 'error');
+                return;
+            }
+            if (p1 !== p2) {
+                showToast('Новые пароли не совпадают!', 'error');
+                return;
+            }
+            if (!state.authUser) return;
+            try {
+                await updatePassword(state.authUser, p1);
+                document.getElementById('settings-new-pass').value = '';
+                document.getElementById('settings-confirm-pass').value = '';
+                showToast('Пароль аккаунта успешно изменён!', 'success');
+            } catch (err) {
+                showToast('Ошибка смены пароля (попробуйте перезайти в аккаунт): ' + err.message, 'error');
+            }
+        };
+
+        window.toggleFollowThread = async (threadId) => {
+            const me = state.currentUserProfile;
+            if (!me) { openModal('auth-modal'); return; }
+            const list = Array.isArray(me.followedThreads) ? [...me.followedThreads] : [];
+            const idx = list.indexOf(threadId);
+            if (idx === -1) list.push(threadId);
+            else list.splice(idx, 1);
+            try {
+                await updateDoc(doc(usersCol, me.uid), { followedThreads: list });
+                showToast(idx === -1 ? 'Вы подписались на тему!' : 'Вы отписались от темы.', 'info');
+            } catch (err) {
+                showToast('Ошибка: ' + err.message, 'error');
+            }
+        };
+
+        window.toggleFollowCategory = async (catId) => {
+            const me = state.currentUserProfile;
+            if (!me) { openModal('auth-modal'); return; }
+            const list = Array.isArray(me.followedCategories) ? [...me.followedCategories] : [];
+            const idx = list.indexOf(catId);
+            if (idx === -1) list.push(catId);
+            else list.splice(idx, 1);
+            try {
+                await updateDoc(doc(usersCol, me.uid), { followedCategories: list });
+                showToast(idx === -1 ? 'Раздел добавлен в отслеживаемые!' : 'Раздел убран из отслеживаемых.', 'info');
+            } catch (err) {
+                showToast('Ошибка: ' + err.message, 'error');
+            }
+        };
+
+        window.addIgnoredUserByNick = async (e) => {
+            e.preventDefault();
+            const me = state.currentUserProfile;
+            if (!me) return;
+            const nick = document.getElementById('ignore-nick-input')?.value.trim().toLowerCase();
+            if (!nick) return;
+            const found = Object.values(state.users).find(u => (u.nickname || '').toLowerCase() === nick);
+            if (!found) {
+                showToast('Пользователь с таким никнеймом не найден.', 'error');
+                return;
+            }
+            if (found.uid === me.uid) {
+                showToast('Нельзя добавить самого себя в список игнорируемых.', 'warning');
+                return;
+            }
+            const ignored = Array.isArray(me.ignoredUsers) ? [...me.ignoredUsers] : [];
+            if (ignored.includes(found.uid)) {
+                showToast('Этот пользователь уже в списке игнорируемых.', 'info');
+                return;
+            }
+            ignored.push(found.uid);
+            try {
+                await updateDoc(doc(usersCol, me.uid), { ignoredUsers: ignored });
+                document.getElementById('ignore-nick-input').value = '';
+                showToast(`Пользователь ${found.nickname} добавлен в список игнорируемых.`, 'success');
+            } catch (err) {
+                showToast('Ошибка: ' + err.message, 'error');
+            }
+        };
+
+        window.removeIgnoredUser = async (targetUid) => {
+            const me = state.currentUserProfile;
+            if (!me) return;
+            const ignored = (Array.isArray(me.ignoredUsers) ? me.ignoredUsers : []).filter(id => id !== targetUid);
+            try {
+                await updateDoc(doc(usersCol, me.uid), { ignoredUsers: ignored });
+                showToast('Пользователь убран из игнорируемых.', 'info');
             } catch (err) {
                 showToast('Ошибка: ' + err.message, 'error');
             }
@@ -2616,6 +2271,13 @@
                                     </div>
                                 </div>
 
+                                ${target.age && (target.privacyShowAge !== false || isSelf) ? `
+                                    <div class="px-5">
+                                        <div class="text-xs font-bold text-gray-300">Возраст</div>
+                                        <div class="text-xs sm:text-sm text-amber-400 font-bold mt-0.5">${target.age} лет</div>
+                                    </div>
+                                ` : ''}
+
                                 <div class="px-5">
                                     <div class="text-xs font-bold text-gray-300">Зарегистрирован</div>
                                     <div class="text-xs sm:text-sm text-vh-muted mt-0.5">${formatFullDate(target.createdAt)}</div>
@@ -2629,6 +2291,12 @@
                         </div>
 
                         <div class="flex items-center flex-wrap gap-2 self-start lg:self-center">
+                            ${isSelf ? `
+                                <button onclick="openSettingsPage('about')" class="px-4 py-2.5 rounded-xl bg-vh-bg hover:bg-vh-cardHover border border-amber-500/40 text-amber-400 font-bold text-xs sm:text-sm transition flex items-center gap-2">
+                                    <i class="fa-solid fa-user-pen"></i>
+                                    <span>Редактировать профиль</span>
+                                </button>
+                            ` : ''}
                             ${isMediaOrAdminProfile && viewer && !isSelf ? `
                                 <button onclick="toggleFollowUser('${target.uid}')" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-2 ${isFollowing ? 'bg-vh-bg border border-pink-500/50 text-pink-300 hover:bg-pink-950/30' : 'bg-pink-600 hover:bg-pink-500 text-white shadow-lg shadow-pink-600/20'}">
                                     <i class="fa-solid ${isFollowing ? 'fa-user-check' : 'fa-user-plus'}"></i>
@@ -2763,6 +2431,26 @@
                 ${state.profileMode === 'overview' ? `
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                         <div class="lg:col-span-4 space-y-5">
+                            ${(target.bio || target.age || isSelf) ? `
+                                <div class="bg-vh-card border border-vh-border rounded-2xl p-5 space-y-3">
+                                    <div class="flex items-center justify-between border-b border-vh-border pb-2.5">
+                                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                            <i class="fa-solid fa-address-card text-amber-400"></i> О себе
+                                        </h3>
+                                        ${isSelf ? `<button onclick="openSettingsPage('about')" class="text-xs text-amber-400 hover:underline font-semibold">Изменить</button>` : ''}
+                                    </div>
+                                    ${target.age && (target.privacyShowAge !== false || isSelf) ? `
+                                        <div class="text-xs text-gray-300 flex items-center justify-between bg-vh-bg/70 px-3 py-2 rounded-xl border border-vh-border">
+                                            <span class="text-vh-muted">Возраст:</span>
+                                            <span class="font-bold text-white">${target.age} лет</span>
+                                        </div>
+                                    ` : ''}
+                                    <p class="text-xs sm:text-sm text-gray-300 whitespace-pre-line leading-relaxed">
+                                        ${target.bio ? escapeHtml(target.bio) : '<span class="text-vh-muted italic">Пользователь пока не заполнил информацию о себе.</span>'}
+                                    </p>
+                                </div>
+                            ` : ''}
+
                             ${isMediaOrAdminProfile ? `
                                 <div class="bg-vh-card border border-vh-border rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-3">
                                     <div>
@@ -3289,50 +2977,62 @@
                         ${unreadDmCount > 0 ? `<span class="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full bg-amber-500 text-black text-[10px] font-extrabold">${unreadDmCount}</span>` : ''}
                     </button>
 
-                    <div onclick="openUserProfile('${me.uid}')" class="flex items-center gap-2.5 bg-vh-card hover:bg-vh-cardHover border border-vh-border px-2.5 sm:px-3 py-1.5 rounded-xl cursor-pointer transition">
-                        <div class="w-8 h-8 rounded-full ${getAvatarColor(me.uid)} text-white font-bold text-xs flex items-center justify-center overflow-hidden shrink-0">
-                            ${me.avatar ? `<img src="${escapeHtml(me.avatar)}" class="w-full h-full object-cover">` : escapeHtml(me.nickname.slice(0, 1).toUpperCase())}
-                        </div>
-                        <div class="hidden sm:block text-left">
-                            <div class="text-xs font-bold text-white leading-tight">${escapeHtml(me.nickname)}</div>
-                            <div class="text-[10px] font-semibold text-amber-400 leading-tight">${role.name}</div>
-                        </div>
-                    </div>
-
-                    <button onclick="logoutUser()" title="Выйти из аккаунта" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-vh-card hover:bg-red-950/60 border border-vh-border text-vh-muted hover:text-red-400 flex items-center justify-center transition">
-                        <i class="fa-solid fa-right-from-bracket text-sm"></i>
-                    </button>
-                `;
-
-                sidebarUser.innerHTML = `
-                    <div class="flex items-center gap-3 pb-4 border-b border-vh-border">
-                        <div onclick="openUserProfile('${me.uid}')" class="w-12 h-12 rounded-full ${getAvatarColor(me.uid)} text-white font-extrabold text-lg flex items-center justify-center cursor-pointer overflow-hidden shrink-0">
-                            ${me.avatar ? `<img src="${escapeHtml(me.avatar)}" class="w-full h-full object-cover">` : escapeHtml(me.nickname.slice(0, 1).toUpperCase())}
-                        </div>
-                        <div class="min-w-0">
-                            <div onclick="openUserProfile('${me.uid}')" class="text-sm font-extrabold text-white hover:text-amber-400 cursor-pointer truncate">${escapeHtml(me.nickname)}</div>
-                            <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded text-[10px] font-bold border ${role.badge}">
-                                <i class="fa-solid ${role.icon}"></i> ${role.name}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 py-3 text-center">
-                        <div class="bg-vh-bg rounded-xl p-2 border border-vh-border">
-                            <div class="text-sm font-extrabold text-white">${me.postsCount || 0}</div>
-                            <div class="text-[10px] text-vh-muted">Постов</div>
-                        </div>
-                        <div class="bg-vh-bg rounded-xl p-2 border border-vh-border">
-                            <div class="text-sm font-extrabold text-amber-400">${me.rating || 0}</div>
-                            <div class="text-[10px] text-vh-muted">Репутация</div>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="openUserProfile('${me.uid}')" class="py-2 rounded-xl bg-vh-bg hover:bg-vh-cardHover border border-vh-border text-xs font-bold text-gray-200 transition">
-                            Мой профиль
+                    <!-- Выпадающее меню профиля при нажатии -->
+                    <div class="relative user-dropdown-wrapper">
+                        <button type="button" onclick="toggleUserDropdown(event)" class="flex items-center gap-2.5 bg-vh-card hover:bg-vh-cardHover border border-vh-border px-2.5 sm:px-3 py-1.5 rounded-xl cursor-pointer transition">
+                            <div class="w-8 h-8 rounded-full ${getAvatarColor(me.uid)} text-white font-bold text-xs flex items-center justify-center overflow-hidden shrink-0">
+                                ${me.avatar ? `<img src="${escapeHtml(me.avatar)}" class="w-full h-full object-cover">` : escapeHtml(me.nickname.slice(0, 1).toUpperCase())}
+                            </div>
+                            <div class="hidden sm:block text-left">
+                                <div class="text-xs font-bold text-white leading-tight flex items-center gap-1.5">
+                                    <span>${escapeHtml(me.nickname)}</span>
+                                    <i class="fa-solid fa-chevron-down text-[9px] text-vh-muted"></i>
+                                </div>
+                                <div class="text-[10px] font-semibold text-amber-400 leading-tight">${role.name}</div>
+                            </div>
                         </button>
-                        <button onclick="navigate('messages')" class="py-2 rounded-xl bg-vh-bg hover:bg-vh-cardHover border border-vh-border text-xs font-bold text-amber-400 transition">
-                            Почта (${unreadDmCount})
-                        </button>
+
+                        <div id="user-profile-dropdown" class="hidden absolute right-0 top-full mt-2 w-64 bg-[#1b1f29] border border-vh-border rounded-2xl shadow-2xl overflow-hidden z-50">
+                            <div class="px-4 py-3 bg-[#151821] border-b border-vh-border">
+                                <div class="text-xs font-extrabold text-white truncate">${escapeHtml(me.nickname)}</div>
+                                <div class="text-[11px] text-amber-400 font-semibold">${role.name}</div>
+                            </div>
+
+                            <div class="py-1.5">
+                                <div class="px-4 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-vh-muted">Контент</div>
+                                <button type="button" onclick="closeUserDropdown(); openUserProfile('${me.uid}')" class="w-full text-left px-4 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-amber-500 hover:text-black transition flex items-center gap-2.5">
+                                    <i class="fa-regular fa-user w-4 text-center"></i>
+                                    <span>Профиль</span>
+                                </button>
+                                <button type="button" onclick="closeUserDropdown(); navigate('attachments')" class="w-full text-left px-4 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-amber-500 hover:text-black transition flex items-center gap-2.5">
+                                    <i class="fa-solid fa-paperclip w-4 text-center"></i>
+                                    <span>Мои вложения</span>
+                                </button>
+                            </div>
+
+                            <div class="py-1.5 border-t border-vh-border">
+                                <div class="px-4 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-vh-muted">Настройки</div>
+                                <button type="button" onclick="closeUserDropdown(); navigate('followed')" class="w-full text-left px-4 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-amber-500 hover:text-black transition flex items-center gap-2.5">
+                                    <i class="fa-regular fa-star w-4 text-center"></i>
+                                    <span>Отслеживаемый контент</span>
+                                </button>
+                                <button type="button" onclick="openSettingsPage('overview')" class="w-full text-left px-4 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-amber-500 hover:text-black transition flex items-center gap-2.5">
+                                    <i class="fa-solid fa-gear w-4 text-center"></i>
+                                    <span>Настройки</span>
+                                </button>
+                                <button type="button" onclick="closeUserDropdown(); navigate('ignored')" class="w-full text-left px-4 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-amber-500 hover:text-black transition flex items-center gap-2.5">
+                                    <i class="fa-solid fa-user-slash w-4 text-center"></i>
+                                    <span>Игнорируемые пользователи</span>
+                                </button>
+                            </div>
+
+                            <div class="py-1.5 border-t border-vh-border">
+                                <button type="button" onclick="closeUserDropdown(); logoutUser()" class="w-full text-left px-4 py-2 text-xs sm:text-sm font-bold text-red-400 hover:bg-red-500/15 transition flex items-center gap-2.5">
+                                    <i class="fa-solid fa-right-from-bracket w-4 text-center"></i>
+                                    <span>Выйти</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 `;
             }
@@ -3424,6 +3124,50 @@
                     <span>/</span>
                     <span class="text-white font-semibold">Личные сообщения</span>
                 `;
+            } else if (state.view === 'settings') {
+                bc.innerHTML = `
+                    <button onclick="navigate('home')" class="hover:text-amber-400 transition"><i class="fa-solid fa-house mr-1"></i>Главная</button>
+                    <span>/</span>
+                    <span class="text-white font-semibold">Настройки</span>
+                `;
+                actions.innerHTML = `
+                    <button onclick="openModal('mark-read-modal')" class="px-3.5 py-2 rounded-xl bg-vh-card hover:bg-vh-cardHover border border-vh-border text-xs font-bold text-gray-300 hover:text-amber-400 transition flex items-center gap-1.5">
+                        <i class="fa-regular fa-file-lines"></i> Непрочитанное
+                    </button>
+                `;
+            } else if (state.view === 'followed') {
+                bc.innerHTML = `
+                    <button onclick="navigate('home')" class="hover:text-amber-400 transition"><i class="fa-solid fa-house mr-1"></i>Главная</button>
+                    <span>/</span>
+                    <span class="text-white font-semibold">Отслеживаемый контент</span>
+                `;
+                actions.innerHTML = `
+                    <button onclick="openModal('mark-read-modal')" class="px-3.5 py-2 rounded-xl bg-vh-card hover:bg-vh-cardHover border border-vh-border text-xs font-bold text-gray-300 hover:text-amber-400 transition flex items-center gap-1.5">
+                        <i class="fa-regular fa-file-lines"></i> Непрочитанное
+                    </button>
+                `;
+            } else if (state.view === 'ignored') {
+                bc.innerHTML = `
+                    <button onclick="navigate('home')" class="hover:text-amber-400 transition"><i class="fa-solid fa-house mr-1"></i>Главная</button>
+                    <span>/</span>
+                    <span class="text-white font-semibold">Игнорируемые пользователи</span>
+                `;
+                actions.innerHTML = `
+                    <button onclick="openModal('mark-read-modal')" class="px-3.5 py-2 rounded-xl bg-vh-card hover:bg-vh-cardHover border border-vh-border text-xs font-bold text-gray-300 hover:text-amber-400 transition flex items-center gap-1.5">
+                        <i class="fa-regular fa-file-lines"></i> Непрочитанное
+                    </button>
+                `;
+            } else if (state.view === 'attachments') {
+                bc.innerHTML = `
+                    <button onclick="navigate('home')" class="hover:text-amber-400 transition"><i class="fa-solid fa-house mr-1"></i>Главная</button>
+                    <span>/</span>
+                    <span class="text-white font-semibold">Мои Вложения</span>
+                `;
+                actions.innerHTML = `
+                    <button onclick="openModal('mark-read-modal')" class="px-3.5 py-2 rounded-xl bg-vh-card hover:bg-vh-cardHover border border-vh-border text-xs font-bold text-gray-300 hover:text-amber-400 transition flex items-center gap-1.5">
+                        <i class="fa-regular fa-file-lines"></i> Непрочитанное
+                    </button>
+                `;
             } else if (state.view === 'activity') {
                 bc.innerHTML = `
                     <button onclick="navigate('home')" class="hover:text-amber-400 transition"><i class="fa-solid fa-house mr-1"></i>Главная</button>
@@ -3506,6 +3250,26 @@
                 forumGrid.classList.add('hidden');
                 profileContainer.classList.remove('hidden');
                 renderMessagesPage();
+                return;
+            } else if (state.view === 'settings') {
+                forumGrid.classList.add('hidden');
+                profileContainer.classList.remove('hidden');
+                renderAccountSettingsPage();
+                return;
+            } else if (state.view === 'followed') {
+                forumGrid.classList.add('hidden');
+                profileContainer.classList.remove('hidden');
+                renderFollowedContentPage();
+                return;
+            } else if (state.view === 'ignored') {
+                forumGrid.classList.add('hidden');
+                profileContainer.classList.remove('hidden');
+                renderIgnoredUsersPage();
+                return;
+            } else if (state.view === 'attachments') {
+                forumGrid.classList.add('hidden');
+                profileContainer.classList.remove('hidden');
+                renderMyAttachmentsPage();
                 return;
             } else {
                 profileContainer.classList.add('hidden');
@@ -3893,106 +3657,857 @@
                                         ${attachments.length > 0 ? `
                                             <div class="mt-4 pt-4 border-t border-vh-border/60">
                                                 <div class="text-xs font-bold text-vh-muted mb-2"><i class="fa-regular fa-images mr-1"></i> Прикреплённые скриншоты:</div>
-                                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                                     ${attachments.map(src => `
-                                                        <img src="${src}" onclick="openLightbox('${src}')" class="rounded-xl border border-vh-border object-cover aspect-video cursor-zoom-in hover:opacity-90 transition">
+                                                        <img src="${src}" onclick="openLightbox('${src}')" class="rounded-xl border border-vh-border object-cover max-h-64 w-full cursor-zoom-in hover:opacity-90 transition">
                                                     `).join('')}
                                                 </div>
                                             </div>
                                         ` : ''}
                                     </div>
 
-                                    <div class="mt-6 pt-3 border-t border-vh-border/60 flex items-center justify-between">
+                                    <div class="mt-6 pt-3 border-t border-vh-border/60 flex items-center justify-between flex-wrap gap-2">
                                         <button onclick="toggleThreadLike('${t.id}')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 ${isLiked ? 'bg-amber-500/20 border-amber-500 text-amber-400' : 'bg-vh-bg border-vh-border text-vh-muted hover:text-white'}">
                                             <i class="fa-solid fa-heart"></i>
                                             <span>Нравится (${likesArr.length})</span>
                                         </button>
+                                        ${state.currentUserProfile ? (() => {
+                                            const isSubscribed = (state.currentUserProfile.followedThreads || []).includes(t.id);
+                                            return `
+                                                <button onclick="toggleFollowThread('${t.id}')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 ${isSubscribed ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300' : 'bg-vh-bg border-vh-border text-vh-muted hover:text-white'}">
+                                                    <i class="fa-solid ${isSubscribed ? 'fa-bell-slash' : 'fa-bell'}"></i>
+                                                    <span>${isSubscribed ? 'Отписаться от темы' : 'Подписаться на тему'}</span>
+                                                </button>
+                                            `;
+                                        })() : ''}
                                     </div>
                                 </div>
                             </div>
                         </article>
                     `}
 
+                    <!-- Ответы в теме -->
                     <div class="space-y-4">
-                        ${replies.map((p, index) => {
-                            const pAuthor = state.users[p.authorUid];
-                            const pRole = getRoleObj(pAuthor?.role);
-                            const verdictBorder = p.verdictType === 'approved' ? 'border-emerald-500/50 bg-emerald-950/15' : (p.verdictType === 'rejected' ? 'border-red-500/50 bg-red-950/15' : 'border-vh-border bg-vh-card');
-                            const pAttachments = Array.isArray(p.attachments) ? p.attachments : [];
-
+                        ${replies.map((p, idx) => {
+                            const rAuthor = state.users[p.authorUid];
+                            const rRole = getRoleObj(rAuthor?.role);
+                            const pAtt = Array.isArray(p.attachments) ? p.attachments : [];
                             return `
-                                <div class="border ${verdictBorder} rounded-2xl overflow-hidden">
+                                <article class="bg-vh-card border ${p.isSystemVerdict ? 'border-amber-500/40 bg-amber-500/[0.03]' : 'border-vh-border'} rounded-2xl overflow-hidden">
                                     <div class="grid grid-cols-1 md:grid-cols-12">
-                                        <div class="md:col-span-3 bg-[#141720]/80 p-4 border-b md:border-b-0 md:border-r border-vh-border flex md:flex-col items-center md:text-center gap-3">
-                                            <div onclick="openUserProfile('${p.authorUid}')" class="w-10 h-10 md:w-12 md:h-12 rounded-full ${getAvatarColor(p.authorUid)} text-white font-bold flex items-center justify-center text-sm cursor-pointer overflow-hidden shrink-0">
-                                                ${pAuthor?.avatar ? `<img src="${escapeHtml(pAuthor.avatar)}" class="w-full h-full object-cover">` : escapeHtml((pAuthor?.nickname || 'P').slice(0, 1).toUpperCase())}
+                                        <div class="md:col-span-3 bg-[#141720] p-4 sm:p-5 border-b md:border-b-0 md:border-r border-vh-border flex md:flex-col items-center md:text-center gap-3">
+                                            <div onclick="openUserProfile('${p.authorUid}')" class="w-11 h-11 md:w-14 md:h-14 rounded-full ${getAvatarColor(p.authorUid)} text-white font-extrabold flex items-center justify-center text-base md:text-lg cursor-pointer overflow-hidden shrink-0">
+                                                ${rAuthor?.avatar ? `<img src="${escapeHtml(rAuthor.avatar)}" class="w-full h-full object-cover">` : escapeHtml((rAuthor?.nickname || 'P').slice(0, 1).toUpperCase())}
                                             </div>
-                                            <div>
-                                                <div onclick="openUserProfile('${p.authorUid}')" class="text-xs sm:text-sm font-bold text-white hover:text-amber-400 cursor-pointer">
-                                                    ${escapeHtml(pAuthor?.nickname || 'Пользователь')}
+                                            <div class="min-w-0">
+                                                <div onclick="openUserProfile('${p.authorUid}')" class="text-sm font-bold text-white hover:text-amber-400 cursor-pointer truncate">
+                                                    ${escapeHtml(rAuthor?.nickname || 'Пользователь')}
                                                 </div>
-                                                <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded text-[10px] font-bold border ${pRole.badge}">
-                                                    ${pRole.name}
+                                                <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded text-[10px] font-bold border ${rRole.badge}">
+                                                    <i class="fa-solid ${rRole.icon}"></i> ${rRole.name}
                                                 </span>
                                             </div>
                                         </div>
-                                        <div class="md:col-span-9 p-4 sm:p-5">
-                                            <div class="text-xs text-vh-muted mb-3 flex justify-between">
+                                        <div class="md:col-span-9 p-5 sm:p-6">
+                                            <div class="text-xs text-vh-muted mb-3 pb-2 border-b border-vh-border/60 flex justify-between">
                                                 <span>${formatDate(p.createdAt)}</span>
-                                                <span>#${index + 2}</span>
+                                                <span>#${idx + 2}</span>
                                             </div>
-                                            ${p.content ? `<div class="text-sm text-gray-200 whitespace-pre-line leading-relaxed">${escapeHtml(p.content)}</div>` : ''}
-                                            ${pAttachments.length > 0 ? `
-                                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mt-3">
-                                                    ${pAttachments.map(src => `
-                                                        <img src="${src}" onclick="openLightbox('${src}')" class="rounded-xl border border-vh-border object-cover aspect-video cursor-zoom-in hover:opacity-90 transition">
-                                                    `).join('')}
+                                            <div class="text-sm text-gray-200 whitespace-pre-line leading-relaxed">${escapeHtml(p.content)}</div>
+                                            ${pAtt.length > 0 ? `
+                                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+                                                    ${pAtt.map(src => `<img src="${src}" onclick="openLightbox('${src}')" class="rounded-xl border border-vh-border object-cover aspect-video cursor-zoom-in">`).join('')}
                                                 </div>
+                                            ` : ''}
+                                            ${rAuthor?.signature ? `
+                                                <div class="mt-5 pt-3 border-t border-vh-border/50 text-xs text-vh-muted italic">${escapeHtml(rAuthor.signature)}</div>
                                             ` : ''}
                                         </div>
                                     </div>
-                                </div>
+                                </article>
                             `;
                         }).join('')}
                     </div>
 
-                    <div class="bg-vh-card border border-vh-border rounded-2xl p-5">
-                        ${!state.currentUserProfile ? `
-                            <div class="text-center py-3">
-                                <p class="text-xs text-vh-muted mb-3">Войдите в аккаунт, чтобы оставлять ответы в этой теме.</p>
-                                <button onclick="openModal('auth-modal')" class="px-5 py-2 rounded-xl bg-amber-500 text-black font-bold text-xs">Войти / Регистрация</button>
+                    <!-- Форма ответа -->
+                    ${!state.currentUserProfile ? `
+                        <div class="bg-vh-card border border-vh-border rounded-2xl p-6 text-center space-y-3">
+                            <p class="text-sm font-bold text-white">Войдите в аккаунт, чтобы оставить ответ в теме</p>
+                            <button onclick="openModal('auth-modal')" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs transition">Войти / Регистрация</button>
+                        </div>
+                    ` : (state.currentUserProfile.isBanned ? `
+                        <div class="bg-red-500/15 border border-red-500/40 rounded-2xl p-4 text-center text-xs font-bold text-red-300">Ваш аккаунт заблокирован (ЧС).</div>
+                    ` : (t.isLocked && getUserLevel() < 3 ? `
+                        <div class="bg-vh-card border border-vh-border rounded-2xl p-5 text-center text-xs font-bold text-vh-muted">
+                            <i class="fa-solid fa-lock mr-1.5 text-amber-400"></i> Тема закрыта для новых ответов.
+                        </div>
+                    ` : `
+                        <form onsubmit="submitReply(event, '${t.id}')" class="bg-vh-card border border-vh-border rounded-2xl p-5 sm:p-6 space-y-4">
+                            <h3 class="text-sm font-extrabold text-white">Ответить в теме</h3>
+                            <textarea id="reply-textarea" rows="4" placeholder="Напишите ваш ответ..." class="w-full px-4 py-3 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
+                            <div>
+                                <button type="button" onclick="document.getElementById('reply-file-input').click()" class="px-3.5 py-2 rounded-xl bg-vh-bg hover:bg-vh-cardHover border border-vh-border text-xs font-semibold text-gray-300 transition">
+                                    <i class="fa-regular fa-image text-amber-400 mr-1.5"></i>Прикрепить фото
+                                </button>
+                                <input type="file" id="reply-file-input" accept="image/*" multiple class="hidden" onchange="handleFileSelect(event, 'reply')">
+                                <div id="reply-image-previews" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-2.5"></div>
                             </div>
-                        ` : (state.currentUserProfile.isBanned ? `
-                            <div class="text-center py-2 text-xs text-red-400 font-bold">
-                                <i class="fa-solid fa-ban mr-1.5"></i> Ваш аккаунт находится в чёрном списке (ЧС). Вы не можете оставлять комментарии.
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs sm:text-sm transition shadow-lg shadow-amber-500/20">
+                                    Отправить ответ
+                                </button>
                             </div>
-                        ` : (t.isLocked && getUserLevel() < 3 ? `
-                            <div class="text-center py-2 text-xs text-vh-muted">
-                                <i class="fa-solid fa-lock text-amber-400 mr-1.5"></i> Тема закрыта для дальнейших ответов.
-                            </div>
-                        ` : `
-                            <form onsubmit="submitReply(event, '${t.id}')" class="space-y-3">
-                                <label class="block text-xs font-bold text-gray-300">Написать ответ в тему:</label>
-                                <textarea id="reply-textarea" rows="3" placeholder="Введите ваше сообщение..." class="w-full px-4 py-3 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
-                                
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                    <div>
-                                        <button type="button" onclick="document.getElementById('reply-file-input').click()" class="px-3.5 py-2 rounded-xl bg-vh-bg hover:bg-vh-cardHover border border-vh-border text-xs font-semibold text-gray-200 transition flex items-center gap-2">
-                                            <i class="fa-solid fa-image text-amber-400"></i> Прикрепить скриншот
-                                        </button>
-                                        <input type="file" id="reply-file-input" accept="image/*" multiple class="hidden" onchange="handleFileSelect(event, 'reply')">
-                                    </div>
-                                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs sm:text-sm transition">
-                                        <i class="fa-solid fa-paper-plane mr-1.5"></i>Отправить ответ
-                                    </button>
-                                </div>
-                                <div id="reply-image-previews" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
-                            </form>
-                        `))}
+                        </form>
+                    `))}
+                `;
+                return;
+            }
+        }
+
+        // =========================================================================
+        // 16. НАВИГАЦИЯ, МОДАЛКИ СОЗДАНИЯ ТЕМ И МОДЕРАЦИЯ
+        // =========================================================================
+        function sanitizeRichHtml(html) {
+            const div = document.createElement('div');
+            div.innerHTML = html || '';
+            div.querySelectorAll('script, style, iframe, object, embed').forEach(el => el.remove());
+            return div.innerHTML;
+        }
+
+        function canReviewThread(thread) {
+            const cat = CATEGORIES.find(c => c.id === thread.categoryId);
+            const minLvl = cat ? cat.minReviewLevel : 3;
+            return getUserLevel() >= minLvl;
+        }
+
+        function updateNavHighlight() {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold text-vh-muted hover:text-white transition-all';
+            });
+            const rulesBtn = document.getElementById('nav-rules');
+            if (rulesBtn) {
+                rulesBtn.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold text-vh-muted hover:text-white transition-all flex items-center gap-1.5';
+            }
+
+            if (state.view === 'home') {
+                const el = document.getElementById('nav-home');
+                if (el) el.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black';
+            } else if (state.view === 'category' && state.activeCategoryId === 'rules') {
+                if (rulesBtn) rulesBtn.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black flex items-center gap-1.5';
+            } else if (state.view === 'category' && state.activeCategoryId === 'admin_complaints') {
+                const el = document.getElementById('nav-admin_complaints');
+                if (el) el.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black';
+            } else if (state.view === 'activity') {
+                const el = document.getElementById('nav-activity');
+                if (el) el.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black';
+            } else if (state.view === 'moderators') {
+                const el = document.getElementById('nav-moderators');
+                if (el) el.className = 'nav-btn px-3.5 py-2 rounded-lg text-sm font-semibold transition-all bg-amber-500 text-black';
+            }
+        }
+
+        window.navigate = (viewName) => {
+            state.view = viewName;
+            if (viewName === 'home') {
+                state.activeCategoryId = null;
+                state.activeThreadId = null;
+            }
+            updateNavHighlight();
+            renderAll();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.openCategory = (catId) => {
+            state.view = 'category';
+            state.activeCategoryId = catId;
+            state.activeThreadId = null;
+            updateNavHighlight();
+            renderAll();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.openRuleSubpage = (subKey) => {
+            const menu = document.getElementById('rules-dropdown-menu');
+            if (menu) menu.classList.add('hidden');
+            state.view = 'category';
+            state.activeCategoryId = 'rules';
+            state.activeRuleSubpage = subKey;
+            state.activeThreadId = null;
+            updateNavHighlight();
+            renderAll();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.openThread = (threadId) => {
+            state.view = 'thread';
+            state.activeThreadId = threadId;
+            updateNavHighlight();
+            renderAll();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.openUserProfile = async (uid) => {
+            state.view = 'profile';
+            state.profileUid = uid;
+            state.profileMode = 'overview';
+            state.profileSettingsOpen = false;
+            updateNavHighlight();
+            renderAll();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            const viewer = state.currentUserProfile;
+            const target = state.users[uid];
+            if (viewer && target && viewer.uid !== uid) {
+                try {
+                    const visitors = Array.isArray(target.recentVisitors) ? [...target.recentVisitors] : [];
+                    const filtered = visitors.filter(v => v.uid !== viewer.uid);
+                    filtered.unshift({ uid: viewer.uid, visitedAt: Date.now() });
+                    await updateDoc(doc(usersCol, uid), { recentVisitors: filtered.slice(0, 8) });
+                } catch (e) { /* ignore */ }
+            }
+        };
+
+        window.switchProfileMode = (mode) => {
+            state.profileMode = mode;
+            renderAll();
+        };
+
+        window.switchProfileContentTab = (tab) => {
+            state.profileContentTab = tab;
+            renderAll();
+        };
+
+        window.toggleProfileSettings = () => {
+            state.profileSettingsOpen = !state.profileSettingsOpen;
+            renderAll();
+        };
+
+        window.setActivityFilter = (filterKey) => {
+            state.activityFilter = filterKey;
+            renderAll();
+        };
+
+        window.openCreateThreadModal = (catId) => {
+            const me = state.currentUserProfile;
+            if (!me) { openModal('auth-modal'); return; }
+            if (me.isBanned) { showToast('Ваш аккаунт заблокирован (ЧС).', 'error'); return; }
+
+            const cat = CATEGORIES.find(c => c.id === catId);
+            if (!cat) return;
+
+            document.getElementById('thread-category-id').value = cat.id;
+            document.getElementById('editing-thread-id').value = '';
+            document.getElementById('modal-category-badge').textContent = cat.title;
+            state.threadImages = [];
+            renderAttachmentPreviews('thread');
+
+            const fieldsBox = document.getElementById('dynamic-thread-fields');
+            const heading = document.getElementById('modal-thread-heading');
+
+            if (cat.formType === 'application') {
+                heading.textContent = 'Анкета на должность (Хелпер / Модератор)';
+                fieldsBox.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">1. Ваш игровой никнейм и возраст</label>
+                        <input type="text" id="field-app-nick" required value="${escapeHtml(me.nickname)}${me.age ? ', ' + me.age + ' лет' : ''}" placeholder="Ник, возраст (например: VelHero, 16 лет)" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">2. Желаемая должность</label>
+                        <select id="field-app-role" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                            <option value="Хелпер">Хелпер</option>
+                            <option value="Модератор">Модератор</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">3. Ваш Discord / Telegram для связи</label>
+                        <input type="text" id="field-app-contact" required placeholder="@username или Discord тег" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">4. Опыт модерации и рассказ о себе</label>
+                        <textarea id="field-app-about" required rows="4" placeholder="Расскажите о своём опыте, онлайне и почему хотите попасть в команду VelHamster..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
                     </div>
                 `;
-                renderAttachmentPreviews('reply');
+            } else if (cat.formType === 'complaint' || cat.formType === 'admin_complaint') {
+                const isAdminComp = cat.formType === 'admin_complaint';
+                heading.textContent = isAdminComp ? 'Жалоба на администрацию' : 'Жалоба на игрока';
+                fieldsBox.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">${isAdminComp ? '1. Никнейм администратора / модератора' : '1. Никнейм нарушителя'}</label>
+                        <input type="text" id="field-comp-target" required placeholder="Введите точный никнейм..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">2. Суть нарушения и пункт правил</label>
+                        <textarea id="field-comp-desc" required rows="4" placeholder="Подробно опишите ситуацию, дату и время..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">3. Ссылки на доказательства (или прикрепите скриншоты ниже)</label>
+                        <input type="text" id="field-comp-proof" placeholder="Ссылка на видео / скриншот (необязательно, если прикрепили файл)" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                    </div>
+                `;
+            } else if (cat.formType === 'release') {
+                heading.textContent = 'Публикация официального обновления / релиза';
+                fieldsBox.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">Заголовок обновления</label>
+                        <input type="text" id="field-std-title" required placeholder="Например: Глобальное обновление v2.0 — Новый сезон!" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">Версия / Сезон</label>
+                        <input type="text" id="field-release-version" placeholder="v2.0 Release" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">Описание патча</label>
+                        <textarea id="field-std-content" required rows="5" placeholder="Опишите все нововведения и исправления..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
+                    </div>
+                `;
+            } else {
+                heading.textContent = cat.formType === 'idea' ? 'Предложение идеи для проекта' : 'Создание новой темы';
+                fieldsBox.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">Заголовок темы</label>
+                        <input type="text" id="field-std-title" required minlength="4" placeholder="Кратко и понятно о сути темы..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 mb-1">Содержание</label>
+                        <textarea id="field-std-content" required minlength="6" rows="5" placeholder="Подробно распишите вашу тему или идею..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none"></textarea>
+                    </div>
+                `;
             }
+
+            openModal('create-thread-modal');
+        };
+
+        window.openEditReleaseModal = (threadId) => {
+            const t = state.threads.find(item => item.id === threadId);
+            if (!t) return;
+            openCreateThreadModal(t.categoryId);
+            document.getElementById('editing-thread-id').value = t.id;
+            document.getElementById('modal-thread-heading').textContent = 'Редактирование релиза';
+            const titleEl = document.getElementById('field-std-title');
+            const verEl = document.getElementById('field-release-version');
+            const contentEl = document.getElementById('field-std-content');
+            if (titleEl) titleEl.value = t.title || '';
+            if (verEl) verEl.value = t.releaseVersion || '';
+            if (contentEl) contentEl.value = t.content || '';
+            state.threadImages = Array.isArray(t.attachments) ? [...t.attachments] : [];
+            renderAttachmentPreviews('thread');
+        };
+
+        window.submitNewThread = async (e) => {
+            e.preventDefault();
+            const me = state.currentUserProfile;
+            if (!me || me.isBanned) return;
+
+            const catId = document.getElementById('thread-category-id').value;
+            const editingId = document.getElementById('editing-thread-id').value;
+            const cat = CATEGORIES.find(c => c.id === catId);
+            if (!cat) return;
+
+            let title = '';
+            let content = '';
+            let structuredFields = null;
+            let isRelease = false;
+            let releaseVersion = '';
+
+            if (cat.formType === 'application') {
+                const nickInfo = document.getElementById('field-app-nick').value.trim();
+                const roleChoice = document.getElementById('field-app-role').value;
+                const contact = document.getElementById('field-app-contact').value.trim();
+                const about = document.getElementById('field-app-about').value.trim();
+                title = `Заявка на пост «${roleChoice}» от ${me.nickname}`;
+                structuredFields = [
+                    { label: 'Игровой никнейм и возраст', value: nickInfo },
+                    { label: 'Желаемая должность', value: roleChoice },
+                    { label: 'Контакты для связи', value: contact },
+                    { label: 'Опыт и рассказ о себе', value: about }
+                ];
+            } else if (cat.formType === 'complaint' || cat.formType === 'admin_complaint') {
+                const targetNick = document.getElementById('field-comp-target').value.trim();
+                const desc = document.getElementById('field-comp-desc').value.trim();
+                const proof = document.getElementById('field-comp-proof').value.trim();
+                title = `Жалоба на ${targetNick} от ${me.nickname}`;
+                structuredFields = [
+                    { label: cat.formType === 'admin_complaint' ? 'Никнейм сотрудника' : 'Никнейм нарушителя', value: targetNick },
+                    { label: 'Описание нарушения', value: desc },
+                    ...(proof ? [{ label: 'Доказательства', value: proof }] : [])
+                ];
+            } else if (cat.formType === 'release') {
+                isRelease = true;
+                title = document.getElementById('field-std-title').value.trim();
+                releaseVersion = document.getElementById('field-release-version').value.trim();
+                content = document.getElementById('field-std-content').value.trim();
+            } else {
+                title = document.getElementById('field-std-title').value.trim();
+                content = document.getElementById('field-std-content').value.trim();
+            }
+
+            try {
+                if (editingId) {
+                    await updateDoc(doc(threadsCol, editingId), {
+                        title,
+                        content,
+                        releaseVersion,
+                        attachments: [...state.threadImages],
+                        updatedAt: Date.now()
+                    });
+                    closeModal('create-thread-modal');
+                    showToast('Публикация обновлена!', 'success');
+                    openThread(editingId);
+                } else {
+                    const docRef = await addDoc(threadsCol, {
+                        categoryId: cat.id,
+                        ruleSubcategory: cat.id === 'rules' ? (state.activeRuleSubpage || 'forum') : null,
+                        title,
+                        content,
+                        structuredFields,
+                        isRelease,
+                        releaseVersion,
+                        authorUid: me.uid,
+                        status: cat.defaultStatus || 'open',
+                        isPinned: false,
+                        isLocked: false,
+                        likes: [],
+                        attachments: [...state.threadImages],
+                        createdAt: Date.now()
+                    });
+                    await updateDoc(doc(usersCol, me.uid), {
+                        postsCount: (me.postsCount || 0) + 1
+                    });
+                    closeModal('create-thread-modal');
+                    showToast('Публикация успешно создана!', 'success');
+                    openThread(docRef.id);
+                }
+            } catch (err) {
+                showToast('Ошибка публикации: ' + err.message, 'error');
+            }
+        };
+
+        window.moderateThread = async (threadId, action) => {
+            const me = state.currentUserProfile;
+            if (!me) return;
+            const t = state.threads.find(item => item.id === threadId);
+            if (!t) return;
+
+            try {
+                if (action === 'delete') {
+                    await deleteDoc(doc(threadsCol, threadId));
+                    showToast('Тема удалена.', 'warning');
+                    openCategory(t.categoryId);
+                    return;
+                }
+                if (action === 'pin') {
+                    await updateDoc(doc(threadsCol, threadId), { isPinned: !t.isPinned });
+                    showToast(!t.isPinned ? 'Тема закреплена!' : 'Тема откреплена.', 'info');
+                    return;
+                }
+                if (action === 'approve' || action === 'reject' || action === 'pending') {
+                    const statusMap = { approve: 'approved', reject: 'rejected', pending: 'pending' };
+                    const labelMap = { approve: 'ОДОБРЕНО', reject: 'ОТКАЗАНО', pending: 'НА РАССМОТРЕНИИ' };
+                    await updateDoc(doc(threadsCol, threadId), {
+                        status: statusMap[action],
+                        isLocked: action !== 'pending'
+                    });
+                    await addDoc(postsCol, {
+                        threadId,
+                        authorUid: me.uid,
+                        content: `Вердикт администрации (${me.nickname}): ${labelMap[action]}.`,
+                        isSystemVerdict: true,
+                        createdAt: Date.now()
+                    });
+                    showToast(`Статус изменён: ${labelMap[action]}`, action === 'approve' ? 'success' : 'info');
+                }
+            } catch (err) {
+                showToast('Ошибка модерации: ' + err.message, 'error');
+            }
+        };
+
+        function renderAccountSettingsPage() {
+            const container = document.getElementById('profile-page-container');
+            const me = state.currentUserProfile;
+            if (!me) {
+                container.innerHTML = `<div class="bg-vh-card border border-vh-border rounded-2xl p-8 text-center">Войдите в аккаунт для управления настройками.</div>`;
+                return;
+            }
+
+            const tab = state.settingsTab || 'overview';
+            const tabs = [
+                { id: 'overview', label: 'Обзор', icon: 'fa-circle-user' },
+                { id: 'about', label: 'Аватар, возраст и о себе', icon: 'fa-id-card' },
+                { id: 'email', label: 'Email адрес', icon: 'fa-envelope' },
+                { id: 'password', label: 'Пароль', icon: 'fa-key' },
+                { id: 'privacy', label: 'Приватность', icon: 'fa-lock' },
+                { id: 'devices', label: 'Последние устройства', icon: 'fa-laptop' },
+                { id: 'content_view', label: 'Просмотр контента', icon: 'fa-file-pen' },
+                { id: 'signature', label: 'Подпись', icon: 'fa-pen' }
+            ];
+
+            let rightPanelHtml = '';
+
+            if (tab === 'overview') {
+                rightPanelHtml = `
+                    <div class="divide-y divide-vh-border">
+                        <div class="p-5 sm:p-6 flex items-center justify-between gap-4">
+                            <div>
+                                <div class="text-sm font-extrabold text-white">Отображаемое имя</div>
+                                <div class="text-sm text-gray-300 mt-1">${escapeHtml(me.nickname)}</div>
+                            </div>
+                            <button onclick="switchSettingsTab('about')" class="px-4 py-2 rounded-xl bg-[#252a37] hover:bg-[#303748] text-gray-200 font-bold text-xs transition">
+                                Изменить
+                            </button>
+                        </div>
+
+                        <div class="p-5 sm:p-6 flex items-center justify-between gap-4">
+                            <div>
+                                <div class="text-sm font-extrabold text-white">Возраст и информация о себе</div>
+                                <div class="text-sm text-gray-300 mt-1">${me.age ? `${me.age} лет` : 'Возраст не указан'} • ${me.bio ? escapeHtml(me.bio.slice(0, 60)) : 'Описание не заполнено'}</div>
+                            </div>
+                            <button onclick="switchSettingsTab('about')" class="px-4 py-2 rounded-xl bg-[#252a37] hover:bg-[#303748] text-gray-200 font-bold text-xs transition">
+                                Изменить
+                            </button>
+                        </div>
+
+                        <div class="p-5 sm:p-6 flex items-center justify-between gap-4">
+                            <div>
+                                <div class="text-sm font-extrabold text-white">Email адрес</div>
+                                <div class="text-sm text-gray-300 mt-1">${escapeHtml(me.email || 'Не привязан')}</div>
+                            </div>
+                            <button onclick="switchSettingsTab('email')" class="px-4 py-2 rounded-xl bg-[#252a37] hover:bg-[#303748] text-gray-200 font-bold text-xs transition">
+                                Изменить
+                            </button>
+                        </div>
+
+                        <div class="p-5 sm:p-6 flex items-center justify-between gap-4">
+                            <div>
+                                <div class="text-sm font-extrabold text-white">Пароль</div>
+                                <div class="text-sm text-gray-300 mt-1 tracking-widest">********</div>
+                            </div>
+                            <button onclick="switchSettingsTab('password')" class="px-4 py-2 rounded-xl bg-[#252a37] hover:bg-[#303748] text-gray-200 font-bold text-xs transition">
+                                Изменить
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else if (tab === 'about') {
+                rightPanelHtml = `
+                    <div class="p-5 sm:p-7 space-y-6">
+                        <div class="pb-5 border-b border-vh-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-20 h-20 rounded-full ${getAvatarColor(me.uid)} text-white font-extrabold text-2xl flex items-center justify-center overflow-hidden border-2 border-amber-500/50 shrink-0">
+                                    ${me.avatar ? `<img src="${escapeHtml(me.avatar)}" class="w-full h-full object-cover">` : escapeHtml(me.nickname.slice(0, 1).toUpperCase())}
+                                </div>
+                                <div>
+                                    <h3 class="text-base font-extrabold text-white">Аватарка профиля</h3>
+                                    <p class="text-xs text-vh-muted mt-0.5">Загрузите изображение JPG, PNG или WEBP для вашего профиля.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="document.getElementById('settings-avatar-file').click()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs transition">
+                                    <i class="fa-solid fa-camera mr-1.5"></i>Загрузить фото
+                                </button>
+                                <input type="file" id="settings-avatar-file" accept="image/*" class="hidden" onchange="uploadUserAvatar(event)">
+                                ${me.avatar ? `
+                                    <button type="button" onclick="removeUserAvatar()" class="px-3.5 py-2.5 rounded-xl bg-red-600/20 hover:bg-red-600/30 text-red-400 font-bold text-xs transition">
+                                        Удалить
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <div class="pb-5 border-b border-vh-border">
+                            <label class="block text-xs font-extrabold text-white uppercase mb-1.5">Отображаемое имя (Никнейм)</label>
+                            <div class="flex gap-2 max-w-md">
+                                <input type="text" id="new-nickname-input" value="${escapeHtml(me.nickname)}" class="flex-1 px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                                <button type="button" onclick="changeNickname()" class="px-4 py-2.5 rounded-xl bg-[#252a37] hover:bg-amber-500 hover:text-black text-white font-bold text-xs transition">
+                                    Сохранить ник
+                                </button>
+                            </div>
+                        </div>
+
+                        <form onsubmit="saveAboutAndAgeSettings(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-extrabold text-white uppercase mb-1.5">Сколько вам лет (Возраст)</label>
+                                <input type="number" id="settings-age-input" min="6" max="99" value="${me.age || ''}" placeholder="Например: 16" class="w-full max-w-xs px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-extrabold text-white uppercase mb-1.5">О себе</label>
+                                <textarea id="settings-bio-input" rows="4" maxlength="500" placeholder="Расскажите немного о себе, своих увлечениях, опыте на проекте VelHamster..." class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">${escapeHtml(me.bio || '')}</textarea>
+                            </div>
+
+                            <button type="submit" class="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs sm:text-sm transition shadow-lg shadow-amber-500/20">
+                                Сохранить изменения
+                            </button>
+                        </form>
+                    </div>
+                `;
+            } else if (tab === 'email') {
+                rightPanelHtml = `
+                    <form onsubmit="changeAccountEmail(event)" class="p-5 sm:p-7 space-y-4 max-w-lg">
+                        <h3 class="text-base font-extrabold text-white">Изменение Email адреса</h3>
+                        <p class="text-xs text-vh-muted">Текущий адрес: <strong class="text-gray-200">${escapeHtml(me.email || 'Не указан')}</strong></p>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-300 mb-1.5">Новый Email адрес</label>
+                            <input type="email" id="settings-new-email" required placeholder="new@velhamster.ru" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                        </div>
+                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs sm:text-sm transition">
+                            Обновить Email
+                        </button>
+                    </form>
+                `;
+            } else if (tab === 'password') {
+                rightPanelHtml = `
+                    <form onsubmit="changeAccountPassword(event)" class="p-5 sm:p-7 space-y-4 max-w-lg">
+                        <h3 class="text-base font-extrabold text-white">Изменение пароля</h3>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-300 mb-1.5">Новый пароль (минимум 6 символов)</label>
+                            <input type="password" id="settings-new-pass" required minlength="6" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-300 mb-1.5">Подтвердите новый пароль</label>
+                            <input type="password" id="settings-confirm-pass" required minlength="6" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                        </div>
+                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs sm:text-sm transition">
+                            Сохранить новый пароль
+                        </button>
+                    </form>
+                `;
+            } else if (tab === 'privacy') {
+                rightPanelHtml = `
+                    <form onsubmit="savePrivacySettings(event)" class="p-5 sm:p-7 space-y-4">
+                        <h3 class="text-base font-extrabold text-white">Настройки приватности</h3>
+                        <label class="flex items-center justify-between p-3.5 rounded-xl bg-vh-bg border border-vh-border cursor-pointer">
+                            <span class="text-xs sm:text-sm font-semibold text-gray-200">Показывать мой возраст в профиле</span>
+                            <input type="checkbox" id="priv-show-age" ${me.privacyShowAge !== false ? 'checked' : ''} class="w-4 h-4 accent-amber-500">
+                        </label>
+                        <label class="flex items-center justify-between p-3.5 rounded-xl bg-vh-bg border border-vh-border cursor-pointer">
+                            <span class="text-xs sm:text-sm font-semibold text-gray-200">Показывать время последнего посещения</span>
+                            <input type="checkbox" id="priv-show-online" ${me.privacyShowOnline !== false ? 'checked' : ''} class="w-4 h-4 accent-amber-500">
+                        </label>
+                        <label class="flex items-center justify-between p-3.5 rounded-xl bg-vh-bg border border-vh-border cursor-pointer">
+                            <span class="text-xs sm:text-sm font-semibold text-gray-200">Разрешить другим пользователям отправлять мне личные сообщения</span>
+                            <input type="checkbox" id="priv-allow-dm" ${me.privacyAllowDm !== false ? 'checked' : ''} class="w-4 h-4 accent-amber-500">
+                        </label>
+                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs sm:text-sm transition">
+                            Сохранить приватность
+                        </button>
+                    </form>
+                `;
+            } else if (tab === 'devices') {
+                const ua = navigator.userAgent || 'Браузер';
+                rightPanelHtml = `
+                    <div class="p-5 sm:p-7 space-y-4">
+                        <h3 class="text-base font-extrabold text-white">Последние устройства</h3>
+                        <div class="p-4 rounded-xl bg-vh-bg border border-emerald-500/40 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-desktop text-emerald-400 text-xl"></i>
+                                <div>
+                                    <div class="text-sm font-bold text-white">Текущая сессия <span class="ml-2 px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px]">Активно сейчас</span></div>
+                                    <div class="text-xs text-vh-muted mt-0.5 line-clamp-1">${escapeHtml(ua)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (tab === 'content_view') {
+                rightPanelHtml = `
+                    <div class="p-5 sm:p-7 space-y-4">
+                        <h3 class="text-base font-extrabold text-white">Настройки просмотра контента</h3>
+                        <label class="flex items-center justify-between p-3.5 rounded-xl bg-vh-bg border border-vh-border cursor-pointer">
+                            <span class="text-xs sm:text-sm font-semibold text-gray-200">Получать уведомления и новости проекта на Email</span>
+                            <input type="checkbox" onchange="toggleNewsSubscription(this.checked)" ${me.subscribeNews !== false ? 'checked' : ''} class="w-4 h-4 accent-amber-500">
+                        </label>
+                        <div class="p-4 rounded-xl bg-vh-bg border border-vh-border">
+                            <div class="text-xs font-bold text-white mb-2">Оформление шапки профиля</div>
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="changeBannerTheme('default')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#293954] text-white">Синий полигон</button>
+                                <button onclick="changeBannerTheme('amber')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-800 text-white">Золотой</button>
+                                <button onclick="changeBannerTheme('purple')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-900 text-white">Фиолетовый</button>
+                                <button onclick="changeBannerTheme('emerald')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-900 text-white">Изумрудный</button>
+                                <button onclick="changeBannerTheme('crimson')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-900 text-white">Рубиновый</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (tab === 'signature') {
+                rightPanelHtml = `
+                    <form onsubmit="saveSignatureSettings(event)" class="p-5 sm:p-7 space-y-4">
+                        <h3 class="text-base font-extrabold text-white">Подпись на форуме</h3>
+                        <p class="text-xs text-vh-muted">Подпись отображается под вашими сообщениями на форуме.</p>
+                        <textarea id="settings-signature-input" rows="3" maxlength="200" placeholder="Например: Игрок VelHamster | Дискорд: user#0001" class="w-full px-3.5 py-2.5 rounded-xl bg-vh-bg border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">${escapeHtml(me.signature || '')}</textarea>
+                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs sm:text-sm transition">
+                            Сохранить подпись
+                        </button>
+                    </form>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="bg-vh-card border border-vh-border rounded-2xl p-6 sm:p-7 shadow-lg">
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white">Настройки</h1>
+                    <p class="text-xs sm:text-sm text-vh-muted mt-1.5">Управление настройками профиля, аватаром, личной информацией и безопасностью аккаунта.</p>
+                </div>
+
+                <div class="bg-vh-card border border-vh-border rounded-2xl overflow-hidden shadow-xl grid grid-cols-1 lg:grid-cols-12">
+                    <div class="lg:col-span-3 bg-[#151821] border-b lg:border-b-0 lg:border-r border-vh-border p-3 space-y-1">
+                        ${tabs.map(t => `
+                            <button onclick="switchSettingsTab('${t.id}')" class="w-full text-left px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-3 ${tab === t.id ? 'bg-amber-500 text-black shadow-md' : 'text-vh-muted hover:text-white hover:bg-vh-cardHover'}">
+                                <i class="fa-solid ${t.icon} w-4 text-center"></i>
+                                <span>${t.label}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <div class="lg:col-span-9">
+                        ${rightPanelHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderFollowedContentPage() {
+            const container = document.getElementById('profile-page-container');
+            const me = state.currentUserProfile;
+            if (!me) return;
+
+            const fTab = state.followedTab || 'threads';
+            const followedThreads = state.threads.filter(t => (me.followedThreads || []).includes(t.id));
+            const followedCats = CATEGORIES.filter(c => (me.followedCategories || []).includes(c.id));
+            const followedUsers = Object.values(state.users).filter(u => Array.isArray(u.followers) && u.followers.includes(me.uid));
+
+            let bodyHtml = '';
+            if (fTab === 'threads') {
+                bodyHtml = followedThreads.length === 0
+                    ? `<div class="p-12 text-center text-sm text-vh-muted">Здесь пока ничего нет</div>`
+                    : `<div class="divide-y divide-vh-border">${followedThreads.map(t => `
+                        <div class="p-4 sm:px-6 flex items-center justify-between gap-3 hover:bg-vh-cardHover transition">
+                            <div onclick="openThread('${t.id}')" class="cursor-pointer min-w-0">
+                                <div class="text-sm font-bold text-white hover:text-amber-400 truncate">${escapeHtml(t.title)}</div>
+                                <div class="text-xs text-vh-muted mt-0.5">${formatDate(t.createdAt)}</div>
+                            </div>
+                            <button onclick="toggleFollowThread('${t.id}')" class="px-3 py-1.5 rounded-lg bg-vh-bg border border-vh-border text-xs font-bold text-red-400 hover:bg-red-950/40 shrink-0">Отписаться</button>
+                        </div>
+                    `).join('')}</div>`;
+            } else if (fTab === 'forums') {
+                bodyHtml = followedCats.length === 0
+                    ? `<div class="p-12 text-center text-sm text-vh-muted">Здесь пока ничего нет</div>`
+                    : `<div class="divide-y divide-vh-border">${followedCats.map(c => `
+                        <div class="p-4 sm:px-6 flex items-center justify-between gap-3 hover:bg-vh-cardHover transition">
+                            <div onclick="openCategory('${c.id}')" class="cursor-pointer">
+                                <div class="text-sm font-bold text-white hover:text-amber-400">${c.title}</div>
+                                <div class="text-xs text-vh-muted mt-0.5">${c.desc}</div>
+                            </div>
+                            <button onclick="toggleFollowCategory('${c.id}')" class="px-3 py-1.5 rounded-lg bg-vh-bg border border-vh-border text-xs font-bold text-red-400 shrink-0">Отписаться</button>
+                        </div>
+                    `).join('')}</div>`;
+            } else if (fTab === 'users') {
+                bodyHtml = followedUsers.length === 0
+                    ? `<div class="p-12 text-center text-sm text-vh-muted">Здесь пока ничего нет</div>`
+                    : `<div class="divide-y divide-vh-border">${followedUsers.map(u => `
+                        <div class="p-4 sm:px-6 flex items-center justify-between gap-3 hover:bg-vh-cardHover transition">
+                            <div onclick="openUserProfile('${u.uid}')" class="flex items-center gap-3 cursor-pointer">
+                                <div class="w-9 h-9 rounded-full ${getAvatarColor(u.uid)} text-white font-bold text-xs flex items-center justify-center overflow-hidden">
+                                    ${u.avatar ? `<img src="${escapeHtml(u.avatar)}" class="w-full h-full object-cover">` : escapeHtml(u.nickname.slice(0, 1).toUpperCase())}
+                                </div>
+                                <div class="text-sm font-bold text-white hover:text-amber-400">${escapeHtml(u.nickname)}</div>
+                            </div>
+                            <button onclick="toggleFollowUser('${u.uid}')" class="px-3 py-1.5 rounded-lg bg-vh-bg border border-vh-border text-xs font-bold text-red-400 shrink-0">Отписаться</button>
+                        </div>
+                    `).join('')}</div>`;
+            } else {
+                bodyHtml = `<div class="p-12 text-center text-sm text-vh-muted">Здесь пока ничего нет</div>`;
+            }
+
+            const headingMap = {
+                threads: 'Темы я подписан',
+                forums: 'Форумы я подписан',
+                users: 'Пользователи на которых я подписан',
+                tags: 'Отслеживаемые теги'
+            };
+
+            container.innerHTML = `
+                <div class="bg-vh-card border border-vh-border rounded-2xl p-6 sm:p-7 shadow-lg">
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white">Отслеживаемый контент</h1>
+                </div>
+
+                <div class="bg-vh-card border border-vh-border rounded-2xl overflow-hidden shadow-xl grid grid-cols-1 lg:grid-cols-12">
+                    <div class="lg:col-span-3 bg-[#151821] border-b lg:border-b-0 lg:border-r border-vh-border p-4 space-y-4">
+                        <div>
+                            <div class="px-3 pb-2 text-xs font-extrabold text-white">Форумы</div>
+                            <div class="space-y-1">
+                                <button onclick="switchFollowedTab('threads')" class="w-full text-left px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${fTab === 'threads' ? 'bg-amber-500 text-black' : 'text-vh-muted hover:text-white hover:bg-vh-cardHover'}">Темы</button>
+                                <button onclick="switchFollowedTab('forums')" class="w-full text-left px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${fTab === 'forums' ? 'bg-amber-500 text-black' : 'text-vh-muted hover:text-white hover:bg-vh-cardHover'}">Форумы</button>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-vh-border">
+                            <div class="px-3 pb-2 text-xs font-extrabold text-white">Другое</div>
+                            <div class="space-y-1">
+                                <button onclick="switchFollowedTab('users')" class="w-full text-left px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${fTab === 'users' ? 'bg-amber-500 text-black' : 'text-vh-muted hover:text-white hover:bg-vh-cardHover'}">Пользователи</button>
+                                <button onclick="switchFollowedTab('tags')" class="w-full text-left px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${fTab === 'tags' ? 'bg-amber-500 text-black' : 'text-vh-muted hover:text-white hover:bg-vh-cardHover'}">Теги</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-9">
+                        <div class="px-6 py-4 bg-[#1d212b] border-b border-vh-border">
+                            <h2 class="text-base font-extrabold text-white">${headingMap[fTab]}</h2>
+                        </div>
+                        ${bodyHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderIgnoredUsersPage() {
+            const container = document.getElementById('profile-page-container');
+            const me = state.currentUserProfile;
+            if (!me) return;
+
+            const ignoredList = (Array.isArray(me.ignoredUsers) ? me.ignoredUsers : [])
+                .map(uid => state.users[uid])
+                .filter(Boolean);
+
+            container.innerHTML = `
+                <div class="bg-vh-card border border-vh-border rounded-2xl p-6 sm:p-7 shadow-lg">
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white">Игнорируемые пользователи</h1>
+                    <p class="text-xs sm:text-sm text-vh-muted mt-1.5">Игнорирование пользователя позволяет блокировать весь или некоторый его контент, скрывая его. Пользователи не будут уведомлены, что вы их игнорируете.</p>
+                </div>
+
+                <div class="bg-vh-card border border-vh-border rounded-2xl p-6 sm:p-7 shadow-lg space-y-3">
+                    <h2 class="text-lg font-extrabold text-white">Добавить нового пользователя в список игнорируемых</h2>
+                    <p class="text-xs text-vh-muted">Введите имя пользователя</p>
+                    <form onsubmit="addIgnoredUserByNick(event)" class="flex flex-col sm:flex-row gap-3">
+                        <input type="text" id="ignore-nick-input" required placeholder="Никнейм пользователя..." class="flex-1 px-4 py-3 rounded-xl bg-[#252a37] border border-vh-border text-sm text-white focus:border-amber-500 focus:outline-none">
+                        <button type="submit" class="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs sm:text-sm transition shrink-0">
+                            Добавить
+                        </button>
+                    </form>
+                </div>
+
+                <div class="bg-vh-card border border-vh-border rounded-2xl overflow-hidden shadow-lg">
+                    <div class="px-6 py-4 bg-[#1d212b] border-b border-vh-border">
+                        <h2 class="text-base sm:text-lg font-extrabold text-white">Пользователи в настоящее время игнорируются</h2>
+                    </div>
+                    ${ignoredList.length === 0 ? `
+                        <div class="p-10 text-center text-sm text-vh-muted">Без результатов</div>
+                    ` : `
+                        <div class="divide-y divide-vh-border">
+                            ${ignoredList.map(u => `
+                                <div class="px-6 py-4 flex items-center justify-between gap-3">
+                                    <div onclick="openUserProfile('${u.uid}')" class="flex items-center gap-3 cursor-pointer">
+                                        <div class="w-9 h-9 rounded-full ${getAvatarColor(u.uid)} text-white font-bold text-xs flex items-center justify-center overflow-hidden">
+                                            ${u.avatar ? `<img src="${escapeHtml(u.avatar)}" class="w-full h-full object-cover">` : escapeHtml(u.nickname.slice(0, 1).toUpperCase())}
+                                        </div>
+                                        <span class="text-sm font-bold text-white hover:text-amber-400">${escapeHtml(u.nickname)}</span>
+                                    </div>
+                                    <button onclick="removeIgnoredUser('${u.uid}')" class="px-3.5 py-1.5 rounded-xl bg-red-600/20 hover:bg-red-600/30 text-red-400 font-bold text-xs transition">
+                                        Убрать из списка
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `}
+                </div>
+            `;
         }
 
         function renderAll() {
